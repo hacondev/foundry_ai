@@ -3732,7 +3732,13 @@ def logout_office():
 def forming():
     query1="""
         SELECT
-            *
+            tab1.*, tab2.*,
+            (
+                SELECT GROUP_CONCAT(DISTINCT NULLIF(TRIM(sn.mes_po_id), '')
+                                    ORDER BY sn.mes_po_id SEPARATOR ', ')
+                FROM lista_formowania_sn sn
+                WHERE sn.produkt_id = tab1.id
+            ) AS mes_po_ids
         FROM
             lista_formowania_v2 tab1
         LEFT JOIN produkty tab2 ON
