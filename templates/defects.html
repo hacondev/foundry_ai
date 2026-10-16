@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Szlifiernia - Akord</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+<!-- Data Table css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+<!-- Custom styles for this template -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+<!-- jQuery UI CSS (dla datepicker) -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<!-- Bootstrap Select CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+<!-- Inicjalizacja Bootstrap Select -->
+<script>
+  $(document).ready(function() {
+        $('.selectpicker').selectpicker();
+  });
+</script>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <!--a class="nav-link active" href="/logout">Sign out</a-->
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item " >
+              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Wyloguj 
+              </a>
+            
+            </li>
+
+              <a class="nav-link active" href="/quality"  style="color: white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Kontrola jakości
+              </a>
+
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{info}}</h1>
+
+        
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for msg in messages %}
+
+        <div class="alert alert-danger alert-dismissible fade show h4" role="alert" style="width: 60%">
+          {{ msg }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group mr-2">
+            &nbsp;
+          </div>
+
+          <a href="/defects" class="btn btn-primary btn-sm" role="button" >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+            </svg>
+            Powrót
+          </a>
+
+          &nbsp;
+
+          <a href="/defects_all" class="btn btn-dark btn-sm" role="button" >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eyeglasses" viewBox="0 0 16 16">
+              <path d="M4 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4m2.625.547a3 3 0 0 0-5.584.953H.5a.5.5 0 0 0 0 1h.541A3 3 0 0 0 7 8a1 1 0 0 1 2 0 3 3 0 0 0 5.959.5h.541a.5.5 0 0 0 0-1h-.541a3 3 0 0 0-5.584-.953A2 2 0 0 0 8 6c-.532 0-1.016.208-1.375.547M14 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0"/>
+            </svg>
+            Wszystkie
+          </a>
+
+          &nbsp;
+
+          <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#search_operator">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-arms-up" viewBox="0 0 16 16">
+                <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                <path d="m5.93 6.704-.846 8.451a.768.768 0 0 0 1.523.203l.81-4.865a.59.59 0 0 1 1.165 0l.81 4.865a.768.768 0 0 0 1.523-.203l-.845-8.451A1.5 1.5 0 0 1 10.5 5.5L13 2.284a.796.796 0 0 0-1.239-.998L9.634 3.84a.7.7 0 0 1-.33.235c-.23.074-.665.176-1.304.176-.64 0-1.074-.102-1.305-.176a.7.7 0 0 1-.329-.235L4.239 1.286a.796.796 0 0 0-1.24.998l2.5 3.216c.317.316.475.758.43 1.204Z"/>
+              </svg>
+              Wyszukaj brak po operatorze
+          </button>
+
+           <!-- Modal search produkt -->
+          <div class="modal fade" id="search_operator" tabindex="-1" aria-labelledby="search_operator" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="search_operator">Wyszukaj odlew</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <form action="/search_defect_by_operator" method="POST">
+
+                    <div class="container">
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                               <label for="search_operator">Operator</label>
+                                <select class="form-control" id="search_operator" name="search_operator">
+                                  {% for item in operators %}
+                                      <option>{{ item.Operator }}</option>
+                                  {% endfor %}
+                                </select>
+                            </div>
+                          </div>
+                        </div>
+                    </div> 
+                  </div>
+                  <div class="modal-footer">
+                    <!--button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button-->
+                    <button type="submit" class="btn btn-success">Zatwierdź</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          &nbsp;
+
+          <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#search">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-123" viewBox="0 0 16 16">
+                <path d="M2.873 11.297V4.142H1.699L0 5.379v1.137l1.64-1.18h.06v5.961zm3.213-5.09v-.063c0-.618.44-1.169 1.196-1.169.676 0 1.174.44 1.174 1.106 0 .624-.42 1.101-.807 1.526L4.99 10.553v.744h4.78v-.99H6.643v-.069L8.41 8.252c.65-.724 1.237-1.332 1.237-2.27C9.646 4.849 8.723 4 7.308 4c-1.573 0-2.36 1.064-2.36 2.15v.057zm6.559 1.883h.786c.823 0 1.374.481 1.379 1.179.01.707-.55 1.216-1.421 1.21-.77-.005-1.326-.419-1.379-.953h-1.095c.042 1.053.938 1.918 2.464 1.918 1.478 0 2.642-.839 2.62-2.144-.02-1.143-.922-1.651-1.551-1.714v-.063c.535-.09 1.347-.66 1.326-1.678-.026-1.053-.933-1.855-2.359-1.845-1.5.005-2.317.88-2.348 1.898h1.116c.032-.498.498-.944 1.206-.944.703 0 1.206.435 1.206 1.07.005.64-.504 1.106-1.2 1.106h-.75z"/>
+              </svg>
+              Wyszukaj brak po S/N
+          </button>
+
+           <!-- Modal search produkt -->
+          <div class="modal fade" id="search" tabindex="-1" aria-labelledby="search" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="search">Wyszukaj odlew</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <form action="/search_defect_by_sn" method="POST">
+
+                    <div class="container">
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label for="sn">Odlew S/N:</label>
+                              <input class="form-control" type="text" placeholder="" aria-label="default input example" id="sn" name="sn" required>
+                              <small id="sn" class="form-text text-muted">Np.: AB-123, RF-12</small>
+                            </div>
+                          </div>
+                        </div>
+                    </div> 
+                  </div>
+                  <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button> -->
+                    <button type="submit" class="btn btn-success">Zatwierdź</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          &nbsp;
+
+          <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#search_name">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter-square" viewBox="0 0 16 16">
+                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                <path d="M6 11.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5"/>
+              </svg>
+              Wyszukaj brak po nazwie odlewu
+          </button>
+
+           <!-- Modal search produkt -->
+          <div class="modal fade" id="search_name" tabindex="-1" aria-labelledby="search_name" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="search">Wyszukaj odlew</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <form action="/search_defect_by_name" method="POST">
+
+                    <div class="container">
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label for="sn">Nazwa odlewu</label>
+                              <input class="form-control" type="text" placeholder="" aria-label="default input example" id="name" name="name" required>
+                              <small id="name" class="form-text text-muted">Np.: RXE16C, STILL 56366130216 NOWY, STILL</small>
+                            </div>
+                          </div>
+                        </div>
+                    </div> 
+                  </div>
+                  <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button> -->
+                    <button type="submit" class="btn btn-success">Zatwierdź</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+        
+
+
+        </div>
+      </div>
+<!-- NAV TABS -->
+<ul class="nav nav-tabs" id="mainTab" role="tablist">
+  
+  <li class="nav-item">
+    <a class="nav-link active" id="odlewy-tab" data-toggle="tab" href="#odlewy" role="tab">
+      Odlewy
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link" id="formy-tab" data-toggle="tab" href="#formy" role="tab">
+      Formy
+    </a>
+  </li>
+
+</ul>
+
+<!-- TAB CONTENT -->
+<div class="tab-content mt-3" id="mainTabContent">
+
+  <!-- TAB: ODLEWY -->
+  <div class="tab-pane fade show active" id="odlewy" role="tabpanel">
+    <div class="card shadow-sm">
+      <div class="card-body">
+
+          <div class="table-responsive">
+            <table id="table_id" class="display">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>ID formy</th>
+                  <th>S/N</th>
+                  <th>Odlew</th>
+                  <th>Wada</th>
+                  <th>Miejsce</th>
+                  <th>Decyzja</th>
+                  <th>Operator</th>
+                  <th>Karta braku</th>
+                  <th>Data defektu</th>
+                  <!--th>Edycja</th-->
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in data %}
+                <tr>
+                  <td>{{ item.id }}</td>
+                  <td>{{ item.form_id }}</td>
+                  <td>{{ item.prefix }}-{{ item.sn }}</td>
+                  <td>{{ item.product }}</td>
+                  <td>{{ item.wada }}</td>
+                  <td>{{ item.miejsce }}</td>
+                  {% if item.decyzja == 'złomować' %} 
+                  <td><h5><span class="badge badge-danger">{{ item.decyzja }}</span></h5></td>
+                  {% else %}
+                  <td><h5><span class="badge badge-success">{{ item.decyzja }}</span></h5></td>
+                  {% endif %}
+                  <td>{{ item.operator }}</td>
+                  <td>{{ item.karta_brakow }}</td>
+                  <td>{{ item.czas }}</td>
+                  <!--td><a href="\defects_item\{{item.form_id}}_{{item.sn}}" class="btn btn-primary btn-sm" role="button" aria-pressed="true">Edycja</a></td-->
+                </tr>
+                {% endfor %}
+            </table>
+          </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: FORMY -->
+  <div class="tab-pane fade" id="formy" role="tabpanel">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="alert alert-secondary mb-0">
+          Sekcja Formy – tu możesz dodać tabelę formowania, status linii, flask ID itd.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+  <!-- Bootstrap Select JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
+  <script>
+  $(document).ready(function () {
+    const table = $('#table_id');
+    const thead = table.find('thead');
+    const filterRow = thead.find('tr').first().clone().appendTo(thead);
+    const columnCount = filterRow.find('th').length;
+
+    // Wyczyść i wstaw <select> (oprócz ostatniej kolumny)
+    filterRow.find('th').each(function (index) {
+      if (index < columnCount) {
+        $(this).html('<select style="width:100%"><option value="">Wszystko</option></select>');
+      } else {
+        $(this).html('');
+      }
+    });
+
+    const dataTable = table.DataTable({
+      orderCellsTop: true,
+      fixedHeader: true,
+      pageLength: 100,
+      lengthMenu: [[50, 100, 200, -1], [50, 100, 200, "Wszystkie"]],
+      order: [[0, 'desc'], [1, 'desc']],
+      initComplete: function () {
+        this.api().columns().every(function (index) {
+          if (index < columnCount) {
+            const column = this;
+            const select = $('select', filterRow[0].cells[index]);
+
+            // Dodaj unikalne opcje do <select>
+            column.data().unique().sort().each(function (d) {
+              d = $('<div>').html(d).text(); // usuń HTML
+              if (d.trim()) {
+                select.append('<option value="' + d + '">' + d + '</option>');
+              }
+            });
+
+            // Obsługa zmiany wartości w <select>
+            select.on('change', function () {
+              const val = $.fn.dataTable.util.escapeRegex($(this).val());
+              column.search(val ? '^' + val + '$' : '', true, false).draw();
+              });
+            }
+          });
+        }
+      });
+    });
+  </script>
+
+
+
+</body>
+
+</html>

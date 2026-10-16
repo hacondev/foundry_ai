@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Skrzynie do zasypania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <!--li class="nav-item text-nowrap" style="color: aliceblue;">
+        Logged as: <b> {{ session['user'] }} </b>
+        <a class="nav-link active" href="/logout">Sign out</a-->
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Log out user
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" onclick="history.back()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Production orders
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Production entity history</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-primary text-white mb-4">
+                  <div class="card-body">Total items (all production stages)</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                      <h4>{{ total }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-success text-white mb-4">
+                  <div class="card-body">Items formed (manual + mechnical)</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ formed }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-info text-white mb-4">
+                  <div class="card-body">Items casted</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ casted }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-danger text-white mb-4">
+                  <div class="card-body">Items shacked-out</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ knockout }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+        <!--h2>Section title</h2-->
+        <div class="table-responsive">
+          <table id="" class="table table-striped">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Product id</th>
+                <th>Production stage</th>
+                <th>Date</th>
+                <th>Operator</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.produkt_id }}</td>
+                {% if item.production_stage == 'casted' %}
+                    <td><a href="" data-toggle="modal" data-target="#modal_details_casting_{{ item.id }}">{{ item.production_stage }}</a></td>
+                {% elif item.production_stage == 'formed' %}
+                    <td><a href="" data-toggle="modal" data-target="#modal_details_forming_{{ item.produkt_id }}">{{ item.production_stage }}</a></td>
+                {% else %}
+                    <td>{{ item.production_stage }}</td>
+                {% endif %}
+                <td>{{ item.czas }}</td>
+                <td>{{ item.operator }}</td>
+              </tr>
+
+                              <!-- Modal item details -->
+                              <div class="modal fade" id="modal_details_casting_{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabel">{{ item.nazwa_produktu }}</h5>
+                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                      </button>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <div class="row">
+                                          <div class="col-sm">
+                                            <div class="form-group">
+                                              <label for="f1">Nr kadzi</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.nr_kadzi }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Tempertura żeliwa</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.temp_zeliwa }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Czas chłodzenia [dni]</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.dni_do_wybicia }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Komentarz formiernia</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.komentarz_formowanie }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Komentarz rdzeniarnia</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.komentarz_rdzeniarnia }}" disabled>
+                                            </div>
+
+                                          </div>
+                                          <div class="col-sm">
+                                            <div class="form-group">
+                                              <label for="f1">Dolewka</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.filtr }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Wyciek</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.broken }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Data zalania</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.data_zalania }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Komentarz zalew</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.komentarz_zalew }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Komentarz wybijanie</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.komentarz_wybijanie }}" disabled>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+              
+              
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                      <!--button type="button" class="btn btn-primary">Save changes</button-->
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+
+                              
+                              
+
+              {% endfor %}
+              
+          </table>
+        </div>
+      </main>
+      							<!-- Modal item details -->
+                    <div class="modal fade" id="modal_details_forming_{{ id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Zarejestrowne tagi RFID (formowanie mechaniczne)</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+
+                              <div class="row">
+                                <div class="col">
+                                <table class="table table-striped">
+                                  <thead class="text-center">
+                                    <tr>
+                                    <th>Nazwa skrzyni</th>
+                                    <th>Tag skrzynia 1</th>
+                                    <th>Tag skrzynia 2 </th>
+                                    <th>Nazwa modelu</th>
+                                    <th>Tag model</th>
+                                    <th>Czas skanownaia</th>
+                                    </tr>
+                                  </thead>
+                                  
+                                  <tbody class="text-center">
+                                    {% for item in flasks %}
+                                    <tr>
+                                    <td>{{ item.flask_name }}</td>
+                                    <td>{{ item.flask_id1 }}</td>
+                                    <td>{{ item.flask_id2 }}</td>
+                                    <td>{{ item.pattern_name }}</td>
+                                    <td>{{ item.pattern_id }}</td>
+                                    <td>{{ item.time }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                  </tbody>
+                                  </table>
+                    
+                              </div>
+                            </div>
+                          </div>
+    
+    
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            <!--button type="button" class="btn btn-primary">Save changes</button-->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+    </div>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <!-- <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [3, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script> -->
+  <!-- <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script> -->
+
+</body>
+
+</html>

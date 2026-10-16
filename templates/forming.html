@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="pl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <title>Skrzynie do zasypania</title>
+  <link rel="canonical" href="">
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+  <style>
+  #table_production_orders tfoot input {
+      width: 100%;
+      min-width: 80px;
+      padding: 3px;
+      font-size: 12px;
+      box-sizing: border-box;
+  }
+</style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b>{{ session['user'] }}</b></a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap"></li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">INTERFACE</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                  <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                </svg>
+                Wyloguj
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">CORE</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#" onClick="window.location.reload()" style="color: white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-compass">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                </svg>
+                Zlecenia produkcyjne
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/products" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-compass">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                </svg>
+                Produkty
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/mafi" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-compass">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                </svg>
+                Mafi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/foundry_report" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-compass">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                </svg>
+                Raport zmianowy
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/foundry_production_status" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-compass">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                </svg>
+                Satus produkcji
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+
+
+        <div class="pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Skrzynie do zasypania</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show mt-2" role="alert">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="d-flex justify-content-end mb-3 mt-3">
+            <div class="btn-group">
+
+              
+          <button type="button" class="btn btn-outline-danger btn-lg" data-toggle="modal" data-target="#remove_forming_aps">
+            Usuń formę
+          </button>
+
+          <div class="modal fade" id="remove_forming_aps" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Usuń formę na dowolnym etapie produkcji</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form action="/remove_from_forming_list_on_all_stages" method="POST">
+                <div class="modal-body">
+
+                  <div class="form-group" >
+                    <label for="ns_form_aps">Numer seryjny odelwu z formy</label>
+                    <input type="text" class="form-control" id="ns_form_aps" name="ns_form_aps" required>
+                    <small class="form-text text-muted">N/S jest obowiązakowy</small>
+                  </div>
+
+                  <br>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button>
+                  <button type="submit" class="btn btn-success">Zatwiedź</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+
+            </div>
+          </div>
+
+          <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="tab-forming-list" data-toggle="tab" href="#forming-list" role="tab"
+                aria-controls="forming-list" aria-selected="true">
+                Lista formowania (formiernia)
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="tab-second" data-toggle="tab" href="#second-tab" role="tab"
+                aria-controls="second-tab" aria-selected="false">
+                Formy poza kolejnością (rdzeniarnia)
+              </a>
+            </li>
+            <li class="nav-item">
+    <a class="nav-link" id="tab-production-orders" data-toggle="tab" href="#production-orders" role="tab" aria-controls="production-orders" aria-selected="false">
+        Production orders
+    </a>
+</li>
+          </ul>
+       
+
+        <div class="tab-content" id="mainTabsContent">
+
+          <!-- TAB 1 -->
+          <div class="tab-pane fade show active pt-3" id="forming-list" role="tabpanel" aria-labelledby="tab-forming-list">
+
+          <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#add_to_forming">
+            Dodaj do listy formowania
+          </button>
+
+              <br> <br>
+
+        <div class="modal fade" id="add_to_forming" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Nowa pozycja listy formowania</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form action="/add_to_forming_list" method="POST">
+                <div class="modal-body">
+                  <!-- <div class="form-group">
+                    <label for="nazwa">Wybierz produkt</label>
+                    <select class="form-control" id="nazwa" name="nazwa">
+                      {% for idx in products %}
+                      {% if idx.status != 'inactive' %}
+                      {% if idx.manual_forming == '0' %}
+                      <option value="{{ idx.nazwa }}">{{ idx.nazwa }} / foromowanie mechaniczne</option>
+                      {% else %}
+                      <option value="{{ idx.nazwa }}">{{ idx.nazwa }} / foromowanie ręczne</option>
+                      {% endif %}
+                      {% endif %}
+                      {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Produkt jest obowiązkowy</small>
+                  </div> -->
+
+                  <div class="form-group">
+                    <label for="nazwa">Nazwa produktu</label>
+                    <select id="nazwa" name="nazwa" class="selectpicker form-control" data-live-search="true" required>
+                      {% for idx in products %}
+                        {% if idx.status != 'inactive' %}
+                          {% if idx.manual_forming == '0' %}
+                          <option value="{{ idx.nazwa }}">{{ idx.nazwa }} / foromowanie mechaniczne</option>
+                          {% else %}
+                          <option value="{{ idx.nazwa }}">{{ idx.nazwa }} / foromowanie ręczne</option>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="quantity">Ilość sztuk</label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" value="1">
+                    <small class="form-text text-muted">Ilość jest obowiązkowa</small>
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <label for="komentarz_add">Komentarz</label>
+                      <textarea class="form-control" id="komentarz_add" rows="3" name="komentarz"></textarea>
+                      <small class="form-text text-muted">Komentarz nie jest obowiązkowy</small>
+                      <br>
+                      <input type="checkbox" id="trail" name="trail"> Próba
+                    </div>
+                  </div>
+                  <br>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+
+
+            <div class="table-responsive">
+              <table id="table_id" class="display table table-striped w-100">
+                <thead>
+                  <tr>
+                    <th>Id</th>
+                    <th>Nazwa produktu</th>
+                    <th>Formowanie</th>
+                    <th>Próba</th>
+                    <th>N/S</th>
+                    <th>Data dodania</th>
+                    <th>Funkcje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in items %}
+                  <tr {% if item.repeated == '1' %} class="table-danger" {% endif %} {% if item.komentarz_flag == 1 %} class="table-info" {% endif %}>
+                    <td>{{ item.id }}</td>
+                    <td><a href="/form_details_admin_view/{{ item.id }}">{{ item.nazwa_produktu }}</a></td>
+                    <td>
+                      {% if item.manual_forming == '0' %}
+                      Foromowanie mechaniczne
+                      {% else %}
+                      Foromowanie ręczne
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if item.trail == '1' %}
+                      <span class="badge badge-info">Tak</span>
+                      {% else %}
+                      Nie
+                      {% endif %}
+                    </td>
+                    <td>{{ item.sn }}</td>
+                    <td>{{ item.data_dodania }}</td>
+                    <td>
+                      <a class="btn btn-dark btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                        data-target="#modal_details{{ item.id }}">Szczegóły</a>
+
+                      <div class="modal fade" id="modal_details{{ item.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">{{ item.nazwa_produktu }}</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Id model 1</label>
+                                    <input type="text" class="form-control" value="{{ item.id_model1 }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Id model 2</label>
+                                    <input type="text" class="form-control" value="{{ item.id_model2 }}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Id model 3</label>
+                                    <input type="text" class="form-control" value="{{ item.id_model3 }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Id model 4</label>
+                                    <input type="text" class="form-control" value="{{ item.id_model4 }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Numer formowania</label>
+                                    <input type="text" class="form-control" value="{{ item.nr_formowania}}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Numer kadzi</label>
+                                    <input type="text" class="form-control" value="{{ item.nr_kadzi }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col">
+                                  <label>Komentarz biura odlewni:</label>
+                                  <textarea class="form-control" rows="3" disabled>{{ item.komentarz }}</textarea>
+                                </div>
+                              </div>
+                              <br>
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Id</label>
+                                    <input type="text" class="form-control" value="{{ item.id}}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Skrzynia 2</label>
+                                    <input type="text" class="form-control" value="{{ item.skrzynia_2 }}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Skrzynia 1</label>
+                                    <input type="text" class="form-control" value="{{ item.skrzynia_1 }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Skrzynia 3</label>
+                                    <input type="text" class="form-control" value="{{ item.skrzynia_3 }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Skrzynia 4</label>
+                                    <input type="text" class="form-control" value="{{ item.skrzynia_4 }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Data dodania</label>
+                                    <input type="text" class="form-control" value="{{ item.data_dodania }}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Ilość sztuk</label>
+                                    <input type="text" class="form-control" value="{{ item.sztuk_na_model }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Dodane przez</label>
+                                    <input type="text" class="form-control" value="{{ item.dodane_przez }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Data ostatniej modyfikacji</label>
+                                    <input type="text" class="form-control" value="{{ item.data_ostatniej_modyfikacji }}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Autor ostatniej modyfikacji</label>
+                                    <input type="text" class="form-control" value="{{ item.zmodyfikowane_przez }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <a class="btn btn-primary btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                        data-target="#modal_edit{{ item.id }}">Edycja</a>
+
+                      <div class="modal fade" id="modal_edit{{ item.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Edycja pozycji listy formowania</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form action="/edit_item_forming/{{ item.id }}" method="POST">
+                                <div class="form-group">
+                                  <label for="komentarz{{ item.id }}">Komentarz biura odlewni:</label>
+                                  <textarea class="form-control" id="komentarz{{ item.id }}" rows="3" name="komentarz">{{ item.komentarz }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                  <label for="trail{{ item.id }}">Czy to jest próba?</label>
+                                  <select class="form-control" id="trail{{ item.id }}" name="trail">
+                                    {% if '1' in item.trail %}
+                                    <option value="1">Tak</option>
+                                    <option value="0">Nie</option>
+                                    {% else %}
+                                    <option value="0">Nie</option>
+                                    <option value="1">Tak</option>
+                                    {% endif %}
+                                  </select>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <a class="btn btn-danger btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                        data-target="#remove_from_forming_list_first_{{ item.id }}">Usuń</a>
+
+                      <div class="modal fade" id="remove_from_forming_list_first_{{ item.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Usuwanie pozycji listy formowania</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form action="/remove_from_forming_list_by_office/{{ item.id }}" method="POST">
+                                <h5>Czy chcesz usunąć produkt: <b>{{ item.nazwa_produktu }}</b> z listy formowania?</h5>
+                                <br>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 2 -->
+          <div class="tab-pane fade pt-3" id="second-tab" role="tabpanel" aria-labelledby="tab-second">
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_repeated">
+                Dodaj poza kolejnością
+              </button>
+              <br> 
+              <br>
+
+        <div class="modal fade" id="add_repeated" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Dodaj poza kolejnością</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form action="/add_to_forming_list_outline" method="POST">
+                <div class="modal-body">
+                  <!--div class="form-group">
+                    <label for="stage">Etap produkcji</label>
+                    <select class="form-control" id="stage" name="stage" required>
+                      <option value="" selected></option>
+                      <option value="assambled">rdzeniarnia</option>
+                      <option value="knockout">oczyszczalnia</option>
+                    </select>
+                  </div-->
+
+                  <div class="form-group">
+                    <label for="product">Nazwa produktu</label>
+                    <select id="product" name="product" class="selectpicker form-control" data-live-search="true" required>
+                      <option value=""></option>
+                      {% for product in products %}
+                      <option value="{{ product.nazwa }}">{{ product.nazwa }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="sn">Numer seryjny</label>
+                    <input type="text" class="form-control" id="sn" name="sn" required>
+                    <small class="form-text text-muted">
+                      Wprowadzny numer seryjny zostanie zapisany jako alias np.: AB-123-2.
+                    </small>
+                  </div>
+
+                  <div class="form-group">
+                    <input type="checkbox" id="trail_outline" name="trail"> Próba
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+            <div class="table-responsive">
+              <table id="table_id2" class="display table table-striped">
+                <thead>
+                  <tr>
+                    <th>Id</th>
+                    <th>Nazwa produktu</th>
+                    <th>Formowanie</th>
+                    <th>Próba</th>
+                    <th>N/S</th>
+                    <th>Data dodania</th>
+                    <th>Funkcje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in repeated %}
+                  <tr {% if item.repeated == '1' %} class="table-danger" {% endif %} {% if item.komentarz_flag == 1 %} class="table-info" {% endif %}>
+                    <td>{{ item.id }}</td>
+                    <td><a href="/form_details_admin_view/{{ item.id }}">{{ item.nazwa_produktu }}</a></td>
+                    <td>
+                      {% if item.manual_forming == '0' %}
+                      Foromowanie mechaniczne
+                      {% else %}
+                      Foromowanie ręczne
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if item.trail == '1' %}
+                      <span class="badge badge-info">Tak</span>
+                      {% else %}
+                      Nie
+                      {% endif %}
+                    </td>
+                    <td>{{ item.sn }}</td>
+                    <td>{{ item.data_dodania }}</td>
+                    <td>
+                      <a class="btn btn-dark btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                        data-target="#modal_details{{ item.id }}_r">Szczegóły</a>
+
+                      <div class="modal fade" id="modal_details{{ item.id }}_r" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">{{ item.nazwa_produktu }}</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Id model 1</label>
+                                    <input type="text" class="form-control" value="{{ item.id_model1 }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Id model 2</label>
+                                    <input type="text" class="form-control" value="{{ item.id_model2 }}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Id model 3</label>
+                                    <input type="text" class="form-control" value="{{ item.id_model3 }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Id model 4</label>
+                                    <input type="text" class="form-control" value="{{ item.id_model4 }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Numer formowania</label>
+                                    <input type="text" class="form-control" value="{{ item.nr_formowania}}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Numer kadzi</label>
+                                    <input type="text" class="form-control" value="{{ item.nr_kadzi }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col">
+                                  <label>Komentarz biura odlewni:</label>
+                                  <textarea class="form-control" rows="3" disabled>{{ item.komentarz }}</textarea>
+                                </div>
+                              </div>
+                              <br>
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Id</label>
+                                    <input type="text" class="form-control" value="{{ item.id}}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Skrzynia 2</label>
+                                    <input type="text" class="form-control" value="{{ item.skrzynia_2 }}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Skrzynia 1</label>
+                                    <input type="text" class="form-control" value="{{ item.skrzynia_1 }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Skrzynia 3</label>
+                                    <input type="text" class="form-control" value="{{ item.skrzynia_3 }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Skrzynia 4</label>
+                                    <input type="text" class="form-control" value="{{ item.skrzynia_4 }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Data dodania</label>
+                                    <input type="text" class="form-control" value="{{ item.data_dodania }}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Ilość sztuk</label>
+                                    <input type="text" class="form-control" value="{{ item.sztuk_na_model }}" disabled>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Dodane przez</label>
+                                    <input type="text" class="form-control" value="{{ item.dodane_przez }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Data ostatniej modyfikacji</label>
+                                    <input type="text" class="form-control" value="{{ item.data_ostatniej_modyfikacji }}" disabled>
+                                  </div>
+                                </div>
+                                <div class="col-sm">
+                                  <div class="form-group">
+                                    <label>Autor ostatniej modyfikacji</label>
+                                    <input type="text" class="form-control" value="{{ item.zmodyfikowane_przez }}" disabled>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <a class="btn btn-primary btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                        data-target="#modal_edit{{ item.id }}_r">Edycja</a>
+
+                      <div class="modal fade" id="modal_edit{{ item.id }}_r" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Edycja pozycji listy formowania</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form action="/edit_item_forming/{{ item.id }}" method="POST">
+                                <div class="form-group">
+                                  <label for="komentarz{{ item.id }}_r">Komentarz biura odlewni:</label>
+                                  <textarea class="form-control" id="komentarz{{ item.id }}_r" rows="3" name="komentarz">{{ item.komentarz }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                  <label for="trail{{ item.id }}_r">Czy to jest próba?</label>
+                                  <select class="form-control" id="trail{{ item.id }}_r" name="trail">
+                                    {% if '1' in item.trail %}
+                                    <option value="1">Tak</option>
+                                    <option value="0">Nie</option>
+                                    {% else %}
+                                    <option value="0">Nie</option>
+                                    <option value="1">Tak</option>
+                                    {% endif %}
+                                  </select>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <a class="btn btn-danger btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                        data-target="#remove_from_forming_list{{ item.id }}">Usuń</a>
+
+                      <div class="modal fade" id="remove_from_forming_list{{ item.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Usuwanie pozycji listy formowania</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form action="/remove_from_forming_list/{{ item.id }}" method="POST">
+                                <h5>Czy chcesz usunąć produkt: <b>{{ item.nazwa_produktu }}</b> z listy formowania?</h5>
+                                <br>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+        <!-- TAB 3 -->
+        <div class="tab-pane fade pt-3" id="production-orders" role="tabpanel" aria-labelledby="tab-production-orders">
+
+        <!-- BLOK FILTRA DATY -->
+
+        <div class="row">
+          <!-- Pierwszy blok: Aktualizacja -->
+          <div class="col-md-6" >
+              <div class="card mb-3" style="height: 175px;" >
+                  <div class="card-header">Aktualizacja danych</div>
+                  <div class="card-body">
+                      <p>Ostatnia aktualizacja danych: <strong>{{ update_time }}</strong></p>
+                      <a href="/update_production_orders" class="btn btn-info">Aktualizuj</a>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Drugi blok: Filtr daty -->
+          <div class="col-md-6">
+              <div class="card mb-3" style="height: 175px;">
+                  <div class="card-header">Filtr daty formowania</div>
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col-md-6">
+                              <label>Data form. od:</label>
+                              <input type="date" id="min-date" class="form-control" value="2026-09-25">
+                          </div>
+                          <div class="col-md-6">
+                              <label>Data form. do:</label>
+                              <input type="date" id="max-date" class="form-control" value="2026-09-28">
+                          </div>
+                      </div>
+                  </div>
+              
+              </div>
+          </div>
+          
+      </div>
+
+
+        <!-- BLOK FILTRA DATY -->
+
+        <div class="table-responsive">
+          <table id="table_production_orders" class="display table table-striped w-100">
+
+              <thead>
+                  <tr>
+                      <th>UniqueID</th>
+                      <!-- <th>Nroferty</th>
+                      <th>Nr dok</th>
+                      <th>ObjType</th> -->
+                      <th>Nr zam. klienta</th>
+                      <!-- <th>Kod PH</th> -->
+                      <th>PH</th>
+                      <th>Index</th>
+                      <!-- <th>Grupa materiałów</th> -->
+                      <th>Opis nazwa SAP</th>
+                      <th>Obca SAP</th>
+
+                      <th>Nazwa odlew MES</th>
+                      <th>Index odlew MES</th>
+
+                      <th>Ilosc</th>
+                      <th>Waga jedn.</th>
+                      <th>Waga całk.</th>
+                      <th>Nr kat.</th>
+                      <th>Nr rys</th>
+                      <th>Nr bud.</th>
+                      <!-- <th>Nr poz.</th> -->
+                      <th>Nr STILL</th>
+                      <th>Nr seq.</th>
+                      <!-- <th>Tyg wysyłki</th>
+                      <th>Tyg wypr</th> -->
+                      <!-- <th>Data dokakt</th> -->
+                      <!-- <th>Data dostawy</th> -->
+                      <!-- <th>Data wysyłki</th>
+                      <th>D. prod.</th>
+                      <th>D. mal.</th>
+                      <th>D. obr.</th>
+                      <th>D. szlif.</th> -->
+                      <th>D. wybij.</th>
+                      <th>D. form.</th>
+                      <th>Dodaj</th>
+                      <th>Odlewy</th>
+                  </tr>
+
+                  <tr class="filters">
+                      {% for i in range(18) %}
+                          <th>
+                              <input type="text" placeholder="Filtruj">
+                          </th>
+                      {% endfor %}
+
+                      <th></th>
+                      <th></th>
+                  </tr>
+              </thead>
+
+              <tbody>
+                  {% for item in production_orders %}
+                  <tr>
+                      <td>{{ item["unique_id"] }}</td>
+                      <!-- <td>{{ item["nr_oferty"] }}</td>
+                      <td>{{ item["nr_dok"] }}</td>
+                      <td>{{ item["obj_type"] }}</td> -->
+                      <td>{{ item["nr_zam_klienta"] }}</td>
+                      <!-- <td>{{ item["kod_ph"] }}</td> -->
+                      <td>{{ item["ph"] }}</td>
+                      <td>{{ item["item_index"] }}</td>
+                      <!-- <td>{{ item["grupa_t"] }}</td> -->
+                      <td>{{ item["opis_nazwa"] }}</td>
+                      <td>{{ item["obca"] }}</td>
+
+                      <td>{{ item["nazwa_odlew"] }}</td>
+                      <td>{{ item["index_odlew"] }}</td>
+
+                      <td>{{ item["ilosc"] | int }}</td>
+                      <td>{{ item["waga_jedn"] | int }}</td>
+                      <td>{{ item["waga_calk"] | int }}</td>
+                      <td>{{ item["nr_kat"] }}</td>
+                      <td>{{ item["nr_rys"] }}</td>
+                      <td>{{ item["nr_bud"] }}</td>
+                      <!-- <td>{{ item["nr_poz"] }}</td> -->
+                      <td>{{ item["nr_still"] }}</td>
+                      <td>{{ item["nr_seq"] }}</td>
+                      <!-- <td>{{ item["tyg_wysyłki"] }}</td>
+                      <td>{{ item["tyg_wypr"] }}</td>
+                      <td>{{ item["data_dokakt"] }}</td>
+                      <td>{{ item["data_dostawy"] }}</td> -->
+                      <!-- <td>{{ item["data_wysyłki"] }}</td> -->
+                      <!-- <td>{{ item["data_prod"] }}</td>
+                      <td>{{ item["data_mal"] }}</td>
+                      <td>{{ item["data_obr"] }}</td>
+                      <td>{{ item["data_szlif"] }}</td> -->
+                      <td>{{ item["data_wybij"] }}</td>
+                      <td>{{ item["data_form"] }}</td>
+
+                      <td>
+                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#item_{{ item['unique_id'] }}">
+                              Dodaj
+                          </button>
+
+                          <div class="modal fade" id="item_{{ item['unique_id']  }}" tabindex="-1" aria-hidden="true">
+
+                              <div class="modal-dialog">
+                                  <div class="modal-content">
+
+                                      <form method="POST" action="/add_to_forming_list_from_production_orders">
+
+                                      <div class="modal-header">
+                                          <h5 class="modal-title">
+                                              Przeciwwaga:
+                                              <b>{{ item["opis_nazwa"] }}</b>
+                                          </h5>
+
+                                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                              <span aria-hidden="true">&times;</span>
+                                          </button>
+
+                                      </div>
+
+                                      <div class="modal-body">
+
+                                          <!-- ID rekordu -->
+                                          <input type="hidden" name="unique_id" value="{{ item['unique_id'] }}">
+                                          <input type="hidden" name="index_odlew" value="{{ item['index_odlew'] }}">
+                                          <input type="hidden" name="nazwa_odlew" value="{{ item['nazwa_odlew'] }}">
+                                          <input type="hidden" name="item_index" value="{{ item['item_index'] }}">
+
+                                          <div class="form-group">
+                                              <label for="quantity_po"> Ilość sztuk</label>
+                                              <input type="number" class="form-control" name="quantity_po" id="quantity_po" value="{{ item['ilosc'] | int }}" required>
+                                          </div>
+
+                                      </div>
+
+                                      <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-dismiss="modal"> Close </button>
+                                          <button type="submit" class="btn btn-success"> Save change </button>
+                                      </div>
+
+                                  </form>
+                              </div>
+                          </div>
+
+                      </td>
+
+                      <td>
+                        <!-- <a href="/display_po_item_details/{{ item['unique_id'] }}" class="btn btn-success" >Historia</a> -->
+                          <a href="#" onclick="loadAndOpenModal('{{ item.unique_id }}')"  class="btn btn-success" data-toggle="modal" data-target="#hist_{{ item['unique_id'] }}" >Odlewy</a>
+ 
+
+                          <div class="modal fade" id="hist_{{ item['unique_id']  }}" tabindex="-1" aria-hidden="true">
+
+                              <div class="modal-dialog">
+                                  <div class="modal-content">
+                                      <div class="modal-header">
+                                          <h5 class="modal-title">
+                                              Historia przeciwwagi:
+                                              <b>{{ item["opis_nazwa"] }}</b>
+                                          </h5>
+                                      </div>
+                                      <div class="modal-body">
+                                        <dl class="modal-items-container">
+                                          <!-- Tutaj wpadną elementy <dt> -->
+                                        </dl>
+                                      </div>
+                                      <div class="modal-footer">
+                                          <input type="button" class="btn btn-secondary" data-dismiss="modal" value="Close">
+                                      </div>
+                                  </div>
+                              </div>
+                          
+                          </div>
+                      </td>
+
+                  </tr>
+                  {% endfor %}
+              </tbody>
+
+          </table>
+
+            </div>
+
+        </div>
+        <!-- /TAB 3 -->
+
+        </div>
+         </div>
+
+        <!-- WSPÓLNE MODALE POZA TABAMI -->
+
+        <div class="modal fade" id="move_to_buffer" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  Przenoszenie do bufora pozycji z listy formowana (status new -> buffer) starszych niż: x dni.
+                  Np.: aby zostawić pozycje z ostanich 5 dni należy wpisać: 4, tylko z dzisiaj należy wpisać: 0.
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form action="/move_to_buffer2" method="POST">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="days">Ilość dni</label>
+                    <input type="number" class="form-control" id="days" name="days" value="1">
+                    <small class="form-text text-muted">Ilość jest obowiązkowa</small>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="bulk_delete" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Masowe usuwanie</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form action="/bulk_delete" method="POST">
+                <div class="modal-body">
+                  <div><h5>Nalezy wybrać daty od kiedy do kiedy pozycje listy formowani mają być usunięte:</h5></div>
+                  <br>
+                  <label for="start_date">Od daty: </label>
+                  <input type="date" id="start_date" name="start_date" min="2018-01-01" max="2025-01-01" />
+                  <br><br>
+                  <label for="stop_date">Do daty: </label>
+                  <input type="date" id="stop_date" name="stop_date" min="2018-01-01" max="2025-01-01" />
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div class="modal fade" id="add_to_forming_again" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Powtórzona pozycja listy formowania</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form action="/add_to_forming_list_again" method="POST">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="nazwa_again">Wybierz produkt</label>
+                    <select class="form-control" id="nazwa_again" name="nazwa">
+                      {% for idx in products %}
+                      {% if idx.status != 'inactive' %}
+                      <option value="{{ idx.nazwa }}">{{ idx.nazwa }}</option>
+                      {% endif %}
+                      {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Produkt jest obowiązkowy</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="quantity_again">Ilość sztuk</label>
+                    <input type="number" class="form-control" id="quantity_again" name="quantity" value="1">
+                    <small class="form-text text-muted">Ilość jest obowiązkowa</small>
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <label for="komentarz_again">Komentarz</label>
+                      <textarea class="form-control" id="komentarz_again" rows="3" name="komentarz"></textarea>
+                      <small class="form-text text-muted">Komentarz nie jest obowiązkowy</small>
+                    </div>
+                  </div>
+                  <br>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
+  <!-- <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [[0, 'desc']],
+        pageLength: 50
+      });
+
+      $('#table_id2').DataTable({
+        order: [[0, 'desc']],
+        pageLength: 50
+      });
+
+      $('#table_production_orders').DataTable({
+      pageLength: 50,
+      lengthMenu: [ 
+    });
+
+
+      $('.selectpicker').selectpicker();
+    });
+  </script> -->
+
+<script>
+$(document).ready(function () {
+
+    $('#table_id').DataTable({
+        order: [[0, 'desc']],
+        pageLength: 50
+    });
+
+    $('#table_id2').DataTable({
+        order: [[0, 'desc']],
+        pageLength: 50
+    });
+
+    // Inicjalizacja Production orders
+    var productionTable = $('#table_production_orders').DataTable({
+        pageLength: 50,
+        lengthMenu: [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50, 100, "All"]
+        ],
+        order: [],
+        scrollX: true,
+        orderCellsTop: true
+    });
+
+    // NAPRAWA DLA scrollX: Delegowanie zdarzeń na poziomie wrappera DataTables,
+    // co łapie akcje zarówno z głównego, jak i ze sklonowanego nagłówka przewijania.
+    $(document).on('keyup change clear', '#table_production_orders_wrapper thead input', function () {
+        var colIndex = $(this).closest('th').index();
+        
+        if (productionTable.column(colIndex).search() !== this.value) {
+            productionTable
+                .column(colIndex)
+                .search(this.value)
+                .draw();
+        }
+    });
+
+    // NIESTANDARDOWY FILTR ZAKRESU DAT (D. form.)
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        if (settings.nTable.id !== 'table_production_orders') {
+            return true;
+        }
+
+        var columnIndex = 17; // Kolumna data_form
+        var minDate = $('#min-date').val(); 
+        var maxDate = $('#max-date').val(); 
+        var rowDateStr = data[columnIndex]; 
+
+        if (!minDate && !maxDate) {
+            return true;
+        }
+
+        if (!rowDateStr || rowDateStr.trim() === "") {
+            return false; 
+        }
+
+        var rowDate = rowDateStr.substring(0, 10);
+
+        if (minDate && !maxDate) {
+            return rowDate >= minDate;
+        }
+        if (!minDate && maxDate) {
+            return rowDate <= maxDate;
+        }
+        if (minDate && maxDate) {
+            return rowDate >= minDate && rowDate <= maxDate;
+        }
+
+        return true;
+    });
+
+    // Odświeżanie tabeli po zmianie daty
+    $('#min-date, #max-date').on('change', function () {
+        productionTable.draw();
+    });
+
+});
+</script>
+
+<script>
+  async function loadAndOpenModal(uniqueId) {
+    const modalId = `hist_${uniqueId}`;
+    const modal = document.getElementById(modalId);
+    const container = modal.querySelector('.modal-items-container');
+
+    // Pobranie danych dla danego id
+    const response = await fetch(`/display_po_item_details/${uniqueId}`);
+    const data = await response.json();
+
+    container.innerHTML = '';
+
+    data.forEach(item => {
+        const dt = document.createElement('dt');
+        
+        // Dodano target="_blank" oraz rel="noopener noreferrer"
+        dt.innerHTML = `<a href='/qa_sn_search_po/${item.prefix} - ${item.sn}' target='_blank' rel='noopener noreferrer'>${item.prefix} - ${item.sn}</a>`;
+
+        container.appendChild(dt);
+    });
+
+    modal.style.display = 'block';
+    }
+
+    function closeModalById(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+</script>
+
+
+
+  
+
+</body>
+</html>

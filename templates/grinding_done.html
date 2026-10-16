@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Oczyszczalnia</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <style>
+    @keyframes blink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .blink-text {
+      animation: blink 1s infinite;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="/grinding">
+                <span data-feather="arrow-right"></span>
+                Odlewy do obróbki
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/grinding_done">
+                <span data-feather="arrow-right"></span>
+                Odlewy obrobione
+              </a>
+            </li>
+                        <li class="nav-item">
+              <a class="nav-link active" href="/grinding_rework">
+                <span data-feather="arrow-right"></span>
+                Poprawki po obróbce
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Odlewny obrobione</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <!--button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_to_grinding">Dodaj
+                produkt</button-->
+              &nbsp;
+              <a href="/grinding_done" class="btn btn-success" role="button" aria-pressed="true">Odśweż stronę</a>
+              <!-- Modal -->
+              <div class="modal fade" id="add_to_grinding" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <!--h5 class="modal-title" id="exampleModalLabel">Nowa pozycja listy formowania</h5-->
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+
+                    <div class="modal-body">
+                      <form action="/add_to_grinding" method="POST">
+
+                        <div class="form-group">
+                          <label for="nazwa">Wybierz produkt</label>
+                          <select class="form-control" id="nazwa" name="nazwa">
+                            {% for idx in products %}
+                            {% if idx.status != 'inactive' %}
+                            <option value="{{ idx.nazwa }}"> {{ idx.nazwa }} </option>
+                            {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="quantity">Ilość sztuk</label>
+                          <input type="number" class="form-control" id="quantity" name="quantity" value="1">
+                        </div>
+
+
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                      <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                      <!--button type="button" class="btn btn-primary">Save changes</button-->
+                    </div>
+
+                    </form>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--h2>Section title</h2-->
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+          
+                <th>Id formy</th>
+                <th>Nummer seryjny</th>
+                <th>Produkt</th>
+                <th>Próba</th>
+                <th>Powtórka</th>
+                <th>Waga odlewu</th>
+                <th>Obróbka</th>
+                <th>Operator</th>
+                <th>Data szlifowania</th>
+                <th>Funkcje</th>
+          
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+
+                <td>{{ item.item_id }}</td>   
+                <td>{{ item.prefix }}-{{ item.sn }}</td>        
+                <td>{{ item.nazwa_produktu }}</td>      
+                {% if item.trail == 1 %}
+                  <td><h5><span class="badge badge-info blink-text">Tak</span></h5></td>
+                  {% else %}
+                  <td>Nie</td>
+                {% endif %}
+                {% if item.alias != '-' %}
+                  <td><h5><span class="badge badge-danger blink-text">Tak</span></h5></td>
+                  {% else %}
+                  <td>Nie</td>
+                {% endif %}
+                <td>{{ item.waga_zeliwa }}</td>   
+                <td>
+                  {% if item.mode == '0' %}
+                    Szlifowanie ręczne
+                  {% elif item.mode == '1' %}
+                    Robot G2
+                  {% elif item.mode == '2' %}
+                    Robot G6
+                  {% endif %}
+                </td>  
+                <td>{{ item.operator }}</td>     
+                <td>{{ item.czas }}</td>   
+                <td> 
+                  <a class="btn btn btn-primary" tabindex="-1" role="button" data-toggle="modal" data-target="#mark_as_grinded_repair{{ item.id }}">Rework</a>
+                  {% if session.user == 'WZ' or session.user == 'AK' %} <a class="btn btn btn-info" tabindex="-1" role="button" data-toggle="modal" data-target="#edit_grinding_date_{{item.id}}_{{item.sn}}">Edycja</a> {% endif %}
+                </td>     
+
+                <!-- Modal mark as  item -->
+                <div class="modal fade" id="mark_as_grinded_repair{{item.id}}" tabindex="-1"
+                  aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Usuwanie akordu</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/mark_as_grinded_repair/{{item.id}}" method="POST">
+                          <h5>Czy napewno chcesz oznaczyć <b>{{item.nazwa_produktu}}</b> o <b>{{ item.Prefix }}-{{ item.sn }}</b> jako oszlifowany? </h5>
+                          <br>
+                          <div class="form-group">
+                            <label for="grinding_mode">Wybierz sposób szlifowania:</label>
+                            <select class="form-control" id="grinding_mode" name="grinding_mode">
+                              <option value="3">Szlifowanie po robocie</option>
+                              <option value="4">Poprawki szlifierskie (zła jakość)</option>
+                            </select>
+                            <small id="grinding_mode" class="form-text text-muted">* Pole obowiązkowe</small>
+
+                          </div>
+
+                          <input type="hidden" id="item_id" name="item_id" value="{{item.item_id}}">
+                          <input type="hidden" id="item_prefix" name="item_prefix" value="{{item.prefix}}">
+                          <input type="hidden" id="item_sn" name="item_sn" value="{{item.sn}}">
+                          <input type="hidden" id="item_nazwa_produktu" name="item_nazwa_produktu" value="{{item.nazwa_produktu}}">
+                          <input type="hidden" id="item_trail" name="item_trail" value="{{item.trail}}">
+                          <input type="hidden" id="item_waga_zeliwa" name="item_waga_zeliwa" value="{{item.waga_zeliwa}}">
+                          <input type="hidden" id="item_customer" name="item_customer" value="{{item.klient}}">
+                          <input type="hidden" id="item_alias" name="item_alias" value="{{item.alias}}">
+
+                          <br>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                            <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Modal change grinding date and hours in one field -->
+                <div class="modal fade" id="edit_grinding_date_{{item.id}}_{{item.sn}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Zmiana daty i godziny szlifowania</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+
+                      <div class="modal-body">
+                        <form action="/edit_grinding_item_dg/{{item.id}}" method="POST">
+
+                          <h5>
+                            Wybierz nową datę, godzinę oraz operatora szlifowania dla 
+                            <b>{{item.nazwa_produktu}}</b> o 
+                            <b>{{ item.prefix }}-{{ item.sn }}</b>
+                          </h5>
+
+                          <br>
+
+                          <div class="form-group">
+                            <label for="new_grinding_datetime_{{item.id}}_{{item.sn}}">
+                              Nowa data i godzina szlifowania:
+                            </label>
+
+                            <input 
+                              type="datetime-local" 
+                              class="form-control" 
+                              id="new_grinding_datetime_{{item.id}}_{{item.sn}}" 
+                              name="new_grinding_datetime" 
+                              value="{{ now.strftime('%Y-%m-%dT%H:%M') }}" 
+                              required
+                            >
+
+                            <small class="form-text text-muted">* Pole obowiązkowe</small>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="grinding_operator_{{item.id}}_{{item.sn}}">
+                              Operator:
+                            </label>
+
+                            <select 
+                              class="form-control" 
+                              id="grinding_operator_{{item.id}}_{{item.sn}}" 
+                              name="grinding_operator" 
+                              required
+                            >
+                              <option value="">-- Wybierz operatora --</option>
+
+                              {% for operator in operators %}
+                                <option value="{{ operator.operator }}">{{ operator.operator }}</option>
+                              {% endfor %}
+                            </select>
+
+                            <small class="form-text text-muted">* Pole obowiązkowe</small>
+                          </div>
+
+                          <input type="hidden" id="item_id_{{item.id}}_{{item.sn}}" name="item_id" value="{{item.item_id}}">
+                          <input type="hidden" id="item_prefix_{{item.id}}_{{item.sn}}" name="item_prefix" value="{{item.prefix}}">
+                          <input type="hidden" id="item_sn_{{item.id}}_{{item.sn}}" name="item_sn" value="{{item.sn}}">
+                          <input type="hidden" id="item_nazwa_produktu_{{item.id}}_{{item.sn}}" name="item_nazwa_produktu" value="{{item.nazwa_produktu}}">
+                          <input type="hidden" id="item_trail_{{item.id}}_{{item.sn}}" name="item_trail" value="{{item.trail}}">
+                          <input type="hidden" id="item_waga_zeliwa_{{item.id}}_{{item.sn}}" name="item_waga_zeliwa" value="{{item.waga_zeliwa}}">
+                          <input type="hidden" id="item_customer_{{item.id}}_{{item.sn}}" name="item_customer" value="{{item.klient}}">
+                          <input type="hidden" id="item_alias_{{item.id}}_{{item.sn}}" name="item_alias" value="{{item.alias}}">
+
+                          <button type="submit" class="btn btn-primary">
+                            Zapisz
+                          </button>
+
+                        </form>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [0, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+</body>
+
+</html>

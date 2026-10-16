@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Dashboard: Lista formowania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <li class="nav-item">
+            <a class="nav-link active" href="/forming_operator_view">
+              <span data-feather="arrow-right"></span>
+              Lista formowania
+            </a>
+          </li>
+            <!--li class="nav-item">
+              <a class="nav-link active" href="/forming_operator_view2">
+                <span data-feather="arrow-right"></span>
+                Skrzynie zasypane
+              </a>
+            </li-->
+          <li class="nav-item">
+            <a class="nav-link active" href="/forming_operator_view4">
+              <span data-feather="arrow-right"></span>
+              Formy zasypane
+            </a>
+          </li>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Lista formowania (formiernia)</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <a onClick="window.location.reload()" class="btn btn-primary" role="button" aria-pressed="true">Odśweż stronę</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nazwa modelu / skrzyni</th>
+                <th>Status</th>
+                <th>Data dodania</th>
+                <th>Ostatnia modyfikacja statusu</th>
+                <th>Funkcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+                <td>{{ item.id }}</td>
+                <td>{{ item.nazwa }}</td>
+                  {% if item.zaformowano == '0' %}
+                  <td><span class="badge badge-danger">Nie zaformowano</span></td>
+                  {% elif item.zaformowano == '1' %}
+                  <td><span class="badge badge-success">Zaformowano</span></td>
+                  {% endif %}
+                <td>{{ item.czas_dodania }}</td>
+                <td>{{ item.czas_ostatniej_modyfiakcji }}</td>
+                <td>
+                  <a class="btn btn-success btn disabled" tabindex="-1" role="button" data-toggle="modal" data-target="#modal_form{{ item.id }}"   >Zaformowano</a>
+                  
+                  <!-- Modal from item -->
+                  <div class="modal fade" id="modal_form{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Edycja pozycji listy formowania</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/mark_as_formed_form/{{ item.id }}" method="POST">
+                            <h5>Czy chcesz oznaczyć produkt <b> {{ item.nazwa }} </b> jako zaformowany? </h5>
+                            <br>
+                            <div class="row">
+                              <div class="col-6">
+
+                                <div class="form-group">
+                                  <label for="nr_formowania1">
+                                    <h5>Numer seryjny 1:</h5>
+                                  </label>
+                                  <input type="number" class="form-control" id="nr_formowania1" name="nr_formowania1" value="{{ item.model1_sn }}"  {% if ' D' in item.nazwa %} readonly {% endif %} >
+                                  <small id="emailHelp" class="form-text text-muted">Numer seryjny 1 jest obowiązkowy</small>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="nr_formowania2">
+                                    <h5>Numer seryjny 2:</h5>
+                                  </label>
+                                  <input type="number" class="form-control" id="nr_formowania2" name="nr_formowania2" value="{{ item.model2_sn }}" {% if ' D' in item.nazwa %} readonly {% endif %}>
+                                  <small id="emailHelp" class="form-text text-muted">Numer seryjny 2 nie jest obowiązkowy</small>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="nr_formowania3">
+                                    <h5>Numer seryjny 3:</h5>
+                                  </label>
+                                  <input type="number" class="form-control" id="nr_formowania3" name="nr_formowania3" value="{{ item.model3_sn }}" {% if ' D' in item.nazwa %} readonly {% endif %} >
+                                  <small id="emailHelp" class="form-text text-muted">Numer seryjny 3 nie jest obowiązkowy</small>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="nr_formowania4">
+                                    <h5>Numer seryjny 4:</h5>
+                                  </label>
+                                  <input type="number" class="form-control" id="nr_formowania4" name="nr_formowania4" value="{{ item.model4_sn }}" {% if ' D' in item.nazwa %} readonly {% endif %} >
+                                  <small id="emailHelp" class="form-text text-muted">Numer seryjny 4 nie jest obowiązkowy</small>
+                                </div>
+
+                            </div>
+                            <div class="col-6">
+
+                              <div class="form-group">
+                                <label for="nr_formowania5">
+                                  <h5>Numer seryjny 5:</h5>
+                                </label>
+                                <input type="number" class="form-control" id="nr_formowania5" name="nr_formowania5" value="{{ item.model5_sn }}" {% if ' D' in item.nazwa %} readonly {% endif %} >
+                                <small id="emailHelp" class="form-text text-muted">Numer seryjny 5 nie jest obowiązkowy</small>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="nr_formowania6">
+                                  <h5>Numer seryjny 6:</h5>
+                                </label>
+                                <input type="number" class="form-control" id="nr_formowania6" name="nr_formowania6" value="{{ item.model6_sn }}" {% if ' D' in item.nazwa %} readonly {% endif %} >
+                                <small id="emailHelp" class="form-text text-muted">Numer seryjny 6 nie jest obowiązkowy</small>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="nr_formowania7">
+                                  <h5>Numer seryjny 7:</h5>
+                                </label>
+                                <input type="number" class="form-control" id="nr_formowania7" name="nr_formowania7" value="{{ item.model7_sn }}" {% if ' D' in item.nazwa %}  readonly {% endif %} >
+                                <small id="emailHelp" class="form-text text-muted">Numer seryjny 7 nie jest obowiązkowy</small>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="nr_formowania8">
+                                  <h5>Numer seryjny 8:</h5>
+                                </label>
+                                <input type="number" class="form-control" id="nr_formowania8" name="nr_formowania8"  value="{{ item.model8_sn }}" {% if ' D' in item.nazwa %} readonly {% endif %}>
+                                <small id="emailHelp" class="form-text text-muted">Numer seryjny 8  nie jest obowiązkowy</small>
+                              </div>
+
+                          </div>
+                          </div>
+                           
+                            <div class="form-group">
+                              <label for="komentarz_formowanie">
+                                <h5>Komentarz:</h5>
+                              </label>
+                              <textarea class="form-control" id="komentarz_formowanie" name="komentarz_formowanie" rows="3">{{ item.komentarz }}</textarea>
+                              <small id="komentarz_formowanie" class="form-text text-muted">Komentarz nie jest obowiązkowy</small>
+
+                              <input name="form_id" value="{{ item.id }}" hidden>  
+                              <input name="produkt_id" value="{{ item.produkt_id }}" hidden>  
+                              <input name="model_id" value="{{ item.model_id }}" hidden>  
+
+                            </div>
+                            <input type="hidden" id="nazwap" name="nazwap" value="{{ item.nazwa_produktu }}">
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                              <!--button type="reset" class="btn btn-success">Wyczyśc fromularz</button-->
+                              <button type="submit" class="btn btn-success">Zatwiedź</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                <a class="btn btn-danger btn {% if item.status == 'active' %} disabled {% endif %}" tabindex="-1" role="button" data-toggle="modal"
+                  data-target="#modal_del{{ item.id }}" >Usuń</a>
+                
+                  <!-- Modal delete item -->
+                <div class="modal fade" id="modal_del{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                  aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Usuwanie skrzyni</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/delete_frame/{{ item.id }}" method="POST">
+                          <h5>Czy chcesz usunąć skrzynię <b> {{ item.nazwa }} </b> z listy formowania? </h5>
+                          <br>
+                          <input name="produkt_id" value="{{ item.produkt_id }}" hidden> 
+                          <input name="form_id" value="{{ item.id }}" hidden>   
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                            <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                  
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [3, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+</body>
+
+</html>

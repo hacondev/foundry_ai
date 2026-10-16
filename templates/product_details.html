@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Szczegóły produktu</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-4 col-lg-3 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-md-12">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <!--h1 class="h2">Skrzynie do zalania: {{ suma }} t</h1-->
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 30%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <!--button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_to_forming">Dodaj do listy zalewu</button-->
+              <!--a href="/products" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a-->
+              &nbsp;
+
+            </div>
+          </div>
+        </div>
+
+      <h4>Dane produktu</h4>
+      <table class="table table-striped table-bordered table-sm" class="caption-top">
+        <thead>
+          <tr>
+            <th>Sztuk w formie</th>
+            <th>Nazwa</th>
+            <th>Waga żaliwa netto [kg]</th>
+            <th>Waga piasku [kg]</th>
+            <th>Czas studzenia [min]</th>
+            <th>Dni do wybicia</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in prod_details %}
+          {% if entry.item_status == 'active' %}
+          <tr>
+            <td>{{ entry.sztuk }}</td>
+            <td>{{ entry.nazwa }}</td>
+            <td>{{ entry.waga_zeliwa * entry.sztuk }}</td>
+            <td>{{ entry.waga_piasku }}</td>
+            <td>{{ entry.czas_studzenia }}</td>
+            <td>{{ entry.dni_do_wybicia }}</td>
+
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+        </table>
+
+        <div class="row">
+          <div class="col-2">
+            <form action="\edit_data_in_produkt\{{ref_id}}" method="POST">
+            <div class="form-group">
+              <label for="sztuk_w_formie">Sztuk w formie:</label>
+              <input type="number" class="form-control" id="sztuk_w_formie" name="sztuk_w_formie" value="{{prod_details[0]['sztuk']}}">
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group">
+              <label for="nazwa">Nazwa:</label>
+              <input type="text" class="form-control" id="nazwa" name="nazwa" value="{{prod_details[0]['nazwa']}}"> 
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group">
+              <label for="waga_zeliwa">Waga żeliwa:</label>
+              <input type="number" class="form-control" id="waga_zeliwa" name="waga_zeliwa" value="{{prod_details[0]['waga_zeliwa']}}">
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group">
+              <label for="waga_piasku">Waga piasku:</label>
+              <input type="number" class="form-control" id="waga_piasku" name="waga_piasku" value="{{prod_details[0]['waga_piasku']}}">
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group">
+              <label for="czas_studzenia">Czas studzenia [h]:</label>
+              <input type="number" class="form-control" id="czas_studzenia" name="czas_studzenia" value="{{prod_details[0]['czas_studzenia']}}">
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group">
+              <label for="dni_do_wybicia">Dni do wybicia:</label>
+              <input type="number" class="form-control" id="dni_do_wybicia" name="dni_do_wybicia" value="{{prod_details[0]['dni_do_wybicia']}}">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-2">
+            <div class="form-group">
+              <label for="manual_forming">Formowanie:</label>
+              <select class="form-control" name="manual_forming" id="manual_forming">
+                {% if prod_details[0]['manual_forming'] == '0' %} 
+                  <option value="0">Mechaniczne</option>
+                  <option value="1">Ręczne</option>
+                {% else %} 
+                  <option value="1">Ręczne</option>
+                  <option value="0">Mechaniczne</option>
+                {% endif %}
+            </select>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group">
+              <label for="prefix">Prefix:</label>
+              <input type="text" class="form-control" id="prefix" name="prefix" value="{{prod_details[0]['prefix']}}"> 
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group">
+              <label for="points">Punktacja spawalnia:</label>
+              <input type="text" class="form-control" id="points" name="points" value="{{prod_details[0]['grinding_points']}}"> 
+            </div>
+          </div>
+
+         <div class="col-2">
+              <label for="manual_forming"><span class="badge badge-danger">Klient</span></label>
+              <select class="form-control" name="customer" id="customer">
+                  <option value="{{ customer.customer }}">{{ customer.customer }}</option>
+                  {% for item in customers %}
+                  <option value="{{ item.customer }}">{{ item.customer }}</option>
+                  {% endfor %}                  
+              </select>
+        </div>
+
+        </div>
+        <div class="row">
+          <div class="col" style="text-align: right;">
+            <button type="submit" class="btn btn-success">Zapisz</button>
+            <a href="/products" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a>
+          </div>
+        </div>
+      </form>
+
+        <hr>
+
+        <h4>Dane modelu</h4>
+        <table class="table table-striped table-bordered table-sm" class="caption-top">
+          <thead>
+            <tr>
+              <th>Nazwa</th>
+              <th>Pozycja</th>
+              <th>ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ pattern.nazwa1 }}</td>
+              <td>{% if ' D' in pattern.nazwa1 %} dolny {% elif ' G' in pattern.nazwa1 %} górny {% else %} - {% endif %}</td>
+              <td>{{ pattern.id_model1 }}</td>
+            </tr>
+            <tr>
+              <td>{{ pattern.nazwa2 }}</td>
+              <td>{% if ' D' in pattern.nazwa2 %} dolny {% elif ' G' in pattern.nazwa2 %} górny {% else %} - {% endif %}</td>
+              <td>{{ pattern.id_model2 }}</td>
+            </tr>
+            <tr> 
+              <td>{{ pattern.nazwa3 }}</td>
+              <td>{% if ' D' in pattern.nazwa3 %} dolny {% elif ' G' in pattern.nazwa3 %} górny {% else %} - {% endif %}</td>
+              <td>{{ pattern.id_model3 }}</td>
+            </tr>
+            <tr>
+              <td>{{ pattern.nazwa4 }}</td>
+              <td>{% if ' D' in pattern.nazwa4 %} dolny {% elif ' G' in pattern.nazwa4 %} górny {% else %} - {% endif %}</td>
+              <td>{{ pattern.id_model4 }}</td>
+            </tr>
+          </tbody>
+
+          </table>
+          <form action="\edit_model_in_produkt\{{ref_id}}" method="POST">
+            <div class="row">
+              <div class="col-3">
+                <label for="model1" class="form-label">Model 1:</label>
+                <select class="form-control" name="model1" id="model1">
+                        <option value="{{ model_def['id_model1'] }}" selected>{{ model_def['id_model1'] }}</option>
+                      {% for item in modele %}
+                        <option value="{{ item['ID'] }}">{{ item['ID'] | string }} / {{item['nazwa']}}</option>
+                      {% endfor %}
+                        <option value=""></option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label for="model2" class="form-label">Model 2:</label>
+                <select class="form-control" name="model2" id="model2">
+                  <option value="{{ model_def['id_model2'] }}" selected>{{ model_def['id_model2'] }} </option>
+                  {% for item in modele %}
+                    <option value="{{ item['ID'] }}">{{ item['ID'] | string }} / {{item['nazwa']}}</option>
+                  {% endfor %}
+                    <option value=""></option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label for="model3" class="form-label">Model 3:</label>
+                <select class="form-control" name="model3" id="model3">
+                  <option value="{{ model_def['id_model3'] }}" selected>{{ model_def['id_model3'] }}</option>
+                  {% for item in modele %}
+                    <option value="{{ item['ID'] }}">{{ item['ID'] | string }} / {{item['nazwa']}}</option>
+                  {% endfor %}
+                    <option value=""></option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label for="model4" class="form-label">Model 4:</label>
+                <select class="form-control" name="model4" id="model4">
+                <option value="{{ model_def['id_model4'] }}" selected>{{ model_def['id_model4'] }}</option>
+                {% for item in modele %}
+                  <option value="{{ item['ID'] }}">{{ item['ID'] | string}} / {{item['nazwa']}}</option>
+                {% endfor %}
+                  <option value=""></option>
+                </select>
+              </div>
+            </div>
+            </div>
+            <br>
+            <div class="row">
+              <div class="col" style="text-align: right;">
+                <button type="submit" class="btn btn-success">Dodaj model</button>
+                <a href="/products" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a>
+              </div>
+            </div>
+          </form>
+          <hr>
+          <h4>Skrzynie</h4>
+          <table class="table table-striped table-bordered table-sm" class="caption-top">
+            <thead>
+              <tr>
+                <th>Nazwa</th>
+                <th>Wymiar X [mm]</th>
+                <th>Wymiar Y [mm]</th>
+                <th>Wymiar Z [mm]</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ flasks.flask1_name }}</td>
+                <td>{{ flasks.flask1_dim_x }}</td>
+                <td>{{ flasks.flask1_dim_y }}</td>
+                <td>{{ flasks.flask1_dim_z }}</td>
+              </tr>
+              <tr>
+                <td>{{ flasks.flask2_name }}</td>
+                <td>{{ flasks.flask2_dim_x }}</td>
+                <td>{{ flasks.flask2_dim_y }}</td>
+                <td>{{ flasks.flask2_dim_z }}</td>
+              </tr>
+              <tr> 
+                <td>{{ flasks.flask3_name }}</td>
+                <td>{{ flasks.flask3_dim_x }}</td>
+                <td>{{ flasks.flask3_dim_y }}</td>
+                <td>{{ flasks.flask3_dim_z }}</td>
+              </tr>
+              <tr>
+                <td>{{ flasks.flask4_name }}</td>
+                <td>{{ flasks.flask4_dim_x }}</td>
+                <td>{{ flasks.flask4_dim_y }}</td>
+                <td>{{ flasks.flask4_dim_z }}</td>
+              </tr>
+            </tbody>
+            </table>
+
+              <form action="\edit_flask_in_produkt\{{ref_id}}" method="POST">
+                <div class="row">
+                  <div class="col-3">
+                    <label for="skrzynia1" class="form-label">Skrzynia 1:</label>
+                    <select class="form-control" name="skrzynia1" id="skrzynia1">
+                            <option value="{{ skrzynie_def['skrzynia1'] }}" selected>{{ skrzynie_def['skrzynia1'] }}</option>
+                          {% for item in skrzynie %}
+                            <option value="{{ item['skrzynie_name'] }}">{{ item['skrzynie_name'] }}</option>
+                          {% endfor %}
+                            <option value=""></option>
+                    </select>
+                  </div>
+                  <div class="col-3">
+                    <label for="skrzynia2" class="form-label">Skrzynia 2:</label>
+                    <select class="form-control" name="skrzynia2" id="skrzynia2">
+                        <option value="{{ skrzynie_def['skrzynia2'] }}">{{ skrzynie_def['skrzynia2'] }}</option>
+                      {% for item in skrzynie %}
+                        <option value="{{ item['skrzynie_name'] }}">{{ item['skrzynie_name'] }}</option>
+                      {% endfor %}
+                        <option value=""></option>
+                    </select>
+                  </div>
+                  <div class="col-3">
+                    <label for="skrzynia3" class="form-label">Skrzynia 3:</label>
+                    <select class="form-control" name="skrzynia3" id="skrzynia3">
+                            <option value="{{ skrzynie_def['skrzynia3'] }}">{{ skrzynie_def['skrzynia3'] }}</option>
+                          {% for item in skrzynie %}
+                            <option value="{{ item['skrzynie_name'] }}">{{ item['skrzynie_name'] }}</option>
+                          {% endfor %}
+                            <option value=""></option>
+                    </select>
+                  </div>
+                  <div class="col-3">
+                    <label for="skrzynia4" class="form-label">Skrzynia 4:</label>
+                    <select class="form-control" name="skrzynia4" id="skrzynia4">
+                        <option value="{{ skrzynie_def['skrzynia4'] }}">{{ skrzynie_def['skrzynia4'] }}</option>
+                      {% for item in skrzynie %}
+                        <option value="{{ item['skrzynie_name'] }}">{{ item['skrzynie_name'] }}</option>
+                      {% endfor %}
+                        <option value=""></option>
+                    </select>
+                  </div>
+                </div>
+                <br>
+                <div class="row">
+                  <div class="col" style="text-align: right;">
+                    <button type="submit" class="btn btn-success">Dodaj skrzynie</button>
+                    <a href="/products" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a>
+                  </div>
+                </div>
+              </form>
+              <hr>
+
+                <form action="/add_fp_material/{{ref_id}}" method="POST">
+                  <h4>Materiały ogniotrwałe</h4>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="material" class="form-label">Materiały ogniotrwałe</label>
+                        <select class="form-control" name="material" id="material">
+                              {% for item in meterials %}
+                                <option value="{{ item['id'] }}">{{ item['typ'] }} / {{ item['nazwa'] }} / {{ item['jednostka'] }}</option>
+                              {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-2">
+                      <div class="form-group">
+                        <label for="ilosc" class="form-label">Ilość:</label>
+                        <input type="text" class="form-control" id="ilosc" name="ilosc" required>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <label class="form-label">&nbsp;</label>
+                      <div class="form-group">
+                        <button type="submit" class="btn btn-success">Dodaj meteriał</button>
+                        <a href="/products" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a>
+                      </div>
+                    </div>
+                  </div>
+                  </form>
+     
+
+            <div class="row">
+              <div class="col">
+                <table class="table table-striped table-bordered table-sm" class="caption-top">
+                  <thead>
+                    <tr>
+                      <th>Typ</th>
+                      <th>Nazwa</th>
+                      <th>Ilość</th>
+                      <th>Jednostka</th>
+                      <th>Funkcje</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in materials_produkts %}
+                    <tr>
+                      <td>{{ item.typ }}</td>
+                      <td>{{ item.nazwa }}</td>
+                      <td>{{ item.ilosc }}</td>
+                      <td>{{ item.jednostka }}</td>
+                      <td>
+                        <form action="/del_fp_material/{{ref_id}}" method="POST">
+                          <input type="hidden" id="mat_to_del" name="mat_to_del" value="{{item['id']}}">
+                          <button type="submit" class="btn btn-danger">Usuń</button>
+                        </form>
+    
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                  </table>
+              </div>
+            </div>
+
+            <br><br><br>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+
+</body>
+
+</html>

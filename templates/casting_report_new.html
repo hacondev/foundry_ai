@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Casting</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <style>
+      @keyframes blink {
+        0%   { opacity: 1; }
+        50%  { opacity: 0; }
+        100% { opacity: 1; }
+      }
+
+      .blink-text {
+        animation: blink 1s infinite;
+      }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <ul class="navbar-nav px-3">
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/quality" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Home
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/casting_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li>
+           <!--li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Liebherr" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Liebherr
+              </a-->
+
+            <!--/li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Still" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Still
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Kion Polska" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Kion Polska
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Spain" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mitsubishi Spain
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Finland" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mitsubishi Finland
+              </a>
+            </li-->
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mecalac France" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mecalac France
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Spain" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mitsubishi Spain
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Finland" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mitsubishi Finland
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mecalac Germany" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mecalac Germany
+              </a>
+            </li-->
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Casting reports forms: <b>{{ n_items }}</b></h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert" style="width: 25%;">
+            <span>{{ msg }}</span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <button type="button" id="download-button" class="btn btn-primary">Export to CSV</button>
+            &nbsp
+
+              <!-- Button trigger modal -->
+              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal">
+                Items to dispalay
+              </button>
+
+              <!-- Modal -->
+              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Items to dispalay</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="/casting_report" method="POST">
+                            
+                        <div class="form-group">
+                          <input type="number" class="form-control" id="n_items" name="n_items" value="100" required>
+                          <br>
+                          <input type="checkbox" id="leaks" name="leaks">
+                          <label for="leaks">Broken</label><br>
+                          <input type="checkbox" id="addivies" name="addivies">
+                          <label for="addivies">Refilled</label><br>
+                          <input type="checkbox" id="zlom" name="zlom">
+                          <label for="zlom">Scrap</label><br>
+                          <input type="checkbox" id="all" name="all">
+                          <label for="all">Broken or Refilled or Scrap</label><br>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success">Submit</button>
+              
+                    </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              &nbsp
+
+              <!-- Button trigger modal -->
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#find_sn">
+                Find S/N
+              </button>
+
+              <!-- Modal -->
+              <div class="modal fade" id="find_sn" tabindex="-1" aria-labelledby="find_sn" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Find S/N</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="/defects_sn" method="POST">
+                            
+                        <div class="form-group">
+                          <label for="addivies">Serial number:</label>
+                          <input type="text" class="form-control" id="sn" name="sn" required>
+                          <small id="sn" class="form-text text-muted">Prawidłowy format to: AB-1234</small>
+                          <br>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success">Submit</button>
+              
+                    </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              &nbsp
+
+              <!--a class="btn btn-info" href="/defects_def" role="button">Defects only</a-->
+
+              <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#def_only">
+                Defects to display
+              </button>
+
+              <!-- Modal -->
+              <div class="modal fade" id="def_only" tabindex="-1" aria-labelledby="def_only" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Defects only</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="/defects_to_dispaly" method="POST">     
+
+                      <div class="form-group">
+                        <label for="defects_to_display">Defects to display</label>
+                        <select class="form-control" id="defects_to_display" name="defects_to_display">
+                          <option value="10">10</option>
+                          <option value="100">100</option>
+                          <option value="200">200</option>
+                          <option value="500">500</option>
+                          <option value="1000">1000</option>
+                          <option value="2025">Rok 2025</option>
+                          <option value="All">Wszystkie</option>
+                        </select>
+                      </div>
+
+                      <!-- <div class="form-group">
+                        <label for="defects_operator">Defect operator</label>
+                        <select class="form-control" id="defects_operator" name="defects_operator">
+                          <option value="-">Wszyscy</option>
+                          <option value="WZ">WZ</option>
+                          <option value="JS">JS</option>
+                          <option value="MW">MW</option>
+                          <option value="TM">TM</option>
+                          <option value="TN">TN</option>
+                          <option value="WM">WM</option>
+                        </select>
+                      </div> -->
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success">Submit</button>
+              
+                    </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+          </div>
+        </div>
+
+        <!--h2>Section title</h2-->
+        <div class="table-responsive">
+          <table id="table_id" class="table table-striped">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>SerialNo</th>
+                <th>Product</th>
+                <th>Trail</th>
+                <th>Comment office</th>
+                <th>Casting mass [kg]</th>
+                <!-- <th>Flask1_ID1</th>
+                <th>Flask1_ID2</th>
+                <th>Flask2_ID1</th>
+                <th>Flask2_ID2</th>
+                <th>Flask3_ID1</th>
+                <th>Flask3_ID2</th> -->
+                <th>Froming line</th>
+                <th>Fromed on</th>
+                <th>Fromed at</th>
+                <th>Fromed by</th>
+                <th>Defect forming (flask)</th>
+                <th>Sand temperature</th>
+                <th>Assambled on</th>
+                <th>Assambled at</th>
+                <th>Assambled by</th>
+                <th>Comment assembly</th>
+                <th>Defect assembly (form)</th>
+                <th>Flooded on</th>
+                <th>Flooded at</th>
+                <th>Flooded by</th>
+                <th>Knockout on</th>
+                <th>Knockout at</th>
+                <th>Knockout by</th>
+                <th>Iron temperature</th>
+                <th>Casting time [s]</th>
+                <th>Ladle no</th>
+                <th>Refilled (Y/N)</th>
+                <th>Broken (Y/N)</th>
+                <th>Scrap (Y/N)</th>
+                <th>Comment casting</th>
+                <th>Waiting in hall</th>
+                <th>Cooling comment</th>
+                <th>Defect date</th>
+                <th>Defect mode</th>
+                <th>Defect type</th>
+                <th>Repair</th>
+                <th>Defect operator</th>
+                <th>Function</th>
+                <!--th>QA Inspection</th-->
+              </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                {% if 'złomować' in item.decyzja %}
+                    <tr style="background-color: rgb(255, 54, 54); color: #ffffff;">
+                {% elif "-" in item.decyzja %}
+                    <tr>
+                {% else %}
+                    <tr style="background-color: rgb(231, 255, 112);">
+                {% endif %}
+
+                <td>{{ item.id }}</td>
+                <td>{{ item.prefix }}-{{ item.sn }}</td>
+                <td>{{ item.product_name }}</td>
+                <td>
+                {% if item.trail == '1' %}
+                <label class="blink-text" for="koment"><h5><span class="badge badge-info">Tak</span></h5></label>
+                {% else %}
+                Nie       
+                {% endif %}
+                </td>
+                <td>{{ item.comment_biuro }}</td>
+                <td>{{ item.casting_mass }}</td>
+         
+                <!-- <td>{{ item.flask1_id1 }}</td>
+                <td>{{ item.flask1_id2 }}</td>
+                <td>{{ item.flask2_id1 }}</td>
+                <td>{{ item.flask2_id2 }}</td>
+                <td>{{ item.flask3_id1 }}</td>
+                <td>{{ item.flask3_id2 }}</td> -->
+
+                <td>{{ item.forming_line }}</td>
+                <td>{{ item.formed_on[0:10] }}</td>
+                <td>{{ item.formed_on[11:19] }}</td>
+                <td>{{ item.formed_by }}</td>
+                <td>{{ item.defect_forming }}</td>
+                <td>{{ item.sand_temp }}</td>
+                <td>{{ item.assambled_on[0:10] }}</td>
+                <td>{{ item.assambled_on[11:19] }}</td>
+                <td>{{ item.assambled_by }}</td>
+                <td>{{ item.assambled_comment }}</td>
+                <td>{{ item.defekty_rdzeniarnia }}</td>
+                <td>{{ item.flooded_on[0:10] }}</td>
+                <td>{{ item.flooded_on[11:19] }}</td>
+                <td>{{ item.flooded_by }}</td>
+                <td>{{ item.knockout_on[0:10] }}</td>
+                <td>{{ item.knockout_on[11:19] }}</td>
+                <td>{{ item.knockout_by }}</td>
+                <td>{{ item.iron_temp }}</td>
+                <td>{{ item.czas_zalewania }}</td>
+                <td>{{ item.ladle_no }}</td>
+                <td>{{ item.refiled }}</td>
+                <td>{{ item.broken }}</td>
+                <td>{{ item.scrap_cast }}</td>
+                <td>{{ item.comment_casting }}</td>
+
+                    {% if 'p' in item.cooling_time_check %}
+                             <td bgcolor= "#66cc66" style="color: white">{{ item.time_of_the_hall }}</td>
+                    {% elif 'n' in item.cooling_time_check %}
+                              <td bgcolor= "#ff0033" style="color: white">{{ item.time_of_the_hall }}</td>
+                    {% else %}
+                              <td>{{ item.time_of_the_hall }}</td>
+                    {% endif %}
+
+                <td>{{ item.komentarz_wywoz }}</td>
+                <td>{{ item.data_defectu[0:10] }}</td>
+                <td>
+                  {% if 'złomować' in item.decyzja %}
+                      scrap
+                  {% elif "-" in item.decyzja %}
+                      -
+                  {% else %}
+                      rework
+                  {% endif %}
+                </td>
+                <td>{{ item.wada }}</td>
+                <td>{{ item.decyzja }}</td>
+                <td>{{ item.operator_defect }}</td>
+                <td>
+                  <a href="\defects_item\{{item.id}}_{{item.sn}}" class="btn btn-dark btn-sm" role="button" aria-pressed="true">Defects</a>
+                </td>
+                <!--td>
+                  {% if 'Liebherr' in item.product_name or 'LIEBHERR' in item.product_name or 'Liebher' in item.product_name %}
+                  <a href="\qa_item\{{item.id}}_{{item.sn}}" class="btn btn-primary btn-sm" role="button" aria-pressed="true">Inspection Liebherr</a>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr-->
+              {% endfor %}
+          </table>
+        </div>
+      </main>
+    
+      <!-- <script>
+        function htmlToCSV(html, filename) {
+          var data = [];
+          var rows = document.querySelectorAll("table tr");
+          for (var i = 0; i < rows.length; i++) {
+            var row = [],
+              cols = rows[i].querySelectorAll("td, th");
+            for (var j = 0; j < cols.length; j++) {
+              row.push(cols[j].innerText);
+            }
+            data.push(row.join(";"));
+          }
+          downloadCSVFile(data.join("\n"), filename);
+        }
+      </script> -->
+
+      <script>
+        function htmlToCSV(html, filename) {
+          var data = [];
+          var rows = document.querySelectorAll("table tr");
+
+          for (var i = 0; i < rows.length; i++) {
+            var row = [];
+            var cols = rows[i].querySelectorAll("td, th");
+
+            for (var j = 0; j < cols.length; j++) {
+              var val = cols[j].innerText;
+              var t = val.trim();
+              if (t === "-") val = "";
+              row.push(val);
+            }
+
+            data.push(row.join(";"));
+          }
+
+          downloadCSVFile(data.join("\n"), filename);
+        }
+      </script>
+          
+      <script>
+        function downloadCSVFile(csv, filename) {
+          var csv_file, download_link;
+          csv_file = new Blob([csv], {
+            type: "text/csv"
+          });
+          download_link = document.createElement("a");
+          download_link.download = filename;
+          download_link.href = window.URL.createObjectURL(csv_file);
+          download_link.style.display = "none";
+          document.body.appendChild(download_link);
+          download_link.click();
+        }
+      </script>
+    
+      <script>
+        document.getElementById("download-button").addEventListener("click", function () {
+          var html = document.querySelector("table").outerHTML;
+          htmlToCSV(html, "forms.csv");
+        });
+      </script>
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+
+<script>
+  $(document).ready(function () {
+    const table = $('#table_id');
+    const thead = table.find('thead');
+    const filterRow = thead.find('tr').first().clone().appendTo(thead);
+    const columnCount = filterRow.find('th').length;
+
+    // Wyczyść i wstaw <select> (oprócz ostatniej kolumny)
+    filterRow.find('th').each(function (index) {
+      if (index < columnCount - 1) {
+        $(this).html('<select style="width:100%"><option value="">Wszystko</option></select>');
+      } else {
+        $(this).html('');
+      }
+    });
+
+    const dataTable = table.DataTable({
+      orderCellsTop: true,
+      fixedHeader: true,
+      pageLength: 100,
+      lengthMenu: [[50, 100, 200, -1], [50, 100, 200, "Wszystkie"]],
+      order: [[0, 'desc'], [1, 'desc']],
+      initComplete: function () {
+        this.api().columns().every(function (index) {
+          if (index < columnCount - 1) {
+            const column = this;
+            const select = $('select', filterRow[0].cells[index]);
+
+            // Dodaj unikalne opcje do <select>
+            column.data().unique().sort().each(function (d) {
+              d = $('<div>').html(d).text(); // usuń HTML
+              if (d.trim()) {
+                select.append('<option value="' + d + '">' + d + '</option>');
+              }
+            });
+
+            // Obsługa zmiany wartości w <select>
+            select.on('change', function () {
+              const val = $.fn.dataTable.util.escapeRegex($(this).val());
+              column.search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+          }
+        });
+      }
+    });
+  });
+</script>
+
+</body>
+
+</html>

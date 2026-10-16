@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Skrzynie do zasypania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dataTables.dateTime.min.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <!--a class="nav-link active" href="/logout">Sign out</a-->
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Wyloguj 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/forming"  style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Zelcenia produkcyjne
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/products"  style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Produkty
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/mafi"  style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Mafi
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/foundry_report"  style="color: white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Raport zmianowy
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Raport zmianowy - Masa odlewów netto [t]</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+
+            </div>
+          </div>
+        </div>
+
+          <table "border="0" cellspacing="5" cellpadding="5">
+            <tbody><tr>
+                <td>Minimum date:</td>
+                <td><input type="text" id="min" name="min"></td>
+            </tr>
+            <tr>
+                <td>Maximum date:</td>
+                <td><input type="text" id="max" name="max"></td>
+            </tr>
+          </tbody></table>  
+
+          <br>
+        
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Zmina</th>
+                <th>Tonaż</th>
+                <th>Data raportu</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.shift }}</td>
+                <td>{{ item.masa }} t</td>
+                <td>{{ item.czas }}</td>
+               
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+    
+      </main>
+    </div>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dataTables.dateTime.min.js') }}"></script>
+
+  <script>
+    let table = new DataTable('#table_id', {
+      order: [[3, 'desc']],
+        initComplete: function () {
+            this.api()
+                .columns()
+                .every(function () {
+                    let column = this;
+    
+                    // Create select element
+                    let select = document.createElement('select');
+                    select.add(new Option(''));
+                    //column.footer().replaceChildren(select);
+    
+                    // Apply listener for user change in value
+                    select.addEventListener('change', function () {
+                        var val = DataTable.util.escapeRegex(select.value);
+    
+                        column
+                            .search(val ? '^' + val + '$' : '', true, false)
+                            .draw();
+                    });
+    
+                    // Add list of options
+                    column
+                        .data()
+                        .unique()
+                        .sort()
+                        .each(function (d, j) {
+                            select.add(new Option(d));
+                        });
+                });
+        }
+    });
+
+    let minDate, maxDate;
+    // Custom filtering function which will search data in column four between two values
+    DataTable.ext.search.push(function (settings, data, dataIndex) {
+    let min = minDate.val();
+    let max = maxDate.val();
+    let date = new Date(data[3]);
+                
+    if (
+        (min === null && max === null) ||
+        (min === null && date <= max) ||
+        (min <= date && max === null) ||
+        (min <= date && date <= max)
+        ) {
+          return true;
+        }
+          return false;
+        });
+                
+    // Create date inputs
+    minDate = new DateTime('#min', {
+        format: 'MMMM Do YYYY'
+    });
+    maxDate = new DateTime('#max', {
+        format: 'MMMM Do YYYY'
+    });
+                
+            
+                
+    // Refilter the table
+    document.querySelectorAll('#min, #max').forEach((el) => {
+        el.addEventListener('change', () => table.draw());
+    });
+  </script>
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+</body>
+
+</html>

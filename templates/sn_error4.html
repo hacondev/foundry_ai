@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Dashboard: Lista formowania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="/forming_operator_view">
+                <span data-feather="arrow-right"></span>
+                Lista formowania
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/forming_operator_view2">
+                <span data-feather="arrow-right"></span>
+                Skrzynie zasypane
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/forming_operator_view4">
+                <span data-feather="arrow-right"></span>
+                Formy zasypane
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Lista formowania (formiernia)</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert" style="width: 40%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <a href="/forming_operator_view" class="btn btn-secondary" role="button" aria-pressed="true">Odśweż
+                stronę</a>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="jumbotron alert alert-danger" role="alert">
+            <h1 class="display-4">Nieprawidłowe numery seryjne!</h1>
+            <p class="lead">Formy wchodzące w skład tego samego produktu posiadają różne numery seryjne.</p>
+            <hr class="my-4">
+            <!--p>It uses utility classes for typography and spacing to space content out within the larger container.</p-->
+            <p class="lead">
+              <a class="btn btn-primary btn-lg" href="/forming_operator_view3/{{ id }}" role="button">Powrót</a>
+            </p>
+          </div>
+        </div>
+    </div>
+    </main>
+  </div>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [3, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+</body>
+
+</html>

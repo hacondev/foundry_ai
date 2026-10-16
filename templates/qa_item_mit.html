@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>QA Inspection Mitsubishi <b> {{ customer }}</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <!-- jQuery UI CSS (dla datepicker) -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <!-- Bootstrap Select CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+  <style>
+    thead th { background-color:#e9ecef; }
+    .table thead th, .table td, .table th { vertical-align: middle; }
+    table input[type=number], table select { width: 100%; }
+    table td, table th { text-align: center; }
+
+    .wynik-ok {
+    background-color: #c6efce; /* zielony np. jaśniejszy */
+    color: #fff;
+    color: black;   
+    }
+
+    .wynik-nok {
+    background-color: #ffc7ce; /* czerwony np. ciemniejszy */
+    color: #fff;
+    color: black;   
+    }
+
+    table {
+      font-size: 1.1rem;
+      border-radius: 0.75rem;
+    }
+
+  </style>
+
+</head>
+    
+</head>
+
+<body>
+
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <!--li class="nav-item text-nowrap" style="color: aliceblue;">
+        Logged as: <b> {{ session['user'] }} </b>
+        <a class="nav-link active" href="/logout">Sign out</a-->
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Production orders
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/casting_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li>
+            <!-- <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report
+              </a>
+            </li> -->
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">QA inspection <b>{{ customer }}</b></h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+            <!--/div><a onclick="history.back()" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a-->
+            <!--/div><a href="#" onclick="window.history.back()" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a-->
+            &nbsp;
+            </div>
+        </div>
+      
+
+      <div class="container-fluid">
+  <div class="table-responsive">
+    <form action="/add_inspection_mit" method="POST">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Cecha</th>
+          <th colspan="2">Połysk</th>
+          <th colspan="2">Połysk</th>
+          <th colspan="2">Kolor</th>
+          <th>Kontury</th>
+          <th>Ogólna ocena powierzchni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Wiersz 0 -->
+        <tr>
+          <td rowspan="3">Wymaganie</td>
+          <td colspan="2">RAL 9005</td>
+          <td colspan="2">Mitsu Green</td>
+          <td>
+            <input type="text" class="form-control" name="kolor1" id="kolor1" />
+          </td>
+          <td>
+            <input type="text" class="form-control" name="kolor2" id="kolor2" />
+          </td>
+          <td rowspan="3">Krawędzie, promienie zachowane</td>
+          <td rowspan="3">Brak gazów, znaków szlifierskich</td>
+        </tr>
+
+        <tr>
+          <td>Dolna granica_mcr</td>
+          <td>Górna granica_mcr</td>
+          <td>Dolna granica_mcr</td>
+          <td>Górna granica_mcr</td>
+          <td colspan="2" rowspan="2">Delta Lab&lt;1,5</td>
+        </tr>
+
+        <tr>
+          <td>40</td>
+          <td>50</td>
+          <td>15</td>
+          <td>25</td>
+        </tr>
+
+        <!-- Wiersz 3: Narzędzie pomiarowe -->
+        <tr>
+          <td>Narzedzie pomiarowe</td>
+          <td colspan="2">Połyskomierz</td>
+          <td colspan="2">Połyskomierz</td>
+          <td colspan="2">Spektorfotometr</td>
+          <td>Ocena wzrokowa</td>
+          <td>Ocena wzrokowa</td>
+        </tr>
+
+        <!-- Wiersz 4: Wynik -->
+        <tr>
+          <td><strong>Wynik</strong></td>
+          <td colspan="2">
+            <input type="number" class="form-control" name="wynik_polysk_ral" id="wynik_polysk_ral" step="1" />
+          </td>
+          <td colspan="2">
+            <input type="number" class="form-control" name="wynik_polysk_gre" id="wynik_polysk_gre" step="1" />
+          </td>
+          <td>
+            <input type="text" class="form-control" name="kolor1_wynik" id="kolor1_wynik" step="1" />
+          </td>
+          <td>
+            <input type="text" class="form-control" name="kolor2_wynik" id="kolor2_wynik" step="1" />
+          </td>
+          <!-- Kontury: OK/NOK -> select -->
+          <td>
+            <select class="form-control kontrola" name="wynik_kontury" id="wynik_kontury" required>
+              <option value="" selected>— wybierz —</option>
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+          <!-- Ogólna ocena powierzchni: OK/NOK -> select -->
+          <td>
+            <select class="form-control kontrola" name="wynik_ocena_pow" id="wynik_ocena_pow" required>
+              <option value="" selected>— wybierz —</option>
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+        </tr>
+
+        <!-- Wiersz 5: Wynik oceny -->
+        <tr>
+          <td colspan="8" style="text-align:right;"><b>WYNIK OCENY</b>&nbsp;</td>
+          <td id="wynik_oceny">Tu wynik</td>
+        </tr>
+      </tbody>
+    </table>
+	  <div style="float: right;">
+      <input type="hidden" id="ids" name="ids" value="{{ ids }}">
+      <input type="hidden" id="sn" name="sn" value="{{ sn }}">
+      <input type="hidden" id="prefix" name="prefix" value="{{ prefix }}">
+      <input type="hidden" id="klient" name="klient" value="{{ customer }}">
+      <a href="#" onclick="window.history.back()" class="btn btn-primary btn-lg" role="button" aria-pressed="true">Powrót</a>
+      <button type="submit" class="btn btn-success btn-lg">Prześlij wyniki inspekcji</button>
+    </div>
+    </form>
+  </div>
+
+  </div>
+
+    
+      </main>
+  </div>
+
+    </div>
+  </div>
+
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
+      <!-- jQuery i jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+<script>
+  function sprawdzWynik() {
+    const selects = document.querySelectorAll('select.kontrola');
+    // Jeśli WSZYSTKIE selecty mają "OK", wynik = OK; w innym wypadku = NOK
+    const allOk = Array.from(selects).every(sel => sel.value === 'OK');
+    const wynikCell = document.getElementById('wynik_oceny');
+
+    wynikCell.classList.remove('wynik-ok', 'wynik-nok'); // zdejmij poprzednie
+    if (allOk) {
+      wynikCell.textContent = 'OK';
+      wynikCell.classList.add('wynik-ok');
+    } else {
+      wynikCell.textContent = 'NOK';
+      wynikCell.classList.add('wynik-nok');
+    }
+  }
+
+  // Podpinamy eventy
+  document.querySelectorAll('select.kontrola').forEach(sel => {
+    sel.addEventListener('change', sprawdzWynik);
+  });
+
+  // Startowe ustawienie
+  document.addEventListener('DOMContentLoaded', sprawdzWynik);
+</script>
+
+
+
+</body>
+
+</html>

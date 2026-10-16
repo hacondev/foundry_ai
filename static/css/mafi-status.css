@@ -1,0 +1,52 @@
+.mafi-wrapper {
+  position: relative;
+  width: 262px;   /* 350 → 262 */
+  height: 60px;   /* 80 → 60 */
+}
+
+.mafi-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mafi-red {
+  background:#f8b2b2;
+  border:4px solid #dc3545;
+}
+
+.mafi-green {
+  background:#bdf3c4;
+  border:4px solid #28a745;
+}
+
+.blink {
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%,49% {opacity:1;}
+  50%,100% {opacity:0.2;}
+}
+
+.switch-lg {
+  transform: scale(2);
+  transform-origin: center;
+  margin: 0 30px;
+}
+
+  .maf-label{
+    min-height: 24px;   /* trzyma równe miejsce na label */
+    margin-bottom: .5rem; /* jak w bootstrap */
+  }

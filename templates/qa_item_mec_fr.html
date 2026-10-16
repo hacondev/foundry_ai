@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>QA Inspection Mecalac France</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <!-- jQuery UI CSS (dla datepicker) -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <!-- Bootstrap Select CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+  <style>
+    /* Szare tło nagłówków */
+    thead th { background-color: #e9ecef !important; color: black; }
+
+    /* Styl komórki z wynikiem */
+    #wynik-oceny { font-weight:bold; color:black; text-align:center; }
+    .ok-bg  { background-color:#c6efce !important; }
+    .nok-bg { background-color:#ffc7ce !important; }
+  </style>
+
+</head>
+    
+</head>
+
+<body>
+
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <!--li class="nav-item text-nowrap" style="color: aliceblue;">
+        Logged as: <b> {{ session['user'] }} </b>
+        <a class="nav-link active" href="/logout">Sign out</a-->
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Production orders
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/casting_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li>
+            <!-- <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report
+              </a>
+            </li> -->
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">QA inspection Mecalac France</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+            <!--/div><a onclick="history.back()" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a-->
+            <!--/div><a href="#" onclick="window.history.back()" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a-->
+            &nbsp;
+            </div>
+        </div>
+      
+
+      <div class="container-fluid">
+      <div class="table-responsive">
+    <form action="/add_inspection_mecalac_fr" method="POST">
+    <table class="table table-bordered text-center">
+      <thead>
+        <tr>
+          <th rowspan="2" class="align-middle">Cecha</th>
+          <th colspan="2">Lakier na sucho</th>
+          <th colspan="2" rowspan="2" class="align-middle">Ocena powierzchni</th>
+          <th rowspan="2" class="align-middle">Jakość struktury</th>
+          <th rowspan="2" class="align-middle">Czystość powierzchni do montażu lamp</th>
+        </tr>
+        <tr>
+          <th>Dolna granica_mcr</th>
+          <th>Górna granica_mcr</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Wymaganie</td>
+          <td>130</td>
+          <td>250</td>
+          <td>Brak porowatości</td>
+          <td>Czytelne numery części</td>
+          <td>Obecna poza miejscem na naklejkę</td>
+          <td>Brak guzów/przypaleń</td>
+        </tr>
+        <tr>
+          <td>Narzędzie pomiarowe</td>
+          <td colspan="2">Elcometer</td>
+          <td colspan="2">Ocena wzrokowa</td>
+          <td>Ocena wzrokowa</td>
+          <td>Ocena wzrokowa</td>
+        </tr>
+        <tr>
+          <td>Wynik</td>
+          <td colspan="2">
+            <input type="number" id="lakier_na_sucho" name="lakier_na_sucho" class="form-control" placeholder="0" required>
+          </td>
+          <td>
+            <select id="sel-porowatosc" name="porowatosc" class="form-control">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+          <td>
+            <select id="sel-numery" name="numery" class="form-control">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+          <td>
+            <select id="sel-struktura" name="struktura" class="form-control">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+          <td>
+            <select id="sel-czystosc" name="czystosc" class="form-control">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+        </tr>
+        <!-- dodatkowy wiersz na wynik oceny -->
+        <tr>
+          <td colspan="6" class="text-right font-weight-bold align-middle">STATUS:</td>
+          <td id="wynik-oceny" class="nok-bg">NOK</td>
+        </tr>
+      </tbody>
+    </table>
+      <div style="float: right;">
+        <input type="hidden" id="ids" name="ids" value="{{ ids }}">
+        <input type="hidden" id="sn" name="sn" value="{{ sn }}">
+        <input type="hidden" id="prefix" name="prefix" value="{{ prefix }}">
+        <a href="#" onclick="window.history.back()" class="btn btn-primary btn-lg" role="button" aria-pressed="true">Powrót</a>
+        <button type="submit" class="btn btn-success btn-lg">Prześlij wyniki inspekcji</button>
+      </div>
+    </form>
+  </div>
+
+    
+      </main>
+  </div>
+
+    </div>
+  </div>
+
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
+      <!-- jQuery i jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+    <!-- Inicjalizacja Bootstrap Select -->
+    <script>
+      const selPor = document.getElementById('sel-porowatosc');
+      const selNum = document.getElementById('sel-numery');
+      const selStr = document.getElementById('sel-struktura');
+      const selCz  = document.getElementById('sel-czystosc');
+      const wynik  = document.getElementById('wynik-oceny');
+
+      function updateWynik() {
+        const allOK = selPor.value === 'OK' && selNum.value === 'OK' && selStr.value === 'OK' && selCz.value === 'OK';
+        wynik.textContent = allOK ? 'OK' : 'NOK';
+        wynik.classList.remove('ok-bg','nok-bg');
+        wynik.classList.add(allOK ? 'ok-bg' : 'nok-bg');
+      }
+      [selPor, selNum, selStr, selCz].forEach(el => el.addEventListener('change', updateWynik));
+      updateWynik();
+    </script>
+
+
+
+</body>
+
+</html>

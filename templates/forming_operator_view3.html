@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Dashboard: Lista formowania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <!--jQuery -->
+  <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
+
+<style>
+    @keyframes blink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .blink-text {
+      animation: blink 1s infinite;
+    }
+</style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <li class="nav-item">
+            <a class="nav-link " href="/forming_operator_view">
+              <span data-feather="arrow-right"></span>
+              Lista formowania
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/forming_operator_view6">
+              <span data-feather="arrow-right"></span>
+              Lista formowania (zredukowana)
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link " href="/forming_operator_view4">
+              <span data-feather="arrow-right"></span>
+              Formy zasypane
+            </a>
+          </li>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Lista formowania (formiernia)</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 30%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <a onClick="window.location.reload()" class="btn btn-primary" role="button" aria-pressed="true">Odśweż stronę</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nazwa modelu</th>
+                <th>Id modelu</th>
+                <th>Status</th>
+                <th>Data dodania</th>
+                <th>Ostatnia modyfikacja statusu</th>
+                <th>Funkcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+                <td>{{ item.id }}</td>
+                <td>{{ item.nazwa }}</td>
+                <td>{{ item.model_id }}</td>
+                  {% if item.zaformowano == '0' %}
+                  <td><span class="badge badge-danger">Nie zaformowano</span></td>
+                  {% elif item.zaformowano == '1' %}
+                  <td><span class="badge badge-success">Zaformowano</span></td>
+                  {% endif %}
+                <td>{{ item.czas_dodania }}</td>
+                <td>{{ item.czas_ostatniej_modyfiakcji }}</td>
+                <td>
+                  <a class="btn btn-success btn" tabindex="-1" role="button" data-toggle="modal" data-target="#modal_form{{ item.id }}" >Zaformowano</a>
+                  
+                  <!-- Modal from item -->
+                  <div class="modal fade" id="modal_form{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Edycja pozycji listy formowania</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/mark_as_formed_form/{{ item.id }}" method="POST" onkeydown="return event.key != 'Enter';">
+                            <h5>Czy chcesz oznaczyć produkt <b> {{ item.nazwa }} </b> jako zaformowany? </h5>
+                            <br>
+                            <div class="row">
+
+                              <div class="col-12">
+
+                              <script>
+                                $(".modal").ready(function() {
+                                  $('.modal').on('shown.bs.modal', function () {
+                                      $(this).find('input:first').focus();})
+                                  }); 
+                              </script>                                        
+
+                              <div class="form-group">
+                                <label for="rfid_tag"><h5>Tag skrzyni:</h5></label>
+                                <input type="text" class="form-control rfid_tag" id="rfid_tag" name="rfid_tag" maxlength="24" required>
+                                
+                                <small id="rfid_tag" class="form-text text-muted">Id tagu jest obowiązkowe.</small>
+                                
+                              </div>
+
+                              <div data-mdb-input-init class="form-outline mb-4">
+                                <label for="koment"><h5>Komentarz biura odleni:</h5></label>
+                                <textarea class="form-control" id="koment" rows="3" disabled>{{ comment }}</textarea>
+                                {% if comment %}
+                                <label class="blink-text" for="koment"><span class="badge badge-danger">Komantarz biura odleni !!!</span></label>
+                                {% endif %}
+                              </div>
+
+                              <hr>
+
+                            </div>     
+
+                              <div class="col-6">
+
+                                <div class="form-group">
+                                  <label for="nr_formowania1">
+                                    <h5>Numer seryjny 1:</h5>
+                                  </label>
+                                  {% if item.model1_sn == None %}
+                                    <input type="text" class="form-control" id="nr_formowania1" name="nr_formowania1" value="" readonly>
+                                  {% else %}
+                                    <input type="text" class="form-control" id="nr_formowania1" name="nr_formowania1" value="{{ item.prefix }}-{{ item.model1_sn }}"  {% if ' D' in item.nazwa %} readonly  {% endif %} required>
+                                  {% endif %}
+                                <small id="emailHelp" class="form-text text-muted">Numer seryjny 1 jest obowiązkowy</small>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="nr_formowania2">
+                                    <h5>Numer seryjny 2:</h5>
+                                  </label>
+                                  {% if item.model2_sn == None %}
+                                    <input type="text" class="form-control" id="nr_formowania2" name="nr_formowania2" value="" readonly>
+                                  {% else %}
+                                    <input type="text" class="form-control" id="nr_formowania2" name="nr_formowania2" value="{{ item.prefix }}-{{ item.model2_sn }}"  {% if ' D' in item.nazwa %} readonly  {% endif %} required>
+                                  {% endif %}
+                                  <small id="emailHelp" class="form-text text-muted">Numer seryjny 2 jest obowiązkowy</small>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="nr_formowania3">
+                                    <h5>Numer seryjny 3:</h5>
+                                  </label>
+                                  {% if item.model3_sn == None %}
+                                    <input type="text" class="form-control" id="nr_formowania3" name="nr_formowania3" value="" readonly>
+                                  {% else %}
+                                    <input type="text" class="form-control" id="nr_formowania3" name="nr_formowania3" value="{{ item.prefix }}-{{ item.model3_sn }}"  {% if ' D' in item.nazwa %} readonly  {% endif %} required>
+                                  {% endif %}
+                                  <small id="emailHelp" class="form-text text-muted">Numer seryjny 3 jest obowiązkowy</small>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="nr_formowania4">
+                                    <h5>Numer seryjny 4:</h5>
+                                  </label>
+                                  {% if item.model4_sn == None %}
+                                    <input type="text" class="form-control" id="nr_formowania4" name="nr_formowania4" value="" readonly>
+                                  {% else %}
+                                    <input type="text" class="form-control" id="nr_formowania4" name="nr_formowania4" value="{{ item.prefix }}-{{ item.model4_sn }}"  {% if ' D' in item.nazwa %} readonly  {% endif %} required>
+                                  {% endif %}
+                                  <small id="emailHelp" class="form-text text-muted">Numer seryjny 4 nie jest obowiązkowy</small>
+                                </div>
+
+                            </div>
+                            <div class="col-6">
+
+                              <div class="form-group">
+                                <label for="nr_formowania5">
+                                  <h5>Numer seryjny 5:</h5>
+                                </label>
+                                {% if item.model5_sn == None %}
+                                  <input type="text" class="form-control" id="nr_formowania5" name="nr_formowania5" value="" readonly>
+                                {% else %}
+                                  <input type="text" class="form-control" id="nr_formowania5" name="nr_formowania5" value="{{ item.prefix }}-{{ item.model5_sn }}"  {% if ' D' in item.nazwa %} readonly  {% endif %} required>
+                                {% endif %}
+                                <small id="emailHelp" class="form-text text-muted">Numer seryjny 5 nie jest obowiązkowy</small>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="nr_formowania6">
+                                  <h5>Numer seryjny 6:</h5>
+                                </label>
+                                {% if item.model6_sn == None %}
+                                  <input type="text" class="form-control" id="nr_formowania6" name="nr_formowania6" value="" readonly>
+                                {% else %}
+                                  <input type="text" class="form-control" id="nr_formowania6" name="nr_formowania6" value="{{ item.prefix }}-{{ item.model6_sn }}"  {% if ' D' in item.nazwa %} readonly  {% endif %} required>
+                                {% endif %}
+                                <small id="emailHelp" class="form-text text-muted">Numer seryjny 6 jest obowiązkowy</small>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="nr_formowania7">
+                                  <h5>Numer seryjny 7:</h5>
+                                  </label>
+                                  {% if item.model7_sn == None %}
+                                  <input type="text" class="form-control" id="nr_formowania7" name="nr_formowania7" value="" readonly>
+                                  {% else %}
+                                    <input type="text" class="form-control" id="nr_formowania7" name="nr_formowania7" value="{{ item.prefix }}-{{ item.model7_sn }}"  {% if ' D' in item.nazwa %} readonly  {% endif %} required>
+                                  {% endif %}
+                                  <small id="emailHelp" class="form-text text-muted">Numer seryjny 7 nie jest obowiązkowy</small>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="nr_formowania8">
+                                  <h5>Numer seryjny 8:</h5>
+                                </label>
+                                {% if item.model8_sn == None %}
+                                  <input type="text" class="form-control" id="nr_formowania8" name="nr_formowania8" value="" readonly>
+                                {% else %}
+                                  <input type="text" class="form-control" id="nr_formowania8" name="nr_formowania8" value="{{ item.prefix }}-{{ item.model8_sn }}"  {% if ' D' in item.nazwa %} readonly  {% endif %} required>
+                                {% endif %}
+                                <small id="emailHelp" class="form-text text-muted">Numer seryjny 8 jest obowiązkowy</small>
+                              </div>
+
+                          </div>
+                          </div>
+                           
+                            <!--div class="form-group">
+                              <label for="komentarz_formowanie">
+                                <h5>Komentarz:</h5>
+                              </label>
+                              <textarea class="form-control" id="komentarz_formowanie" name="komentarz_formowanie" rows="3">{{ item.komentarz }}</textarea>
+                              <small id="komentarz_formowanie" class="form-text text-muted">Komentarz nie jest obowiązkowy</small>
+
+                              <input name="form_id" value="{{ item.id }}" hidden>  
+                              <input name="produkt_id" value="{{ item.produkt_id }}" hidden>  
+                              <input name="model_id" value="{{ item.model_id }}" hidden>  
+
+                            </div-->
+
+                            <div class="form-group">
+                              <label for="defect">Defekty formy</label>
+                              <select multiple class="form-control" data-live-search="true" name="defect" id="defect" required>
+                                <option value=""></option>
+                                  {% for item in defects %}
+                                    <option value="{{ item.defect }}" id="n1">{{ item.defect }}</option>
+                                  {% endfor %}
+                              </select>
+                              <input name="form_id" value="{{ item.id }}" hidden>  
+                              <input name="produkt_id" value="{{ item.produkt_id }}" hidden>  
+                              <input name="model_id" value="{{ item.model_id }}" hidden>  
+                            </div>
+
+                            <div class="form-group">
+                              <label for="operator">Operator</label>
+                              <select id="operator" class="selectpicker form-control" data-live-search="true" name="operator" required>
+                                <option value=""></option>
+                              {% for operator in operators %}
+                                <option value="{{ operator.ImieNazwisko }}" id="n1">{{ operator.ImieNazwisko }}</option>
+                              {% endfor %}
+                              </select>
+                            </div>
+
+                            <input type="hidden" id="nazwap" name="nazwap" value="{{ item.nazwa_produktu }}">
+                            <div class="modal-footer">
+                              <div>
+                                <button type="button" id='no_tag_button' onclick="GetTextBoxValueOne3()" class="btn btn-danger">AWARIA</button>
+                                <button type="button" id='no_tag_button' onclick="GetTextBoxValueOne()" class="btn btn-primary">Brak tagu na skrzyni</button>
+                                <button type="button" id='no_tag_button' onclick="GetTextBoxValueOne2()" class="btn btn-warning">Brak tagu w bazie danych</button>
+
+                                <input type="reset" class="btn btn-secondary" value="Reset">
+                              </div>
+
+                              <div>
+                                <button type="button" class="btn btn-dark" data-dismiss="modal">Zrezygnuj</button>
+                                <button type="submit" class="btn btn-success">Zatwiedź</button>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--a class="btn btn-danger btn {% if item.status == 'active' %} disabled {% endif %}" tabindex="-1" role="button" data-toggle="modal"
+                  data-target="#modal_del{{ item.id }}" >Usuń</a-->
+
+                <!--span {% if item.status == 'active' %} hidden {% endif %}> <a class="btn btn-danger" tabindex="-1" role="button" data-toggle="modal" data-target="#modal_del{{ item.id }}" >Usuń</a> </span-->
+
+                <span {% if item.model_id not in fasks_doubled  %} hidden {% endif %}> <a class="btn btn-danger" tabindex="-1" role="button" data-toggle="modal" data-target="#modal_del{{ item.id }}" >Usuń niepotrzebną formę</a> </span>
+    
+                  <!-- Modal delete item -->
+                <div class="modal fade" id="modal_del{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                  aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Usuwanie skrzyni</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/delete_frame/{{ item.id }}" method="POST">
+                          <h5>Czy chcesz usunąć skrzynię <b> {{ item.nazwa }} </b> z listy formowania? </h5>
+                          <br>
+                          <input name="produkt_id" value="{{ item.produkt_id }}" hidden> 
+                          <input name="form_id" value="{{ item.id }}" hidden>   
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                            <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                  
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [3, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  <!-- <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script> -->
+
+<script>
+  function clear_form() {
+    document.getElementById("rfid_tag").reset();
+  }
+</script>
+<script>
+function GetTextBoxValueOne() {
+  $(".rfid_tag").each(function () {
+    $(this).val('BRAK_TAGU_NA_SKRZYNI');
+  });
+}
+</script>
+<script>
+  function GetTextBoxValueOne2() {
+    $(".rfid_tag").each(function () {
+      $(this).val('BRAK_TAGU_W_BAZIE');
+    });
+  }
+</script>
+<script>
+  function GetTextBoxValueOne3() {
+    $(".rfid_tag").each(function () {
+      $(this).val('AWARIA');
+    });
+  }
+</script>
+
+</body>
+
+</html>

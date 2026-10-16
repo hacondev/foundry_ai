@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Szegóły tagu</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#"><b>&nbsp;</b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="/rfid_tags">
+                <span data-feather="arrow-right"></span>
+                Odczyt tagów RFID
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Szczegóły</h1>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for msg in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+          {{ msg }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="form-group">
+          <label for="id" class="">TAG id:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.id }}'
+              disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id" class="">TAG:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.tag }}'
+              disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="TAG" class="">Nazwa:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+              value='{{ tag.nazwa }}' disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="TAG" class="">Opis:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.opis }}'
+              disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="TAG" class="">Rodzaj:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+              value='{{ tag.rodzaj }}' disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="TAG" class="">X:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.x }}'
+              disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="TAG" class="">Y:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.y }}'
+              disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="TAG" class="">Z:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.z }}'
+              disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="TAG" class="">KR:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.kr }}'
+              disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="TAG" class="">Uwagi:</label>
+          <div class="">
+            <textarea class="form-control form-control-lg" id="id" placeholder="No data" rows="3"
+              disabled>{{ tag.uwagi }}</textarea>
+          </div>
+        </div>
+
+
+
+        <br>
+        <a class="btn btn-success btn-lg" role="button" href="/rfid_tags">Powrót</a>
+        <a class="btn btn-primary btn-lg" tabindex="-1" role="button" data-toggle="modal"
+          data-target="#modal_edit_form">Edycja</a>
+
+        <!-- Modal edit frame -->
+        <div class="modal fade" id="modal_edit_form" tabindex="-1" aria-labelledby="exampleModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modal_edit_form">Edycja danych skzyni tag: <b> {{ tag.tag }} </b></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form action="/edit_frame/{{ tag.id }}" method="POST">
+
+                  <div class="form-group">
+                    <label for="id">TAG id:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+                        value='{{ tag.id }}' disabled>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="id" class="">TAG:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+                        value='{{ tag.tag }}' disabled>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="nazwa" class="">Nazwa:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="nazwa" name="nazwa"
+                        placeholder="No data" value='{{ tag.nazwa }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="opis" class="">Opis:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="opis" name="opis"
+                        placeholder="No data" value='{{ tag.opis }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="rodaj" class="">Rodzaj:</label>
+                    <div class="">
+                      <input type="number" class="form-control form-control-lg" id="rodzaj" name="rodzaj"
+                        placeholder="No data" value='{{ tag.rodzaj }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="x" class="">X:</label>
+                    <div class="">
+                      <input type="number" class="form-control form-control-lg" id="x" name="x" placeholder="No data"
+                        value='{{ tag.x }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="y" class="">Y:</label>
+                    <div class="">
+                      <input type="number" class="form-control form-control-lg" id="y" name="y" placeholder="No data"
+                        value='{{ tag.y }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="z" class="">Z:</label>
+                    <div class="">
+                      <input type="number" class="form-control form-control-lg" id="z" name="z" placeholder="No data"
+                        value='{{ tag.z }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="kr">Krata</label>
+                    <select class="form-control form-control-lg" id="kr" name="kr">
+                      <option value="1">krata</option>
+                      <option value="0">brak kraty</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="uwagi" class="">Uwagi:</label>
+                    <div class="">
+                      <textarea class="form-control form-control-lg" id="uwagi" name="uwagi" placeholder="No data"
+                        rows="3">{{ tag.uwagi }}</textarea>
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                    <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--a class="btn btn-danger btn-lg" tabindex="-1" role="button" data-toggle="modal" data-target="#modal_del_form" >Usuń</a-->
+
+        <!-- Modal edit frame -->
+        <div class="modal fade" id="modal_del_form" tabindex="-1" aria-labelledby="exampleModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modal_del_form">Usuwanie tagu: <b> {{ tag.tag }} </b></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+
+              <div class="modal-body">
+                <form action="/del_frame/{{ tag.id }}" method="POST">
+                  <h5>Czy chcesz usunąć tag o nazwie: <b>{{ tag.nazwa }}</b>. Operacja jest nieodwracalna. </h5>
+                  <br>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                    <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br><br>
+
+      </main>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+</body>
+
+</html>

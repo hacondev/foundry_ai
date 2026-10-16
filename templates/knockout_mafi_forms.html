@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Pulpit: Wybijanie</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <style>
+    @keyframes blink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .blink-text {
+      animation: blink 1s infinite;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+
+  <!--------------------------------------------------------------------------------------------------
+    Blok Formy do zalania
+  -->
+
+      <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-md-12">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Formy na mafi</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <!--button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_to_forming">Dodaj do listy zalewu</button-->
+              <a href="" class="btn btn-primary" role="button" aria-pressed="true" onClick="window.location.reload()">
+                Odśwież stronę</a>
+              &nbsp;
+              <a href="/knockout_operator_view" class="btn btn-success" role="button" aria-pressed="true" >
+                Powrót</a>
+                &nbsp;
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="mafi" class="display">
+            <thead>
+              <tr>
+                <th>Form Id</th>
+                <th>Nazwa</th>
+                <th>Data zalania</th>
+                <th>Próba</th>
+                <th>Czas chłodzenia [h]</th>
+                <th>Czas do końca chłodzenia [h]</th>
+                <th>S/N</th>
+                <th>Funkcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in forms %}
+              <!--tr {% if '-' in item.czas_do_konca_chlodzenia %} class="table-success" {% else %} class="table-danger" {% endif %}></tr-->
+              <tr {% if 'knockout' in item.item_status %} class="table-success" {% else %} style="background-color: rgb(255, 112, 112);" {% endif %}>
+                <td>{{ item.id }}</td>
+                <td>{{ item.nazwa_produktu }}</td>
+                <td>{{ item.data_zalania }}</td>
+                <td>
+                  {% if item.trail == '1' %} 
+                      <h5><span class="badge badge-info blink-text">Tak</span></h5>
+                    {% else %} 
+                      Nie
+                  {% endif %}
+                </td>
+                <td>{{ item.dni_do_wybicia * 24 }}</td>
+                <td>{{ item.czas_do_konca_chlodzenia }}</td>
+                <td>
+                  {% for sn in item.numery_seryjne %}
+                    {{ sn }}{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                </td>
+
+                <td>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#mafi-{{item.id}}">
+                      Wybito
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="mafi-{{item.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Czy napewno chcesz oznaczyć formę nr <b> {{ item.id }} </b> jako wybitą?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <form action="/mark_form_as_unloaded/{{item.id}}" method="POST">
+
+                          <div class="form-group">
+                            <label for="komentarz"><h5><b>Komentarz biura dolewni:</b></h5></label>
+                              <textarea class="form-control" id="komentarz" name="komentarz" rows="3" disabled>{{ item.komentarz }}</textarea>
+                              {% if item.komentarz %}
+                                  <label class="blink-text" for="textAreaExample6"><span class="badge badge-danger">Uwaga komantarz biura odlewni !!!</span></label>
+                              {% endif %}
+                              <!-- <small class="form-text text-muted">Komentarz nie jest obowiązkowy</small> -->
+                              <!--label class="" for="komentarz"><span class="badge badge-danger">Uwaga ważne !!!</span></label-->
+                          </div>
+
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Zamknij</button>
+                            <button type="submit" class="btn btn-success">Potwierdź</button>
+                    
+                          </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+
+
+ <!--------------------------------------------------------------------------------------------------
+    Blok: Formy zalane w trakcie studzenia
+  -->
+
+    
+    </div>
+  </div>
+
+  <br>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#mafi').DataTable({
+        order: [
+          [0, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+
+<!-- <script>
+  $(document).ready(function () {
+    $('#table_id2').DataTable({
+      order: [
+        [4, 'desc']
+      ],
+      "pageLength": 50,
+    });
+  });
+</script> -->
+
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+</body>
+
+</html>

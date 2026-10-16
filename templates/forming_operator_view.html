@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Dashboard: Lista formowania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <style>
+    @keyframes blink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .blink-text {
+      animation: blink 1s infinite;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="/forming_operator_view">
+                <span data-feather="arrow-right"></span>
+                Lista formowania
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/forming_operator_view6">
+                <span data-feather="arrow-right"></span>
+                Lista formowania (zredukowana)
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="/forming_operator_view4">
+                <span data-feather="arrow-right"></span>
+                Formy zasypane
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Lista formowania (formiernia)</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert" style="width: 40%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <a onClick="window.location.reload()" class="btn btn-primary" role="button" aria-pressed="true">Odśweż stronę</a>
+            </div>
+            <div class="btn-group mr-2">
+              <a href="/semafor" class="btn btn-secondary" role="button" aria-pressed="true">Semafor</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nazwa produktu</th>
+                <th>Nr seryjny</th> 
+                <th>Próba</th>                 
+                <th>Data dodania</th>
+                <th>Ostatnia modyfikacja</th>
+                <th>Funkcje</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              {% for item in items %}
+
+              <tr {% if item.repeated == '1' %} class="table-danger" {% endif %} {% if item.komentarz_flag == 1 %} class="table-info" {% endif %} >
+                <td>{{ item.id }}</td>
+
+                <!-- <td><a href="#" tabindex="-1" role="button" data-toggle="modal"
+                    data-target="#modal_form_details{{ item.id }}">{{ item.nazwa_produktu }}</a></td> -->
+                <td><a href="/product_details_operator/{{item.id}}">{{ item.nazwa_produktu }}</a></td>
+
+                <!--td><span class="badge badge-warning">{{ item.item_status }}</span></td-->
+                <!--td>{{ item.prefix }}-{{ item.model1_sn }}/{{ item.model2_sn }}/{{ item.model3_sn }}/{{ item.model4_sn }}/{{ item.model5_sn }}/{{ item.model6_sn }}/{{ item.model7_sn }}/{{ item.model8_sn }}</td-->
+
+              {% if item.prefix  == 'XX' %} 
+                <td>{{ item.model1_sn }}/{{ item.model2_sn }}/{{ item.model3_sn }}/{{ item.model4_sn }}/{{ item.model5_sn }}/{{ item.model6_sn }}/{{ item.model7_sn }}/{{ item.model8_sn }}</td>
+              {% else %} 
+                <td>{{ item.prefix }}-{{ item.model1_sn }}/{{ item.model2_sn }}/{{ item.model3_sn }}/{{ item.model4_sn }}/{{ item.model5_sn }}/{{ item.model6_sn }}/{{ item.model7_sn }}/{{ item.model8_sn }}</td>
+              {% endif %}
+
+              <td>
+                  {% if item.trail == '1' %} 
+                      <h5><span class="badge badge-info blink-text">Tak</span></h5>
+                    {% else %} 
+                      Nie
+                  {% endif %}
+              </td>
+                
+                <!-- Modal form details  -->
+                <div class="modal fade" id="modal_form_details{{ item.id }}" tabindex="-1"
+                  aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Szczegóły pozycji listy formowania: <b>
+                            {{ item.nazwa_produktu }} </b> </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/mark_as_formed/{{ item.id }}" method="POST">
+                          <div class="row">
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="model1">Id model 1</label>
+                                <input type="text" class="form-control" id="model1" value="{{ item.id_model1 }}"
+                                  disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="model2">Id model 2</label>
+                                <input type="text" class="form-control" id="model2" value="{{ item.id_model2 }}"
+                                  disabled>
+                              </div>
+                            </div>
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="model1">Id model 3</label>
+                                <input type="text" class="form-control" id="model1" value="{{ item.id_model3 }}"
+                                  disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="model2">Id model 4</label>
+                                <input type="text" class="form-control" id="model2" value="{{ item.id_model4 }}"
+                                  disabled>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col">
+                              <label for="f1">Komentarz biura odlewni:</label>
+                              <textarea class="form-control" id="f1" rows="3" disabled>{{ item.komentarz }}</textarea>
+                            </div>
+                          </div>
+                          
+
+                          <br>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                            <!--button type="submit" class="btn btn-danger">Zatwiedź</button-->
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>             
+                </div>            
+                <td>{{ item.data_dodania }}</td>
+                <td>{{ item.data_ostatniej_modyfikacji}}</td>
+                <td>
+        <a href="/forming_operator_view3/{{ item.id }}" class="btn btn-success" role="button" aria-pressed="true">Skrzynie</a>
+   
+
+        <!-- Modal from item -->
+
+        </td>
+        </tr>
+
+        {% endfor %}
+        </tbody>
+
+        </table>
+    </div>
+    </main>
+  </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [4, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+</body>
+</html>

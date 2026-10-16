@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Pulpit: Wybijanie</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <style>
+    @keyframes blink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .blink-text {
+      animation: blink 1s infinite;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+
+  <!--------------------------------------------------------------------------------------------------
+    Blok Formy do wybicia
+  -->
+
+      <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-md-12">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">MAFI do wybicia</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+
+              <a href="knockout_operator_view" class="btn btn-primary" role="button" aria-pressed="true" >
+                Odśwież stronę</a>
+              &nbsp;
+
+              <!-- Button trigger modal -->
+              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
+                Items to dispalay
+              </button>
+
+              <!-- Modal -->
+              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Items to dispalay</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="/flask_on_mafi" method="POST" target="blank">
+                            
+                        <div class="form-group">
+                          <label for="nazwa">Wybierz produkt</label>
+                          <select class="form-control" id="produkt_id" name="produkt_id">
+                            {% for item in items %}
+                                <option value="{{ item.produkt_id }}">{{ item.nazwa }}</option> 
+                            {% endfor %}
+                          </select>
+                          <small id="nazwa" class="form-text text-muted">Produkt jest obowiązkowy</small>
+                        </div>
+
+                        <hr>
+
+                        <!-- <div class="form-group">
+                          <div id="answer_flasks"></div>
+                        </div> -->
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success">Submit</button>
+                      <!-- <input type="button" class="btn btn-primary" id="gen-id" name="gen-id" value="Submit"> -->
+              
+                    </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="mafi" class="display">
+            <thead>
+              <tr>
+                <th>System Id</th>
+                <th>MAFI id</th>
+                <th>Sataus</th>
+                <th>Próba</th>
+                <th>Powtórka</th>
+                <th>Data załadunku</th>
+                <th>funkcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in mafi %}
+              <!--tr {% if '-' in item.czas_do_konca_chlodzenia %} class="table-success" {% else %} class="table-danger" {% endif %}></tr-->
+              <tr {% if 'ready' in item.status %} class="table-success" {% else %} style="background-color: rgb(255, 112, 112);" {% endif %}>
+                <td>{{ item.id }}</td>
+                <td>{{ item.id_mafi }}</td>
+                <td>{{ item.status }}</td>
+                <td>
+                  {% if item.trail == '1' %} 
+                      <h5><span class="badge badge-info blink-text">Tak</span></h5>
+                    {% else %} 
+                      Nie
+                  {% endif %}
+              </td>
+              <td>
+                  {% if item.alias == '1' %} 
+                      <h5><span class="badge badge-danger blink-text">Tak</span></h5>
+                    {% else %} 
+                      Nie
+                  {% endif %}
+              </td>
+                <td>{{ item.czas }}</td>
+                <td>
+                   <a href="/knockout_mafi_forms/{{item.id_mafi}}" class="btn btn-dark btn" role="button" aria-pressed="true">Formy</a>
+
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mafi-{{item.id_mafi}}">
+                      Rozładowano mafi
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="mafi-{{item.id_mafi}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Czy napewno chcesz oznaczyć mafi nr <b> {{ item.id }} </b> jako rozładowny</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <form action="/mark_mafi_as_unloaded/{{item.id_mafi}}" method="POST">
+                                  
+
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Zamknij</button>
+                            <button type="submit" class="btn btn-success">Potwierdź</button>
+                    
+                          </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+
+
+<!--------------------------------------------------------------------------------------------------
+    Blok: Formy wybite
+-->
+
+  <!--main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-md-12" style="padding-top: 5%;">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h1 class="h2">Skrzynie wybite</h1>
+
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      {% for msg in messages %}
+      <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+        {{ msg }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group mr-2">
+          &nbsp;
+   
+          <div class="modal fade" id="add_to_forming" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <form action="/add_to_casting_list" method="POST">
+
+                    <div class="form-group">
+                      <label for="nazwa">Wybierz produkt</label>
+                      <select class="form-control" id="nazwa" name="nazwa">
+                        {% for idx in products %}
+                        {% if idx.status != 'inactive' %}
+                        <option value="{{ idx.nazwa }}"> {{ idx.nazwa }} </option>
+                        {% endif %}
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="quantity">Ilość sztuk</label>
+                      <input type="number" class="form-control" id="quantity" name="quantity" value="1">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                  <button type="submit" class="btn btn-danger">Zatwiedź</button>
+
+                </div>
+
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      <table id="table_id1" class="table table-striped">
+        <thead>
+          <tr>
+            <th >Id</th>
+            <th >Nazwa</th>
+            <th >S/N</th>
+            <th >Próba</th>
+            <th >Powtórka</th>
+            <th >Data zalania</th>
+            <th >Data wybicia</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in forms_knockout %}
+          <tr >
+            <td >{{ item.id }}</td>
+            <td >{{ item.nazwa_produktu }}</td>
+            {% if item.prefix  == 'XX' %} 
+            <td>{{ item.model1_sn }}/{{ item.model2_sn }}/{{ item.model3_sn }}/{{ item.model4_sn }}/{{ item.model5_sn }}/{{ item.model6_sn }}/{{ item.model7_sn }}/{{ item.model8_sn }}</td>
+            {% else %} 
+              <td>{{ item.prefix }}-{{ item.model1_sn }}/{{ item.model2_sn }}/{{ item.model3_sn }}/{{ item.model4_sn }}/{{ item.model5_sn }}/{{ item.model6_sn }}/{{ item.model7_sn }}/{{ item.model8_sn }}</td>
+            {% endif %}
+            <td>
+              {% if item.trail == '1' %} 
+                  <h5><span class="badge badge-info blink-text">Tak</span></h5>
+              {% else %} 
+                  Nie
+              {% endif %}
+            </td>
+            {% if item.alias %}
+                  <td><h5><span class="badge badge-danger blink-text">Tak</span></h5></td>
+                  {% else %}
+                  <td>Nie</td>
+            {% endif %}
+    
+            <td >{{ item.data_zalania }}</td>
+            <td >{{ item.czas }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main-->
+    </div>
+  </div>
+
+  <br>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#mafi').DataTable({
+        order: [
+          [3, 'asc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+
+<script>
+  $(document).ready(function () {
+    $('#table_id1').DataTable({
+      order: [
+        [5, 'desc']
+      ],
+      "pageLength": 50,
+    });
+  });
+</script>
+
+<script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+</script>
+
+<!-- <script type="text/javascript">
+  $(function() {
+      $('#gen-id').click(function() {
+          $.ajax({
+              url: '/flask_on_mafi',
+              type: 'POST',
+              data:{"produkt_id" : produkt_id},
+              success: function(response) {
+                  document.getElementById("answer_flasks").innerHTML = 'ddd';
+                  console.log(response); 
+              },
+              error: function(error) {
+                  console.log(error);
+              }
+          });
+      });
+  });
+</script> -->
+
+</body>
+
+</html>

@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Defects / item</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <!-- jQuery UI CSS (dla datepicker) -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <!-- Bootstrap Select CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+</head>
+    
+</head>
+
+<body>
+
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <!--li class="nav-item text-nowrap" style="color: aliceblue;">
+        Logged as: <b> {{ session['user'] }} </b>
+        <a class="nav-link active" href="/logout">Sign out</a-->
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Production orders
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/casting_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Defect adding form</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+            </div><a onclick="window.history.back()" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a>
+        </div>
+
+        <div class="row">
+          <div class="col">
+          <form action="/add_defect/{{ item_idsn_glob }}" method="POST">
+            <!--div class="form-group">
+              <label for="kartabr">Karta braków</label>
+              <input type="text" class="form-control" id="kartabr" name="kartabr" aria-describedby="emailHelp">
+              <small id="kartabr" class="form-text text-muted"><span style="background-color: rgb(255, 54, 54); color: aliceblue;"> Złom: {{ zlom }}</span>, <span style="background-color: rgb(231, 255, 112);"> Naprawa: {{ naprawa }}</span></small>
+            </div-->
+            <div class="form-group">
+              <label for="defnum">Ilość braków w systemie:</label>
+              <input type="text" class="form-control" id="defnum" name="defnum" value="{{ defnum }}" disabled>
+              <!--small id="kartabr" class="form-text text-muted"></small-->
+            </div>
+            <div class="form-group">
+              <label for="datepicker">Data:</label>
+              <input type="text" class="form-control" id="datepicker" name="defect_date" placeholder="Kliknij aby wybrać datę" required>
+            </div>
+            <div class="form-group">
+              <label for="rodzaj_braku">Rodzaj braku:</label>
+                  <select class="selectpicker form-control" id="rodzaj_braku" name="rodzaj_braku" data-live-search="true" required>
+                    <option value="" selected>wybierz</option>
+                    <option value="wyciek na podziale">wyciek na podziale</option>
+                    <option value="oberwanie masy">oberwanie masy</option>
+                    <option value="przestawienie">przestawienie</option>
+                    <option value="guz/wypchnięcie">guz/wypchnięcie</option>
+                    <option value="uszkodzenie mechaniczne">uszkodzenie mechaniczne</option>
+                    <option value="zimny metal">zimny metal</option>
+                    <option value="twardy odlew">twardy odlew</option>
+                    <option value="jama skurczowa">jama skurczowa</option>
+                    <option value="zapiaszczenie - PF">zapiaszczenie - PF</option>
+                    <option value="zapiaszczenie">zapiaszczenie</option>
+                    <option value="zagazowanie">zagazowanie</option>
+                    <option value="niedolew">niedolew</option>
+                    <option value="pory i zaszlakowania - PF">pory i zaszlakowania - PF</option>
+                    <option value="pory i zaszlakowania">pory i zaszlakowania</option>
+                    <option value="wciągnięcie">wciągnięcie</option>
+                    <option value="za gruba zalewka">za gruba zalewka</option>
+                    <option value="pęknięta ścianka i kołek wentylacyjny">pęknięta ścianka i kołek wentylacyjny</option>
+                    <option value="zendra">zendra</option>
+                    <option value="uszkodzenie mechaniczne po robocie szlifierskim">uszkodzenie mechaniczne po robocie szlifierskim</option>
+                  </select>
+            </div>
+
+            <div class="form-group">
+              <label for="decyzja">Decyzja:</label>
+                  <select class="selectpicker form-control" id="decyzja" name="decyzja" data-live-search="true" required>
+                    <option value="" selected>Wybierz</option>
+                    <option value="złomować">złomować</option>
+                    <option value="spawanie">spawanie</option>
+                    <option value="szlifowanie">szlifowanie</option>
+                    <option value="szpachlowanie">szpachlowanie</option>
+                    <option value="wkręcenie redukcji">wkręcenie redukcji</option>
+                    <option value="śrutowanie">śrutowanie</option>
+                    <option value="Poprawa gwintu">Poprawa gwintu</option>
+                  </select>
+            </div>
+
+            <div class="form-group">
+              <label for="miejsce">Miejsce wystąpienia braku:</label>
+                  <select class="selectpicker form-control" id="miejsce" name="miejsce" data-live-search="true" required>
+                    <option value="" selected>Wybierz</option>
+                    <option value="formowanie ręczne">formowanie ręczne</option>
+                    <option value="formowanie automatyczne">formowanie automatyczne</option>
+                    <option value="odlewnia">odlewnia</option>
+                    <option value="wybijanie">wybijanie</option>
+                    <option value="oczyszczalnia">oczyszczalnia</option>
+                    <option value="szlifowanie">szlifowanie</option>
+                    <option value="obróbka mechaniczna">obróbka mechaniczna</option>
+                    <option value="lakiernia">lakiernia</option>
+                  </select>
+            </div>
+
+            <div class="form-group">
+              <label for="nazwa_produktu">Produkt:</label>
+              <input type="text" class="form-control" id="nazwa_produktu" name="nazwa_produktu" value="{{ nazwa }}" readonly>
+              <!--small id="kartabr" class="form-text text-muted"></small-->
+            </div>
+
+            <!--div class="form-group">
+              <label for="klient">Klient:</label>
+                  <select class="selectpicker form-control" id="klient" name="klient" data-live-search="true" required>
+                    <option value="" selected>Wybierz</option>
+                    <option value="Kion Polska">Kion Polska</option>
+                    <option value="Kion Italy">Kion Italy</option>
+                    <option value="Kion Warehaus">Kion Warehaus</option>
+                    <option value="Still Hamburg">Still Hamburg</option>
+                    <option value="Mitsubishi Oy">Mitsubishi Oy</option>
+                    <option value="Mitsubishi Spain">Mitsubishi Spain</option>
+                    <option value="Liebherr Kirchdorf">Liebherr Kirchdorf</option>
+                    <option value="Liebherr Francja">Liebherr Francja</option>
+                    <option value="Liebherr Ehingen">Liebherr Ehingen</option>
+                    <option value="Mecalac Francja">Mecalac Francja</option>
+                    <option value="Mecalac Niemcy">Mecalac Niemcy</option>
+                  </select>
+            </div>
+
+            <div class="form-group">
+              <label for="part">Nr części:</label>
+                  <select class="selectpicker form-control" id="Klient" name="part" data-live-search="part" required>
+                    <option value="" selected>Wybierz</option>
+                    <option value="Rx 60-60">Rx 60-60</option>
+                    <option value="Rx 60-70">Rx 60-70</option>
+                    <option value="Rx 60-80">Rx 60-80</option>
+                    <option value="Rx 60-80 LFP 900">Rx 60-80 LFP 900</option>
+                    <option value="Rx70-40">Rx70-40</option>
+                    <option value="Rx70-45">Rx70-45</option>
+                    <option value="Rx70-50">Rx70-50</option>
+                    <option value="Rx70-50 LP600">Rx70-50 LP600</option>
+                    <option value="RXE 16C- 1,0T- 55046100100">RXE 16C- 1,0T- 55046100100</option>
+                    <option value="RXE 16C- 1,3T- 55046100102">RXE 16C- 1,3T- 55046100102</option>
+                    <option value="RXE 16C- 1,5T- 55046100103">RXE 16C- 1,5T- 55046100103</option>
+                    <option value="RXE 16C- 1,6T- 55046100104">RXE 16C- 1,6T- 55046100104</option>
+                    <option value="LINDE-BR 1275 - E20PH- 258">LINDE-BR 1275 - E20PH- 258</option>
+                    <option value="LINDE-BR 1275 - E16C- 250">LINDE-BR 1275 - E16C- 250</option>
+                    <option value="LINDE-BR 1275 - E16CH- 254">LINDE-BR 1275 - E16CH- 254</option>
+                    <option value="LINDE-BR 1275 - E16P- 252">LINDE-BR 1275 - E16P- 252</option>
+                    <option value="LINDE-BR 1275 - E16PH- 256">LINDE-BR 1275 - E16PH- 256</option>
+                    <option value="BR 1276 - EG 25">BR 1276 - EG 25</option>
+                    <option value="BR 1276 - EG 25H">BR 1276 - EG 25H</option>
+                    <option value="BR 1276 - EG 30">BR 1276 - EG 30</option>
+                    <option value="BR 1276 - EG 30H">BR 1276 - EG 30H</option>
+                    <option value="BR 1276 - EG 35H">BR 1276 - EG 35H</option>
+                    <option value="56366130219">56366130219</option>
+                    <option value="56366100220">56366100220</option>
+                    <option value="56366100221">56366100221</option>
+                    <option value="56366130222">56366130222</option>
+                    <option value="56366100212">56366100212</option>
+                    <option value="56366100214">56366100214</option>
+                    <option value="56366100215">56366100215</option>
+                    <option value="56366100216">56366100216</option>
+                    <option value="56366130217">56366130217</option>
+                    <option value="56366100225">56366100225</option>
+                    <option value="Zus 56356130600">Zus 56356130600</option>
+                    <option value="Zus 653816">Zus 653816</option>
+                    <option value="Płyta Zus 647">Płyta Zus 647</option>
+                    <option value="55016130600">55016130600</option>
+                    <option value="Zus 225">Zus 225</option>
+                    <option value="56366100210">56366100210</option>
+                    <option value="56366100211">56366100211</option>
+                    <option value="Przeciwwaga dystansowa LINDE 3962122300">Przeciwwaga dystansowa LINDE 3962122300</option>
+                    <option value="58X1 - 3707961">58X1 - 3707961</option>
+
+                    <option value="645430">645430</option>
+                    <option value="645429">645429</option>
+                    <option value="644257">644257</option>
+                    <option value="644592">644592</option>
+                    <option value="643818">643818</option>
+                    <option value="657057">657057</option>
+                    <option value="657059">657059</option>
+                    <option value="657063">657063</option>
+                    <option value="657065">657065</option>
+                    <option value="657071">657071</option>
+                    <option value="657073">657073</option>
+
+                    <option value="P070 bez napisu">P070 bez napisu</option>
+                    <option value="Ahlmann P085">Ahlmann P085</option>
+                    <option value="Ahlmann P100">Ahlmann P100</option>
+                    <option value="Ahlmann 100">Ahlmann 100</option>
+                    <option value="Ahlmann 252 B">Ahlmann 252 B</option>
+                    <option value="Ahlmann 293">Ahlmann 293</option>
+                    <option value="2400226 (AS 600)">2400226 (AS 600)</option>
+                    <option value="Zusatzgewicht 2400169">Zusatzgewicht 2400169</option>
+                    <option value="Gegengewicht AS1600 (2400166)">Gegengewicht AS1600 (2400166)  </option>
+                    <option value="Zusatzgewicht AX1000 (2400181)">Zusatzgewicht AX1000 (2400181)</option>
+                    <option value="Ahlmann 2400171 (AX850)">Ahlmann 2400171 (AX850)</option>
+                    <option value="2400188 (AX850)">2400188 (AX850)</option>
+                    <option value="SWING 2400173">SWING 2400173</option>
+                    <option value="Pegasus bez napisu">Pegasus bez napisu</option>
+                    <option value="AL 396 bez napisu">AL 396 bez napisu</option>
+                    <option value="AL 440 bez napisu">AL 440 bez napisu</option>
+                    <option value="Ahlmann AS 500">Ahlmann AS 500</option>
+
+                    <option value="L 380112108">L 380112108</option>
+                    <option value="L 380112208">L 380112208</option>
+                    <option value="L 14337168">L 14337168</option>
+                    <option value="L 14334547">L 14334547</option>
+                    <option value="L 12822230">L 12822230</option>
+                    <option value="L 14374854">L 14374854</option>
+                    <option value="L 12853456">L 12853456</option>
+                    <option value="L 13718418">L 13718418</option>
+                    <option value="L 11405499">L 11405499</option>
+                    <option value="L 12920131">L 12920131</option>
+                    <option value="L 12415928">L 12415928</option>
+                    <option value="L 13785613 / 311">L 13785613 / 311</option>
+                    <option value="L 13771958 / 747">L 13771958 / 747</option>
+                    <option value="L 13464238">L 13464238</option>
+                    <option value="L 13401891">L 13401891</option>
+
+                    <option value="Rammschutz AB1160 - 8400 L">Rammschutz AB1160 - 8400 L</option>
+                    <option value="Rammschutz AB1160 - 8400 L PSA">Rammschutz AB1160 - 8400 L PSA</option>
+                    <option value="Rammschutz AB1160 - 8401 R">Rammschutz AB1160 - 8401 R</option>
+                    <option value="Rammschutz AB1360 - 8402 L">Rammschutz AB1360 - 8402 L</option>
+                    <option value="Rammschutz AB1360 - 8402 L PSA">Rammschutz AB1360 - 8402 L PSA</option>
+                    <option value="Rammschutz AB1360 - 8403 R">Rammschutz AB1360 - 8403 R</option>
+                    <option value="Rammschutz AB1560 - 8404 L">Rammschutz AB1560 - 8404 L</option>
+                    <option value="Rammschutz AB1560 - 8404 L PSA">Rammschutz AB1560 - 8404 L PSA</option>
+                    <option value="Rammschutz AB1560 - 8405 R">Rammschutz AB1560 - 8405 R</option>
+
+                    <option value="KION Canvan 209">KION Canvan 209</option>
+                    <option value="MECALAC 263">MECALAC 263</option>
+                    <option value="MECALAC 255">MECALAC 255</option>
+                    <option value="Francja Mecalac 144">Francja Mecalac 144</option>
+                    <option value="Francja Mecalac 121">Francja Mecalac 121</option>
+                    <option value="Francja Mecalac 145">Francja Mecalac 145</option>
+                    <option value="Francja Mecalac 133">Francja Mecalac 133</option>
+                    <option value="Francja Mecalac 211/330">Francja Mecalac 211/330</option>
+                    <option value="Francja Mecalac 213">Francja Mecalac 213</option>
+                    <option value="Przeciwwaga  2400212">Przeciwwaga  2400212</option>
+                    <option value="MECALAC 2400309">MECALAC 2400309</option>
+                    <option value="Przeciwwaga 45876130201">Przeciwwaga 45876130201</option>
+                    <option value="Przeciwwaga 45876130200">Przeciwwaga 45876130200</option>
+                    <option value="MECALAC 2400200">MECALAC 2400200</option>
+                    <option value="MECALAC 2400208">MECALAC 2400208</option>
+                    <option value="MECALAC 2400253">MECALAC 2400253</option>
+                    <option value="Mecalac 215">Mecalac 215 </option>
+                    <option value="MECALAC 2400219">MECALAC 2400219</option>
+                    <option value="MECALAC 2400230">MECALAC 2400230</option>
+                    <option value="Mecalac 2400274">Mecalac 2400274</option>
+                    <option value="MECALAC 2400266">MECALAC 2400266</option>
+                    <option value="MECALAC 2400238">MECALAC 2400238</option>
+
+                  </select>
+            </div-->
+
+            <!--div class="form-group">
+              <label for="operator">Operator:</label>
+                  <select class="selectpicker form-control" id="operator" name="operator" data-live-search="true" readonly>
+                    <option value="" selected>Wybierz</option>
+                    <option value="WM">WM</option>
+                    <option value="TN">TN</option>
+                    <option value="TM">TM</option>
+                    <option value="ZR">ZR</option>
+                    <option value="FS">FS</option>
+                  </select>
+            </div-->
+            
+            <!-- <div class="form-group">
+              <label for="miejsce">Miejsce wystapienia braku</label>
+              <textarea class="form-control" id="miejsce" rows="3"></textarea>
+            </div> -->
+
+
+                <input type="submit" class="btn btn-success" value="Zatwierdź">
+          </div>
+      </form>
+
+      <div class="col">
+
+        <form method="POST" enctype="multipart/form-data" action="/upload_file">
+          <div class="form-group">
+            <input hidden name="item_idsn" value="{{ item_idsn_glob }}" >
+            <label for="file">Załącznik</label><br>
+            <input type="file" name="file" id="file">
+          </div>
+          <input type="submit" class="btn btn-success" value="Prześlij" >
+        </form>
+
+        <hr>
+
+        <div class="table-responsive">
+          <caption><h2>Attachemnts</h2></caption>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">id</th>
+                <th scope="col">Komantarz</th>
+                <th scope="col">Functions</th>
+              </tr>
+              <tbody>
+                {% for item in attachments %}
+                <tr>
+                  <td>{{ item.id }}</td>
+                  <td>{{ item.comment }}</td>
+                  <td>
+                    <a href="/uploads/{{item.path}}" class="btn btn-link" role="button" aria-pressed="true">Pobierz</a>|
+                    <a href="/delete_attachment/{{item.path}}" class="btn btn-link" role="button" aria-pressed="true">Usuń</a>|
+                    
+                    <a href="" data-toggle="modal" data-target="#defkom_{{ item.id }}" class="btn btn-link" role="button" aria-pressed="true">Komantarz</a>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="defkom_{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Dodaj Komantarz: Załącznik nr <strong>{{ item.id }} </strong></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <form method="POST" enctype="multipart/form-data" action="/def_add_comment/{{ item.id }}">
+                              <div class="form-group">
+                                <label for="defkom">Komanentarz</label>
+                                <textarea class="form-control" id="defkom" name="defkom" rows="3" required></textarea>
+                              </div>                          
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button>
+                              <button type="submit" class="btn btn-success">Zatwierdź</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <br>
+
+        <!--h2>Section title</h2-->
+        <div class="table-responsive">
+          <caption><h2>Table of defects</h2></caption>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">id</th>
+                <th scope="col">Karta braków</th>
+                <!--th scope="col">Produkt</th-->
+                <th scope="col">Wada</th>
+                <th scope="col">Miejsce</th>
+                <th scope="col">Decyzja</th>
+                <th scope="col">Operator</th>     
+                <th scope="col">Data</th>        
+                <th scope="col">Funkcje</th>       
+              </tr>
+            </thead>
+            <tbody>
+              {% for entry in defects %}
+              <tr>
+                <td>{{ entry.id }}</td>
+                <td>{{ entry.karta_brakow }}</td>
+                <!--td>{{ entry.product }}</td-->
+                <td>{{ entry.wada }}</td>
+                <td>{{ entry.miejsce }}</td>
+                <td>{{ entry.decyzja }}</td>
+                <td>{{ entry.operator }}</td>
+                <td>{{ entry['data'] }}</td>
+                <td>
+                <a href="/karta_braku/{{entry.id}}" class="btn btn-link" role="button" aria-pressed="true" target="blank">Karta braku</a>|
+                <a href="" data-toggle="modal" data-target="#edit_defect_{{ entry.id }}" class="btn btn-link" role="button" aria-pressed="true">Edycja</a>|
+                <a href="/del_defect/{{entry.id}}" class="btn btn-link" role="button" aria-pressed="true">Usuń</a>
+
+                <!-- Modal -->
+                <div class="modal fade" id="edit_defect_{{ entry.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edycja danych braku: <strong>{{ entry.id }} </strong></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="POST" enctype="multipart/form-data" action="/edit_defect/{{ entry.id }}">
+
+                          <!--div class="form-group">
+                            <label for="product">Produkt</label>
+                            <input type="text" class="form-control" id="product" name="product" aria-describedby="emailHelp" value="{{ entry.product }}" disabled>
+                          </div-->
+
+                          <div class="form-group">
+                            <label for="kartabr">Karta braków</label>
+                            <input type="text" class="form-control" id="kartabr" name="kartabr" aria-describedby="emailHelp" value="{{ entry.karta_brakow }}">
+                          </div>
+
+                          <div class="form-group">
+                            <label for="datepicker">Data:</label>
+                            <input type="text" class="form-control" name="defect_date" value="{{ entry.data }}" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="rodzaj_braku">Rodzaj braku:</label>
+                                <select class="selectpicker form-control" id="rodzaj_braku" name="rodzaj_braku" data-live-search="true" required>
+                                  {% if entry['wada'] != 'złomować' %}<option value="{{entry.wada}}" selected>{{entry.wada}}</option>{% endif %}
+                                  {% if entry['wada'] != 'wyciek na podziale' %}<option value="wyciek na podziale">wyciek na podziale</option>{% endif %}
+                                  {% if entry['wada'] != 'oberwanie masy' %}<option value="oberwanie masy">oberwanie masy</option>{% endif %}
+                                  {% if entry['wada'] != 'przestawienie' %}<option value="przestawienie">przestawienie</option>{% endif %}
+                                  {% if entry['wada'] != 'guz/wypchnięcie' %}<option value="guz/wypchnięcie">guz/wypchnięcie</option>{% endif %}
+                                  {% if entry['wada'] != 'uszkodzenie mechaniczne' %}<option value="uszkodzenie mechaniczne">uszkodzenie mechaniczne</option>{% endif %}
+                                  {% if entry['wada'] != 'zimny metal' %}<option value="zimny metal">zimny metal</option>{% endif %}
+                                  {% if entry['wada'] != 'twardy odlew' %}<option value="twardy odlew">twardy odlew</option>{% endif %}
+                                  {% if entry['wada'] != 'pory i zaszlakowania - PF' %}<option value="pory i zaszlakowania - PF">pory i zaszlakowania - PF</option>{% endif %}
+                                  {% if entry['wada'] != 'pory i zaszlakowania' %}<option value="pory i zaszlakowania">pory i zaszlakowania</option>{% endif %}
+                                  {% if entry['wada'] != 'jama skurczowa' %}<option value="jama skurczowa">jama skurczowa</option>{% endif %}
+                                  {% if entry['wada'] != 'zapiaszczenie - PF' %}<option value="zapiaszczenie - PF">zapiaszczenie - PF</option>{% endif %}
+                                  {% if entry['wada'] != 'zapiaszczenie' %}<option value="zapiaszczenie">zapiaszczenie</option>{% endif %}
+                                  {% if entry['wada'] != 'zagazowanie' %}<option value="zagazowanie">zagazowanie</option>{% endif %}
+                                  {% if entry['wada'] != 'niedolew' %}<option value="niedolew">niedolew</option>{% endif %}
+                                  {% if entry['wada'] != 'wciągnięcie' %}<option value="wciągnięcie">wciągnięcie</option>{% endif %}
+                                  {% if entry['wada'] != 'za gruba zalewka' %}<option value="za gruba zalewka">za gruba zalewka</option>{% endif %}
+                                  {% if entry['wada'] != 'pęknięta ścianka i kołek wentylacyjny' %}<option value="za gruba zalewka">pęknięta ścianka i kołek wentylacyjny</option>{% endif %}
+                                  {% if entry['wada'] != 'zendra' %}<option value="zendra">zendra</option>{% endif %}
+                                  {% if entry['wada'] != 'zendra' %}<option value="uszkodzenie mechaniczne po robocie szlifierskim.">uszkodzenie mechaniczne po robocie szlifierskim.</option>{% endif %}
+                                </select>
+                          </div>
+                                                   
+                          <!-- <div class="form-group">
+                            <label for="decyzja">Decyzja:</label>
+                                <select class="selectpicker form-control" id="decyzja" name="decyzja" data-live-search="true" readonly>
+                                  <option value="{{entry.decyzja}}" selected>{{entry.decyzja}}</option>
+                                  {% if entry['decyzja'] != 'złomować' %}<option value="złomować">złomować</option>{% endif %}
+                                  {% if entry['decyzja'] != 'spawanie' %}<option value="spawanie">spawanie</option>{% endif %}
+                                  {% if entry['decyzja'] != 'szlifowanie' %}<option value="szlifowanie">szlifowanie</option>{% endif %}
+                                  {% if entry['decyzja'] != 'wkręcenie redukcji' %}<option value="wkręcenie redukcji">wkręcenie redukcji</option>{% endif %}
+                                </select>
+                          </div> -->
+              
+                          <div class="form-group">
+                            <label for="miejsce">Miejsce wystąpienia braku:</label>
+                                <select class="selectpicker form-control" id="miejsce" name="miejsce" data-live-search="true" required>
+                                  <option value="{{entry.miejsce}}" selected>{{entry.miejsce}}</option>
+                                  {% if entry['miejsce'] != 'formowanie ręczne' %} <option value="formowanie ręczne">formowanie ręczne</option>{% endif %}
+                                  {% if entry['miejsce'] != 'formowanie automatyczne' %} <option value="formowanie automatyczne">formowanie automatyczne</option>{% endif %}
+                                  {% if entry['miejsce'] != 'odlewnia' %} <option value="odlewnia">odlewnia</option>{% endif %}
+                                  {% if entry['miejsce'] != 'wybijanie' %} <option value="wybijanie">wybijanie</option>{% endif %}
+                                  {% if entry['miejsce'] != 'oczyszczalnia' %} <option value="oczyszczalnia">oczyszczalnia</option>{% endif %}
+                                  {% if entry['miejsce'] != 'szlifowanie' %} <option value="szlifowanie">szlifowanie</option>{% endif %}
+                                  {% if entry['miejsce'] != 'obróbka mechaniczna' %} <option value="obróbka mechaniczna">obróbka mechaniczna</option>{% endif %}
+                                  {% if entry['miejsce'] != 'lakiernia' %} <option value="lakiernia">lakiernia</option>{% endif %}
+                                </select>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="decyzja">Decyzja:</label>
+                            <input type="text" class="form-control" id="decyzja" value="{{ entry.decyzja }}" disabled>
+                          </div>
+
+                          <!--div class="form-group">
+                            <label for="klient">Klient:</label>
+                                <select class="selectpicker form-control" id="klient" name="klient" data-live-search="true" required>
+                                  <option value="{{entry.klient}}" selected>{{entry.klient}}</option>
+                                  {% if entry['klient'] != 'Kion Polska' %} <option value="Kion Polska">Kion Polska</option>{% endif %}
+                                  {% if entry['klient'] != 'Kion Italy' %} <option value="Kion Italy">Kion Italy</option>{% endif %}
+                                  {% if entry['klient'] != 'Kion Warehaus' %} <option value="Kion Warehaus">Kion Warehaus</option>{% endif %}
+                                  {% if entry['klient'] != 'Still Hamburg' %} <option value="Still Hamburg">Still Hamburg</option>{% endif %}
+                                  {% if entry['klient'] != 'Mitsubishi Oy' %} <option value="Mitsubishi Oy">Mitsubishi Oy</option>{% endif %}
+                                  {% if entry['klient'] != 'Mitsubishi Spain' %} <option value="Mitsubishi Spain">Mitsubishi Spain</option>{% endif %}
+                                  {% if entry['klient'] != 'Liebherr Kirchdorf' %} <option value="Liebherr Kirchdorf">Liebherr Kirchdorf</option>{% endif %}
+                                  {% if entry['klient'] != 'Liebherr Francja' %} <option value="Liebherr Francja">Liebherr Francja</option>{% endif %}
+                                  {% if entry['klient'] != 'Liebherr Ehingen' %} <option value="Liebherr Ehingen">Liebherr Ehingen</option>{% endif %}
+                                  {% if entry['klient'] != 'Mecalac Francja' %} <option value="Mecalac Francja">Mecalac Francja</option>{% endif %}
+                                  {% if entry['klient'] != 'Mecalac Niemcy' %} <option value="Mecalac Niemcy">Mecalac Niemcy</option>{% endif %}
+                                </select>
+                          </div~-->
+              
+                          <!--div class="form-group">
+                            <label for="part">Nr części:</label>
+                                <select class="selectpicker form-control" id="Klient" name="part" data-live-search="part" required>
+                                  <option value="{{entry['part_no']}}" selected>{{entry['part_no']}}</option>
+                                  {% if entry['part_no'] != 'Rx 60-60' %}<option value="Rx 60-60">Rx 60-60</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rx 60-70' %}<option value="Rx 60-70">Rx 60-70</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rx 60-80' %}<option value="Rx 60-80">Rx 60-80</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rx 60-80 LFP 900' %}<option value="Rx 60-80 LFP 900">Rx 60-80 LFP 900</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rx70-40' %}<option value="Rx70-40">Rx70-40</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rx70-45' %}<option value="Rx70-45">Rx70-45</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rx70-50' %}<option value="Rx70-50">Rx70-50</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rx70-50 LP600' %}<option value="Rx70-50 LP600">Rx70-50 LP600</option>{% endif %}
+                                  {% if entry['part_no'] != 'RXE 16C- 1,0T- 55046100100' %}<option value="RXE 16C- 1,0T- 55046100100">RXE 16C- 1,0T- 55046100100</option>{% endif %}
+                                  {% if entry['part_no'] != 'RXE 16C- 1,3T- 55046100102' %}<option value="RXE 16C- 1,3T- 55046100102">RXE 16C- 1,3T- 55046100102</option>{% endif %}
+                                  {% if entry['part_no'] != 'RXE 16C- 1,5T- 55046100103' %}<option value="RXE 16C- 1,5T- 55046100103">RXE 16C- 1,5T- 55046100103</option>{% endif %}
+                                  {% if entry['part_no'] != 'RXE 16C- 1,6T- 55046100104' %}<option value="RXE 16C- 1,6T- 55046100104">RXE 16C- 1,6T- 55046100104</option>{% endif %}
+                                  {% if entry['part_no'] != 'LINDE-BR 1275 - E20PH- 258' %}<option value="LINDE-BR 1275 - E20PH- 258">LINDE-BR 1275 - E20PH- 258</option>{% endif %}
+                                  {% if entry['part_no'] != 'LINDE-BR 1275 - E16C- 250' %}<option value="LINDE-BR 1275 - E16C- 250">LINDE-BR 1275 - E16C- 250</option>{% endif %}
+                                  {% if entry['part_no'] != 'LINDE-BR 1275 - E16CH- 254' %}<option value="LINDE-BR 1275 - E16CH- 254">LINDE-BR 1275 - E16CH- 254</option>{% endif %}
+                                  {% if entry['part_no'] != 'LINDE-BR 1275 - E16P- 252' %}<option value="LINDE-BR 1275 - E16P- 252">LINDE-BR 1275 - E16P- 252</option>{% endif %}
+                                  {% if entry['part_no'] != 'LINDE-BR 1275 - E16PH- 256' %}<option value="LINDE-BR 1275 - E16PH- 256">LINDE-BR 1275 - E16PH- 256</option>{% endif %}
+                                  {% if entry['part_no'] != 'BR 1276 - EG 25' %}<option value="BR 1276 - EG 25">BR 1276 - EG 25</option>{% endif %}
+                                  {% if entry['part_no'] != 'BR 1276 - EG 25H' %}<option value="BR 1276 - EG 25H">BR 1276 - EG 25H</option>{% endif %}
+                                  {% if entry['part_no'] != 'BR 1276 - EG 30' %}<option value="BR 1276 - EG 30">BR 1276 - EG 30</option>{% endif %}
+                                  {% if entry['part_no'] != 'BR 1276 - EG 30H' %}<option value="BR 1276 - EG 30H">BR 1276 - EG 30H</option>{% endif %}
+                                  {% if entry['part_no'] != 'BR 1276 - EG 35H' %}<option value="BR 1276 - EG 35H">BR 1276 - EG 35H</option>{% endif %}
+                                  {% if entry['part_no'] != '56366130219' %}<option value="56366130219">56366130219</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100220' %}<option value="56366100220">56366100220</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100221' %}<option value="56366100221">56366100221</option>{% endif %}
+                                  {% if entry['part_no'] != '56366130222' %}<option value="56366130222">56366130222</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100212' %}<option value="56366100212">56366100212</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100214' %}<option value="56366100214">56366100214</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100215' %}<option value="56366100215">56366100215</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100216' %}<option value="56366100216">56366100216</option>{% endif %}
+                                  {% if entry['part_no'] != '56366130217' %}<option value="56366130217">56366130217</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100225' %}<option value="56366100225">56366100225</option>{% endif %}
+                                  {% if entry['part_no'] != 'Zus 56356130600' %}<option value="Zus 56356130600">Zus 56356130600</option>{% endif %}
+                                  {% if entry['part_no'] != 'Zus 653816' %}<option value="Zus 653816">Zus 653816</option>{% endif %}
+                                  {% if entry['part_no'] != 'Płyta Zus 647' %}<option value="Płyta Zus 647">Płyta Zus 647</option>{% endif %}
+                                  {% if entry['part_no'] != '55016130600' %}<option value="55016130600">55016130600</option>{% endif %}
+                                  {% if entry['part_no'] != 'Zus 225' %}<option value="Zus 225">Zus 225</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100210' %}<option value="56366100210">56366100210</option>{% endif %}
+                                  {% if entry['part_no'] != '56366100211' %}<option value="56366100211">56366100211</option>{% endif %}
+                                  {% if entry['part_no'] != 'Przeciwwaga dystansowa LINDE 396212230' %}<option value="Przeciwwaga dystansowa LINDE 3962122300">Przeciwwaga dystansowa LINDE 3962122300</option>{% endif %}
+                                  {% if entry['part_no'] != '58X1 - 3707961' %}<option value="58X1 - 3707961">58X1 - 3707961</option>{% endif %}
+              
+                                  {% if entry['part_no'] != '645430' %}<option value="645430">645430</option>{% endif %}
+                                  {% if entry['part_no'] != '645429' %}<option value="645429">645429</option>{% endif %}
+                                  {% if entry['part_no'] != '644257' %}<option value="644257">644257</option>{% endif %}
+                                  {% if entry['part_no'] != '644592' %}<option value="644592">644592</option>{% endif %}
+                                  {% if entry['part_no'] != '643818' %}<option value="643818">643818</option>{% endif %}
+                                  {% if entry['part_no'] != '657057' %}<option value="657057">657057</option>{% endif %}
+                                  {% if entry['part_no'] != '657059' %}<option value="657059">657059</option>{% endif %}
+                                  {% if entry['part_no'] != '657063' %}<option value="657063">657063</option>{% endif %}
+                                  {% if entry['part_no'] != '657065' %}<option value="657065">657065</option>{% endif %}
+                                  {% if entry['part_no'] != '657071' %}<option value="657071">657071</option>{% endif %}
+                                  {% if entry['part_no'] != '657073' %}<option value="657073">657073</option>{% endif %}
+              
+                                  {% if entry['part_no'] != 'P070 bez napisu' %}<option value="P070 bez napisu">P070 bez napisu</option>{% endif %}
+                                  {% if entry['part_no'] != 'Ahlmann P08' %}<option value="Ahlmann P085">Ahlmann P085</option>{% endif %}
+                                  {% if entry['part_no'] != 'Ahlmann P100' %}<option value="Ahlmann P100">Ahlmann P100</option>{% endif %}
+                                  {% if entry['part_no'] != 'Ahlmann 100' %}<option value="Ahlmann 100">Ahlmann 100</option>{% endif %}
+                                  {% if entry['part_no'] != 'Ahlmann 252 B' %}<option value="Ahlmann 252 B">Ahlmann 252 B</option>{% endif %}
+                                  {% if entry['part_no'] != 'Ahlmann 293' %}<option value="Ahlmann 293">Ahlmann 293</option>{% endif %}
+                                  {% if entry['part_no'] != '2400226 (AS 600)' %}<option value="2400226 (AS 600)">2400226 (AS 600)</option>{% endif %}
+                                  {% if entry['part_no'] != 'Zusatzgewicht 2400169' %}<option value="Zusatzgewicht 2400169">Zusatzgewicht 2400169</option>{% endif %}
+                                  {% if entry['part_no'] != 'Gegengewicht AS1600 (2400166)' %}<option value="Gegengewicht AS1600 (2400166)">Gegengewicht AS1600 (2400166)  </option>{% endif %}
+                                  {% if entry['part_no'] != 'Zusatzgewicht AX1000 (2400181)' %}<option value="Zusatzgewicht AX1000 (2400181)">Zusatzgewicht AX1000 (2400181)</option>{% endif %}
+                                  {% if entry['part_no'] != 'Ahlmann 2400171 (AX850)' %}<option value="Ahlmann 2400171 (AX850)">Ahlmann 2400171 (AX850)</option>{% endif %}
+                                  {% if entry['part_no'] != '2400188 (AX850)' %}<option value="2400188 (AX850)">2400188 (AX850)</option>{% endif %}
+                                  {% if entry['part_no'] != 'SWING 2400173' %}<option value="SWING 2400173">SWING 2400173</option>{% endif %}
+                                  {% if entry['part_no'] != 'Pegasus bez napisu' %}<option value="Pegasus bez napisu">Pegasus bez napisu</option>{% endif %}
+                                  {% if entry['part_no'] != 'AL 396 bez napisu' %}<option value="AL 396 bez napisu">AL 396 bez napisu</option>{% endif %}
+                                  {% if entry['part_no'] != 'AL 440 bez napisu' %}<option value="AL 440 bez napisu">AL 440 bez napisu</option>{% endif %}
+                                  {% if entry['part_no'] != 'Ahlmann AS 500' %}<option value="Ahlmann AS 500">Ahlmann AS 500</option>{% endif %}
+              
+                                  {% if entry['part_no'] != 'L 380112108' %}<option value="L 380112108">L 380112108</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 380112208' %}<option value="L 380112208">L 380112208</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 14337168' %}<option value="L 14337168">L 14337168</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 14334547' %}<option value="L 14334547">L 14334547</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 12822230' %}<option value="L 12822230">L 12822230</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 14374854' %}<option value="L 14374854">L 14374854</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 12853456' %}<option value="L 12853456">L 12853456</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 13718418' %}<option value="L 13718418">L 13718418</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 11405499' %}<option value="L 11405499">L 11405499</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 12920131' %}<option value="L 12920131">L 12920131</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 12415928' %}<option value="L 12415928">L 12415928</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 13785613 / 311' %}<option value="L 13785613 / 311">L 13785613 / 311</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 13771958 / 747' %}<option value="L 13771958 / 747">L 13771958 / 747</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 13464238' %}<option value="L 13464238">L 13464238</option>{% endif %}
+                                  {% if entry['part_no'] != 'L 13401891' %}<option value="L 13401891">L 13401891</option>{% endif %}
+              
+                                  {% if entry['part_no'] != 'Rammschutz AB1160 - 8400 L' %}<option value="Rammschutz AB1160 - 8400 L">Rammschutz AB1160 - 8400 L</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rammschutz AB1160 - 8400 L PSA' %}<option value="Rammschutz AB1160 - 8400 L PSA">Rammschutz AB1160 - 8400 L PSA</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rammschutz AB1160 - 8401 R' %}<option value="Rammschutz AB1160 - 8401 R">Rammschutz AB1160 - 8401 R</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rammschutz AB1360 - 8402 L' %}<option value="Rammschutz AB1360 - 8402 L">Rammschutz AB1360 - 8402 L</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rammschutz AB1360 - 8402 L PSA' %}<option value="Rammschutz AB1360 - 8402 L PSA">Rammschutz AB1360 - 8402 L PSA</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rammschutz AB1360 - 8403 R' %}<option value="Rammschutz AB1360 - 8403 R">Rammschutz AB1360 - 8403 R</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rammschutz AB1560 - 8404 L' %}<option value="Rammschutz AB1560 - 8404 L">Rammschutz AB1560 - 8404 L</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rammschutz AB1560 - 8404 L PSA' %}<option value="Rammschutz AB1560 - 8404 L PSA">Rammschutz AB1560 - 8404 L PSA</option>{% endif %}
+                                  {% if entry['part_no'] != 'Rammschutz AB1560 - 8405 R' %}<option value="Rammschutz AB1560 - 8405 R">Rammschutz AB1560 - 8405 R</option>{% endif %}
+              
+                                  {% if entry['part_no'] != 'KION Canvan 209' %}<option value="KION Canvan 209">KION Canvan 209</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 263' %}<option value="MECALAC 263">MECALAC 263</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 255' %}<option value="MECALAC 255">MECALAC 255</option>{% endif %}
+                                  {% if entry['part_no'] != 'Francja Mecalac 144' %}<option value="Francja Mecalac 144">Francja Mecalac 144</option>{% endif %}
+                                  {% if entry['part_no'] != 'Francja Mecalac 121' %}<option value="Francja Mecalac 121">Francja Mecalac 121</option>{% endif %}
+                                  {% if entry['part_no'] != 'Francja Mecalac 145' %}<option value="Francja Mecalac 145">Francja Mecalac 145</option>{% endif %}
+                                  {% if entry['part_no'] != 'Francja Mecalac 133' %}<option value="Francja Mecalac 133">Francja Mecalac 133</option>{% endif %}
+                                  {% if entry['part_no'] != 'Francja Mecalac 211/330' %}<option value="Francja Mecalac 211/330">Francja Mecalac 211/330</option>{% endif %}
+                                  {% if entry['part_no'] != 'Francja Mecalac 213' %}<option value="Francja Mecalac 213">Francja Mecalac 213</option>{% endif %}
+                                  {% if entry['part_no'] != 'Przeciwwaga  2400212' %}<option value="Przeciwwaga  2400212">Przeciwwaga  2400212</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 2400309' %}<option value="MECALAC 2400309">MECALAC 2400309</option>{% endif %}
+                                  {% if entry['part_no'] != 'Przeciwwaga 45876130201' %}<option value="Przeciwwaga 45876130201">Przeciwwaga 45876130201</option>{% endif %}
+                                  {% if entry['part_no'] != 'Przeciwwaga 45876130200' %}<option value="Przeciwwaga 45876130200">Przeciwwaga 45876130200</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 2400200' %}<option value="MECALAC 2400200">MECALAC 2400200</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 2400208' %}<option value="MECALAC 2400208">MECALAC 2400208</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 2400253' %}<option value="MECALAC 2400253">MECALAC 2400253</option>{% endif %}
+                                  {% if entry['part_no'] != 'Mecalac 215' %}<option value="Mecalac 215">Mecalac 215 </option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 2400219' %}<option value="MECALAC 2400219">MECALAC 2400219</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 2400230' %}<option value="MECALAC 2400230">MECALAC 2400230</option>{% endif %}
+                                  {% if entry['part_no'] != 'Mecalac 2400274' %}<option value="Mecalac 2400274">Mecalac 2400274</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 2400266' %}<option value="MECALAC 2400266">MECALAC 2400266</option>{% endif %}
+                                  {% if entry['part_no'] != 'MECALAC 2400238' %}<option value="MECALAC 2400238">MECALAC 2400238</option>{% endif %}
+              
+                                </select>
+                          </div-->
+
+                          <!--div class="form-group">
+                            <label for="operator">Operator:</label>
+                                <select class="selectpicker form-control" id="operator" name="operator" data-live-search="true" readonly>
+                                  <option value="{{entry['operator']}}" selected>{{entry['operator']}}</option>
+                                  {% if entry['operator'] != 'WM' %}<option value="WM">WM</option>{% endif %}
+                                  {% if entry['operator'] != 'TN' %}<option value="TN">TM</option>{% endif %}
+                                  {% if entry['operator'] != 'TM' %}<option value="TM">TM</option>{% endif %}
+                                  {% if entry['operator'] != 'ZR' %}<option value="ZR">ZR</option>{% endif %}
+                                  {% if entry['operator'] != 'FS' %}<option value="FS">FS</option>{% endif %}
+                                </select>
+                          </div-->
+
+                          
+                          
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button>
+                          <button type="submit" class="btn btn-success">Zatwierdź</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
+      <!-- jQuery i jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+    <!-- Inicjalizacja Bootstrap Select -->
+    <script>
+        $(document).ready(function() {
+            $('.selectpicker').selectpicker();
+        });
+    </script>
+
+    <!-- Inicjalizacja datepicker z domyślną datą -->
+    <script>
+      $(function() {
+          var dzisiaj = new Date();  // Pobranie dzisiejszej daty
+          $("#datepicker").datepicker({
+              dateFormat: "yy-mm-dd", // Format daty
+              changeMonth: true,      // Umożliwia zmianę miesiąca
+              changeYear: true,       // Umożliwia zmianę roku
+              defaultDate: dzisiaj    // Ustawienie dzisiejszej daty jako domyślnej
+          }).datepicker("setDate", dzisiaj); // Ustawienie dzisiejszej daty w polu
+      });
+  </script>
+
+
+</body>
+
+</html>

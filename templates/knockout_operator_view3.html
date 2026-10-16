@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Dashboard: Lista formowania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link " href="/knockout_operator_view">
+                <span data-feather="arrow-right"></span>
+                Formy do wybicia
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/knockout_operator_view3">
+                <span data-feather="arrow-right"></span>
+                Formy w trakcie chłodzenia
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="/knockout_operator_view2">
+                <span data-feather="arrow-right"></span>
+                Formy wybite
+              </a>
+            </li>
+          </ul>
+
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Formy w trakcie chłodzenia</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <!--button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_to_forming">Dodaj do listy zalewu</button-->
+              <!--a href="/calculate_cooling_times_kn_operator" class="btn btn-secondary" role="button" aria-pressed="true">Przelicz czasy chłodzenia</a-->
+              &nbsp;
+              <a href="/knockout_operator_view3" class="btn btn-primary" role="button" aria-pressed="true">Przelicz czasy chłodzenia</a>
+              &nbsp;
+              <!-- Modal adding nnew item -->
+              <div class="modal fade" id="add_to_forming" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <!--h5 class="modal-title" id="exampleModalLabel">Nowa pozycja listy formowania</h5-->
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+
+                    <div class="modal-body">
+                      <form action="/add_to_casting_list" method="POST">
+
+                        <div class="form-group">
+                          <label for="nazwa">Wybierz produkt</label>
+                          <select class="form-control" id="nazwa" name="nazwa">
+                            {% for idx in products %}
+                            {% if idx.status != 'inactive' %}
+                            <option value="{{ idx.nazwa }}"> {{ idx.nazwa }} </option>
+                            {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="quantity">Ilość sztuk</label>
+                          <input type="number" class="form-control" id="quantity" name="quantity" value="1">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                      <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                      <!--button type="button" class="btn btn-primary">Save changes</button-->
+                    </div>
+
+                    </form>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--h2>Section title</h2-->
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nazwa</th>
+                <th>Skrzynia D</th>
+                <th>Skrzynia G</th>
+                <th>Status</th>
+                <th>Data dodania</th>
+                <th>Ostatnia modyfikacja statusu</th>
+                <th>Funkcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.id }}</td>
+                <td><a href="/form_details_kn_operator/{{ item.id }}">{{ item.nazwa_produktu }}</a></td>
+                <td>{{ item.flask1 }}</td>
+                <td>{{ item.flask2 }}</td>
+
+                <!-- {% if item.item_status == 'assembled' %}
+                <td><span class="badge badge-primary">{{ item.item_status }}</span></td>
+                {% elif item.item_status == 'casted' %}
+                <td><span class="badge badge-danger">{{ item.item_status }}</span></td>
+                {% endif %}
+                <td>{{ item.data_dodania }}</td>
+                <td>{{ item.data_ostatniej_modyfikacji }}</td> -->
+                
+                <td><span class="badge badge-danger">{{ item.item_status }}</span></td>
+           
+                <td>{{ item.data_dodania }}</td>
+                <td>{{ item.data_ostatniej_modyfikacji }}</td>
+
+                <td>
+                
+                  <a class="btn btn-success btn" tabindex="-1" role="button" data-toggle="modal"
+                  data-target="#modal_form{{ item.id }}">Szczegóły</a>
+              
+                <!-- Modal from item -->
+                <div class="modal fade" id="modal_form{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                  aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Szczegóły pozycji listy zalewu</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/mark_as_casted/{{ item.id }}" method="POST">
+                          <h5>Czy chcesz oznaczyć produkt <b> {{ item.nazwa_produktu }} </b> jako zalany? </h5>
+                          <br>
+
+                          <div class="form-group">
+                            <label for="nr_kadzi">Numer kadzi:</label>
+                            <input type="text" class="form-control" id="nr_kadzi" name="nr_kadzi" value="{{ item.nr_kadzi }}" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="nr_kadzi">Czas zalewania:</label>
+                            <input type="text" class="form-control" id="nr_kadzi" name="nr_kadzi" value="{{ item.czas_zalewania }}" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="dni_do_wybicia">Dni do wybicia:</label>
+                            <input type="text" class="form-control" id="dni_do_wybicia" name="dni_do_wybicia" value="{{ item.dni_do_wybicia }}" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="temp_zeliwa">Tempertura żeliwa podczas zalewu:</label>
+                            <input type="text" class="form-control" id="temp_zeliwa" name="temp_zeliwa" value="{{ item.temp_zeliwa }}" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="filtr">Filtr:</label>
+                            <input type="text" class="form-control" id="filtr" name="filtr" value="{{ item.filtr }}" disabled>
+                          </div>    
+                          <div class="form-group">
+                            <label for="broken">Forma uszkodzona:</label>
+                            <input type="text" class="form-control" id="broken" name="broken" value="{{ item.broken }}" disabled>
+                          </div>        
+                          <div class="form-group">
+                            <label for="komentarz_rdzeniarnia">Komentarz zalew:</label>
+                            <textarea class="form-control" id="komentarz_rdzeniarnia" rows="2" disabled>{{ item.komentarz_zalew }}</textarea>
+                          </div> 
+                          <div class="form-group">
+                            <label for="komentarz_rdzeniarnia">Komentarz rdzeniarnia:</label>
+                            <textarea class="form-control" id="komentarz_rdzeniarnia" rows="2" disabled>{{ item.komentarz_rdzeniarnia }}</textarea>
+                          </div>
+                          <div class="form-group">
+                            <label for="komentarz_formowanie">Komentarz biura odlewni:</label>
+                            <textarea class="form-control" id="komentarz_formowanie" rows="2" disabled>{{ item.komentarz }}</textarea>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                            <!--button type="submit" class="btn btn-danger">Zatwiedź</button-->
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [2, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+</body>
+
+</html>

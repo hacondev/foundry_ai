@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Dashboard: patterns</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="/forming">
+                <span data-feather="arrow-right"></span>
+                Forming
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/cores">
+                <span data-feather="arrow-right"></span>
+                Cores
+              </a>
+            <li class="nav-item">
+              <a class="nav-link" href="/foundry">
+                <span data-feather="arrow-right"></span>
+                Foundry
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/cooling">
+                <span data-feather="arrow-right"></span>
+                Cooling
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/knockout">
+                <span data-feather="arrow-right"></span>
+                Knockout
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/grinding">
+                <span data-feather="arrow-right"></span>
+                Grinding
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="/buffer">
+                <span data-feather="arrow-right"></span>
+                Buffer
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/products">
+                <span data-feather="arrow-right"></span>
+                Casts
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Database: Tags</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+
+              &nbsp;
+              <a href="/patterns" class="btn btn-primary" role="button" aria-pressed="true">Refresh page</a>
+              &nbsp;
+              <button type="button" id="download-button" class="btn btn-success">Export to CSV</button>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th style="width: 10%;">Pattern id</th>
+                <th>Pattern name</th>
+                <th>TAG</th>
+                <th>S/N</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.ID }}</td>
+                <td>{{ item.nazwa }}</td>
+                <td>{{ item.tag }}</td>
+                <td>{{ item.sn }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+    </div>
+    <br>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [0, 'asc']
+        ],
+        "pageLength": 50,
+        aLengthMenu: [
+          [25, 50, 100, 200, -1],
+          [25, 50, 100, 200, "All"]
+        ],
+      });
+    });
+  </script>
+
+  <script>
+    function htmlToCSV(html, filename) {
+      var data = [];
+      var rows = document.querySelectorAll("table tr");
+      for (var i = 0; i < rows.length; i++) {
+        var row = [],
+          cols = rows[i].querySelectorAll("td, th");
+        for (var j = 0; j < cols.length; j++) {
+          row.push(cols[j].innerText);
+        }
+        data.push(row.join(","));
+      }
+      downloadCSVFile(data.join("\n"), filename);
+    }
+  </script>
+
+  <script>
+    function downloadCSVFile(csv, filename) {
+      var csv_file, download_link;
+      csv_file = new Blob([csv], {
+        type: "text/csv"
+      });
+      download_link = document.createElement("a");
+      download_link.download = filename;
+      download_link.href = window.URL.createObjectURL(csv_file);
+      download_link.style.display = "none";
+      document.body.appendChild(download_link);
+      download_link.click();
+    }
+  </script>
+
+  <script>
+    document.getElementById("download-button").addEventListener("click", function () {
+      var html = document.querySelector("table").outerHTML;
+      htmlToCSV(html, "tags.csv");
+    });
+  </script>
+
+</body>
+
+</html>

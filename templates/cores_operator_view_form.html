@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Dashboard: Lista formowania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <style>
+    @keyframes blink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .blink-text {
+      animation: blink 1s infinite;
+    }
+
+
+    .blink-red {
+        color: red;
+        font-size: 24px;
+        font-weight: bold;
+        animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+        0%, 50%, 100% {
+            opacity: 1;
+        }
+        25%, 75% {
+            opacity: 0;
+        }
+    }
+
+
+  </style>
+
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="/cores_operator_view">
+                <span data-feather="arrow-right"></span>
+                Lista formowania (rdzeniarnia)
+              </a>
+              <a class="nav-link " href="/cores_operator_view2">
+                <span data-feather="arrow-right"></span>
+                Formy gotowe
+              </a>
+              <a class="nav-link " href="/cores_operator_view3">
+                <span data-feather="arrow-right"></span>
+                Lista formowania (formiernia)
+              </a>
+            </li>
+          </ul>
+
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Przygotowanie formy do zalania</h1>
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <button type="button" class="btn btn-secondary" onClick="window.location.reload()">
+                Odśweż stronę
+             </button>             
+            </div>
+          </div>
+        </div>
+
+        <form action="/mark_as_assembled_operator_form/{{ item }}" method="POST" style="width: 60%;" id="optionForm">
+            <label for="koment">
+              <h5>Komentarz biura odlewni:</h5>
+            </label>
+          <div data-mdb-input-init class="form-outline mb-4">
+              <textarea class="form-control" id="koment" rows="3" disabled>{{ komentarz }}</textarea>
+          {% if komentarz %}
+          <label class="blink-text" for="textAreaExample6"><span class="badge badge-danger">Uwaga komantarz biura odlewni !!!</span></label>
+          {% endif %}
+          </div>
+          <div class="form-group">
+            <label for="komentarz_rdzen">
+              <h5>Komentarz:</h5>
+            </label>
+            <textarea class="form-control" id="komentarz_rdzen" name="komentarz_rdzen" rows="3">
+            </textarea>
+            <small id="komentarz_rdzen" class="form-text text-muted">Komentarz nie jest obowiązkowy</small>
+          </div>
+
+          <div class="form-group">
+            <label for="frame2">Id skrzyni:</label>
+            <textarea class="form-control" id="frame2" name="frame2" rows="1" readonly>{{ serial }}</textarea>
+          </div>
+
+          <div id="serialWarning" class="blink-red" style="display: none;"> <strong>Skrywać pod nadzorem!</strong></div>
+          <br>
+
+          <div class="form-group">
+            <label for="defect">Defekty formy</label>
+            <select multiple class="form-control" data-live-search="true" name="defect" id="defect" required>
+              <option value=""></option>
+                {% for item in defects %}
+                  <option value="{{ item.defect }}" id="n1">{{ item.defect }}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <input type="hidden" name="selectedOptions" id="selectedOptions">
+          <!--div class="form-group">
+            <label for="model2">Id skrzyni:</label>
+            <input class="form-control" id="frame2" name="frame2" value="{{ item }}" disabled>
+          </div-->
+          <div class="modal-footer">
+            <a class="btn btn-secondary" href="/cores_operator_view" role="button">Zrezygnuj</a>
+            <button type="submit" class="btn btn-success">Zatwiedź</button>
+            <!--input type="button" class="btn btn-primary" id="gen-id" name="gen-id" value="Wygeneruj id skrzyni"-->
+          </div>
+        </form>  
+      </main>
+
+
+  </div>
+  </div>
+
+  <!-- Javascript -->
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"> </script>
+
+  <script type="text/javascript">
+    $(function() {
+        $('#gen-id').click(function() {
+            $.ajax({
+                url: '/flask_id_gen',
+                type: 'GET',
+                success: function(response) {
+                    document.getElementById("frame2").innerHTML= response['flask_id'];
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    });
+  </script>
+   <script>
+    const form = document.getElementById('optionForm');
+    const select = document.getElementById('defect');
+    const hiddenInput = document.getElementById('selectedOptions');
+
+    form.addEventListener('submit', function (e) {
+      const selected = Array.from(select.selectedOptions).map(opt => opt.value);
+      hiddenInput.value = selected.join(',');
+    });
+  </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const serial = document.getElementById("frame2").value.toUpperCase();
+        const warning = document.getElementById("serialWarning");
+
+        if (serial.includes("HM") || serial.includes("HN") || serial.includes("HP")) {
+            warning.style.display = "block";
+        } else {
+            warning.style.display = "none";
+        }
+    });
+</script>
+
+</body>
+
+</html>

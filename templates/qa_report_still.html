@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>QA Report</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <!-- Bootstrap Select CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+  <style>
+      @keyframes blink {
+        0%   { opacity: 1; }
+        50%  { opacity: 0; }
+        100% { opacity: 1; }
+      }
+
+      .blink-text {
+        animation: blink 1s infinite;
+      }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <ul class="navbar-nav px-3">
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/quality" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+               Home
+              </a>
+            </li>
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="/defects" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li-->
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Liebherr" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA inspection Liebherr
+              </a>
+            </li-->
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Still" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Still
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Kion Polska" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Kion Polska
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Spain" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mitsubishi Spain
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Finland" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mitsubishi Finland
+              </a>
+            </li-->
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mecalac France" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA inspection Mecalac France
+              </a>
+            </li-->
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Still" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA inspection Still
+              </a>
+            </li>
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Finland" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA inspection Mitsubishi Finland
+              </a>
+            </li-->
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                SHIPMENTS
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/shipment" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Shipments
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                GRINDING
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/grinding_sheefts" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Piecework
+              </a>
+            </li-->
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">QA report: <b>{{ customer }}</b></h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+          <!-- Button trigger modal Inspercka masowa -->
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#Modal-OK">
+            Inspekcja masowa [OK]
+          </button>   
+          &nbsp
+          <!-- Modal Inspercka masowa -->
+          <div class="modal fade" id="Modal-OK" tabindex="-1" aria-labelledby="Modal-OK" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="Modal-OK">Edycja masowa - wyroby zgodne</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Czy chcesz oznaczyć wybrane przeciwwagi jako zgodne z wymogami QA?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-dismiss="modal" >Close</button>
+                  <button type="button" class="btn btn-success" data-dismiss="modal" id="submitSelected-ok">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        
+
+          <!-- Button trigger modal Inspercka masowa -->
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Modal-NOK">
+            Inspekcja masowa [NOK]
+          </button>
+
+          <!-- Modal Inspercka masowa -->
+          <div class="modal fade" id="Modal-NOK" tabindex="-1" aria-labelledby="Modal-NOK" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Edycja masowa - wyroby niezgodne</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Czy chcesz oznaczyć wybrane przeciwwagi jako niezgodne z wymogami QA?
+                  <br>       
+
+                  <form action="/mark_still_as_qa_nok" method="post">
+
+                    <input type="hidden" id="defect_nok" name="rows_data">
+
+                    <div class="form-group">
+                      <label for="defectSelect">Wybierz rodzaj wady odlewu</label>
+                      <select class="form-control" id="defectSelect" name="defect_type" required>
+                        <option value="">---</option>
+                        <option value="niedomalowanie">niedomalowanie</option>
+                        <option value="niedoszpachlowanie">niedoszpachlowanie</option>
+                        <option value="struktura NOK">struktura NOK</option>
+                        <option value="niedoszlifowania">niedoszlifowania</option>
+                        <option value="inne">inne</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group" id="innePole" style="display:none;">
+                      <label for="defectOther">Opisz wadę</label>
+                      <textarea class="form-control" id="defectOther" name="defect_other" rows="3"></textarea>
+                      <div class="invalid-feedback">
+                        To pole nie może być puste gdy wybrano "inne".
+                      </div>
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success" id="submitSelected-nok">Submit</button>
+                    </div>
+
+                  </form>
+
+              </div></div>
+            </div>
+          </div>
+
+          &nbsp
+          <!--button type="button" id="download-button" class="btn btn-primary">Export to CSV</button-->
+          <!-- Button trigger modal Inspercka masowa -->
+
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Modal-CAN">
+            Anuluj wyniki inspekcji
+          </button>
+
+          <!-- Modal Inspercka masowa -->
+          <div class="modal fade" id="Modal-CAN" tabindex="-1" aria-labelledby="Modal-NOK" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Edycja masowa - wyroby niezgodne</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Czy chcesz anulować wyniki poprzeniej inspekcji.
+
+                  <br>
+              
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-dismiss="modal" >Close</button>
+                  <button type="button" class="btn btn-success" data-dismiss="modal" id="submitSelected-can">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+              &nbsp
+
+              <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#find_sn">
+                Find S/N
+              </button>
+
+              <!-- Modal -->
+              <div class="modal fade" id="find_sn" tabindex="-1" aria-labelledby="find_sn" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Find S/N</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="/qa_report_sn" method="POST">
+                            
+                        <div class="form-group">
+                          <label for="addivies">Serial number:</label>
+                          <input type="text" class="form-control" id="sn" name="sn" required>
+                          <small id="sn" class="form-text text-muted">Prawidłowy format to: AB-1234</small>
+                          <br>
+                        </div>
+
+                        <input type="hidden" id="customer" name="customer" value="{{ customer }}">
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success">Submit</button>
+              
+                    </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!--a class="btn btn-info" href="/defects_def" role="button">Defects only</a-->
+
+               &nbsp
+
+              <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#find_product">
+                Find product
+              </button>
+
+              <!-- Modal -->
+              <div class="modal fade" id="find_product" tabindex="-1" aria-labelledby="find_product" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Find product</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="/find_product" method="POST">
+                            
+                    <div class="form-group">
+                      <label for="product">Nazwa produktu</label>
+                      <select id="product" name="product" class="selectpicker form-control" data-live-search="true" required>
+                      <option value=""></option>
+                      {% for product in products %}
+                        <option value="{{product.nazwa}}">{{product.nazwa}}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+
+                    <div class="form-group" style="width: 60%">
+                      <label for="b">Casting date from:</label><br>
+                      <input type="date" class="form-control"  step="any" id="b" name="casting_from" min="2024-09-10" max="2030-01-01" />
+                    </div>
+
+                    <div class="form-group" style="width: 60%">
+                      <label for="c">Casting date to:</label><br>
+                      <input type="date" class="form-control" step="any" id="c" name="casting_to" min="2024-09-10" max="2030-01-01" />
+                    </div>
+                    <div class="form-text">Domyślny okres to <b>180 dni</b> wstecz.</div>
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Submit</button>
+              
+                    </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+          </div>
+        </div>
+
+        <!--h2>Section title</h2-->
+        <div class="table-responsive">
+          <table id="table_id" class="table table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Id</th>
+                <th>SerialNo</th>
+                <th>Product</th>
+                <th>Customer</th>
+                <th>Trail</th>
+                <th>Repeated</th>
+                <th>Result</th>
+                <th>Defect</th>
+                <th>Operator</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                
+                {% if 'złomować' in item.decyzja or item.scrap == '1' %}
+                    <tr style="background-color: rgb(255, 54, 54); color: #ffffff;">
+                {% elif "-" in item.decyzja %}
+                    <tr>
+                {% else %}
+                    <tr style="background-color: rgb(231, 255, 112);">
+                {% endif %}
+
+                <td>
+                  <div class="form-check">
+                    <input class="form-check-input row-check" type="checkbox" data-id="{{ item.id }}" data-serial="{{ item.sn }}">
+                    <label class="form-check-label" for="checkDefault">
+                    </label>
+                  </div>
+                </td>
+
+                <td>{{ item.id }}</td>
+                <td>{{ item.prefix }}-{{ item.sn }}</td>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.customer }}</td>
+                <td>
+                  {% if item.trail == '1' %}
+                  <label class="blink-text" for="koment"><h5><span class="badge badge-info">Tak</span></h5></label>
+                  {% else %}
+                  Nie       
+                  {% endif %}
+                </td>
+                                <td>
+                  {% if item.alias != '-' %}
+                  <label class="blink-text" for="koment"><h5><span class="badge badge-danger">Tak</span></h5></label>
+                  {% else %}
+                  Nie       
+                  {% endif %}
+                </td>
+                <td>
+                  {% if  item.result == '1' %}
+                      <h5><span class="badge badge-success">OK</span></h5>
+                  {% elif  item.result == '0' %}
+                      <h5><span class="badge badge-danger">NOK</span></h5>
+                  {% else %}
+                      -
+                  {% endif %}
+                </td>
+                <td>{{ item.defect }}</td>
+                <td>{{ item.operator }}</td>
+                <td>{{ item.czas }}</td>
+                
+              </tr>
+              {% endfor %}
+          </table>
+        </div>
+      </main>
+    
+      <script>
+        function htmlToCSV(html, filename) {
+          var data = [];
+          var rows = document.querySelectorAll("table tr");
+          for (var i = 0; i < rows.length; i++) {
+            var row = [],
+              cols = rows[i].querySelectorAll("td, th");
+            for (var j = 0; j < cols.length; j++) {
+              row.push(cols[j].innerText);
+            }
+            data.push(row.join(","));
+          }
+          downloadCSVFile(data.join("\n"), filename);
+        }
+      </script>
+    
+      <script>
+        function downloadCSVFile(csv, filename) {
+          var csv_file, download_link;
+          csv_file = new Blob([csv], {
+            type: "text/csv"
+          });
+          download_link = document.createElement("a");
+          download_link.download = filename;
+          download_link.href = window.URL.createObjectURL(csv_file);
+          download_link.style.display = "none";
+          document.body.appendChild(download_link);
+          download_link.click();
+        }
+      </script>
+    
+      <script>
+        document.getElementById("download-button").addEventListener("click", function () {
+          var html = document.querySelector("table").outerHTML;
+          htmlToCSV(html, "forms.csv");
+        });
+      </script>
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+  <!-- Bootstrap Select JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
+<script>
+$(document).ready(function () {
+  const table = $('#table_id');
+  const thead = table.find('thead');
+
+  // klonujemy pierwszy wiersz nagłówka jako wiersz filtrów
+  const filterRow = thead.find('tr').first().clone(false).appendTo(thead);
+  const columnCount = filterRow.find('th').length;
+
+  const SKIP_FIRST_COL = true;   // checkboxy
+  const SKIP_LAST_COL  = false;  // ustaw na true jeśli ostatnia kolumna ma być bez filtra
+
+  const firstFilterCol = SKIP_FIRST_COL ? 1 : 0;
+  const lastFilterCol  = SKIP_LAST_COL ? columnCount - 2 : columnCount - 1;
+
+  // Czyścimy i wstawiamy selecty tylko w wybranych kolumnach
+  filterRow.find('th').each(function (index) {
+    if (index >= firstFilterCol && index <= lastFilterCol) {
+      $(this).html(`
+        <select class="form-control form-control-sm" style="width:100%">
+          <option value="">Wszystko</option>
+        </select>
+      `);
+    } else {
+      $(this).html(''); // brak filtra np. dla checkboxów
+    }
+  });
+
+  const dataTable = table.DataTable({
+    orderCellsTop: true,
+    fixedHeader: true,
+    pageLength: 100,
+    lengthMenu: [[50, 100, 200, -1], [50, 100, 200, "Wszystkie"]],
+    order: [[0, 'desc'], [1, 'desc']],
+    initComplete: function () {
+      const api = this.api();
+
+      api.columns().every(function (index) {
+        if (index < firstFilterCol || index > lastFilterCol) return;
+
+        const column = this;
+        const select = $('select', filterRow[0].cells[index]);
+
+        column.data().unique().sort().each(function (d) {
+          d = $('<div>').html(d).text(); // usuń HTML
+          if (d.trim()) select.append(`<option value="${d}">${d}</option>`);
+        });
+
+        select.on('change', function () {
+          const val = $.fn.dataTable.util.escapeRegex($(this).val());
+          column.search(val ? '^' + val + '$' : '', true, false).draw();
+        });
+      });
+    }
+  });
+});
+</script>
+
+<script>
+// Inspekcja OK
+function getSelectedRowsData() {
+  const selected = [];
+
+  $('#table_id tbody input.row-check:checked').each(function () {
+    const $row = $(this).closest('tr');
+    const tds = $row.find('td');
+
+    const rowData = {
+      id: $(tds[1]).text().trim(),
+      SerialNo: $(tds[2]).text().trim(),
+      Product: $(tds[3]).text().trim(),
+      Customer: $(tds[4]).text().trim(),
+      Trail: $(tds[5]).text().trim().replace(/\s+/g, ' '),
+      Result: $(tds[6]).text().trim().replace(/\s+/g, ' '),
+      Defect: $(tds[7]).text().trim(),
+      Operator: $(tds[8]).text().trim(),
+      Data: $(tds[9]).text().trim()
+    };
+
+    selected.push(rowData);
+  });
+
+  return selected;
+}
+
+$('#submitSelected-ok').on('click', function (e) {
+  e.preventDefault();
+
+  const payload = getSelectedRowsData();
+
+  if (!payload.length) {
+    alert('Nie zaznaczono rekordów');
+    return;
+  }
+
+  fetch('/mark_still_as_qa_ok', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    // 🔄 wymuszone przeładowanie
+    window.location.reload();
+  })
+  .catch(err => console.error(err));
+});
+</script>
+
+<script>
+// Inspekcja NOK
+function getSelectedRowsData() {
+  const selected = [];
+
+  $('#table_id tbody input.row-check:checked').each(function () {
+    const $row = $(this).closest('tr');
+    const tds = $row.find('td');
+
+    const rowData = {
+      id: $(tds[1]).text().trim(),
+      SerialNo: $(tds[2]).text().trim(),
+      Product: $(tds[3]).text().trim(),
+      Customer: $(tds[4]).text().trim(),
+      Trail: $(tds[5]).text().trim().replace(/\s+/g, ' '),
+      Result: $(tds[6]).text().trim().replace(/\s+/g, ' '),
+      Defect: $(tds[7]).text().trim(),
+      Operator: $(tds[8]).text().trim(),
+      Data: $(tds[9]).text().trim()
+    };
+
+    selected.push(rowData);
+  });
+
+  return selected;
+}
+
+// przed wysłaniem formularza
+$('#submitSelected-nok').on('click', function (e) {
+
+  const payload = getSelectedRowsData();
+
+  if (!payload.length) {
+    e.preventDefault();
+    alert('Nie zaznaczono rekordów');
+    return;
+  }
+
+  // zapis do ukrytego pola formularza
+  $('#defect_nok').val(JSON.stringify(payload));
+});
+</script>
+
+<script>
+$('#defectSelect').on('change', function () {
+
+  if ($(this).val() === 'inne') {
+    $('#innePole').show();
+  } else {
+    $('#innePole').hide();
+    $('#defectOther').val('');
+    $('#defectOther').removeClass('is-invalid');
+  }
+
+});
+
+$('form').on('submit', function(e){
+
+  const defectType = $('#defectSelect').val();
+  const defectOther = $('#defectOther').val().trim();
+
+  if (defectType === 'inne' && defectOther === '') {
+
+    e.preventDefault();
+
+    $('#defectOther').addClass('is-invalid');
+    $('#defectOther').focus();
+
+  } else {
+
+    $('#defectOther').removeClass('is-invalid');
+
+  }
+
+});
+</script>
+
+<script>
+// Inspekcja CAN
+function getSelectedRowsData() {
+  const selected = [];
+
+  $('#table_id tbody input.row-check:checked').each(function () {
+    const $row = $(this).closest('tr');
+    const tds = $row.find('td');
+
+    const rowData = {
+      id: $(tds[1]).text().trim(),
+      SerialNo: $(tds[2]).text().trim(),
+      Product: $(tds[3]).text().trim(),
+      Customer: $(tds[4]).text().trim(),
+      Trail: $(tds[5]).text().trim().replace(/\s+/g, ' '),
+      Result: $(tds[6]).text().trim().replace(/\s+/g, ' '),
+      Defect: $(tds[7]).text().trim(),
+      Operator: $(tds[8]).text().trim(),
+      Data: $(tds[9]).text().trim()
+    };
+
+    selected.push(rowData);
+  });
+
+  return selected;
+}
+
+$('#submitSelected-can').on('click', function (e) {
+  e.preventDefault();
+
+  const payload = getSelectedRowsData();
+
+  if (!payload.length) {
+    alert('Nie zaznaczono rekordów');
+    return;
+  }
+
+  fetch('/mark_still_as_qa_can', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    // 🔄 wymuszone przeładowanie
+    window.location.reload();
+  })
+  .catch(err => console.error(err));
+});
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Skrzynie do zasypania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <style>
+    .loader {
+      position: fixed;
+      top: 10%;
+      left: 25%;  
+      width: 100vh;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loader-hidden{
+      opacity: 0;
+      visibility: hidden;
+    }
+
+  </style>
+    
+</head>
+
+<body>
+  <div class="loader">
+    <div class="spinner-border" style="width: 10rem; height: 10rem;" role="status">
+    </div>
+  </div>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <!--li class="nav-item text-nowrap" style="color: aliceblue;">
+        Logged as: <b> {{ session['user'] }} </b>
+        <a class="nav-link active" href="/logout">Sign out</a-->
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                QUALITY ASSURANCE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Production orders
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/casting_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Liebherr" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA inspection Liebherr
+              </a>
+            </li>
+
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Still" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Still
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Kion Polska" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Kion Polska
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Spain" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mitsubishi Spain
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Finland" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mitsubishi Finland
+              </a>
+            </li-->
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mecalac France" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA inspection Mecalac France
+              </a>
+            </li>
+                        <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Spain" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA inspection Mitsubishi Spain
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mitsubishi Finland" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA inspection Mitsubishi Finland
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                SHIPMENTS
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/shipment" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Shipments
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                GRINDING
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/grinding" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Oczyszczlania (lista szlifowania)
+              </a>
+            </li>
+            <!--li class="nav-item" >
+              <a class="nav-link active" href="/qa_report/Mecalac Germany" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report Mecalac Germany
+              </a>
+            </li-->
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Production overview</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+
+                          <!-- Button trigger modal -->
+                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                            Items to dispalay
+                          </button>
+            
+                          <!-- Modal -->
+                          <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLabel">Items to dispalay</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  <form action="/dashboard" method="POST">
+                                        
+                                    <div class="form-group">
+                                      <input type="number" class="form-control" id="n_items" name="n_items" value="500" required>
+                                    </div>
+            
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+            
+
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-primary text-white mb-4">
+                  <div class="card-body">Total items (all production stages)</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                      <h4>{{ total }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-success text-white mb-4">
+                  <div class="card-body">Items formed (manual + mechnical)</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ formed }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-info text-white mb-4">
+                  <div class="card-body">Items casted</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ casted }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-danger text-white mb-4">
+                  <div class="card-body">Items shacked-out</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ knockout }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+        <!--h2>Section title</h2-->
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Product</th>
+                <th>Status</th>
+                <th>Adding date</th>
+                <th>S/N</th>
+                <th>History</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>
+                  {% if item.broken == 'tak' %} 
+                  <h5><span class="badge badge-danger">{{ item.id }}</span></h5>
+                  {% elif item.filtr == 'tak' %} 
+                  <h5><span class="badge badge-danger">{{ item.id }}</span></h5>
+                  {% else %} 
+                    {{ item.id }}
+                  {% endif %} 
+                </td>
+
+
+                <td><a>{{ item.nazwa_produktu }}</a></td>
+                <!--td><a href="/product_details_po/{{ item.id }}">{{ item.nazwa_produktu }}</a></td-->
+                <!-- <td>
+                  {% if item.manual_forming == '0' %} 
+                      Foromowanie mechaniczne
+                    {% else %} 
+                      Foromowanie ręczne 
+                  {% endif %} 
+                </td> -->
+                <td><span class="badge badge-dark">{{ item.item_status }}</span></td>
+                <td>{{ item.data_dodania }}</td>
+
+                {% if item.prefix  == 'XX' %} 
+                <td>{{ item.model1_sn }}/{{ item.model2_sn }}/{{ item.model3_sn }}/{{ item.model4_sn }}/{{ item.model5_sn }}/{{ item.model6_sn }}/{{ item.model7_sn }}/{{ item.model8_sn }}</td>
+                {% else %} 
+                  <td>{{ item.prefix }}-{{ item.model1_sn }}/{{ item.model2_sn }}/{{ item.model3_sn }}/{{ item.model4_sn }}/{{ item.model5_sn }}/{{ item.model6_sn }}/{{ item.model7_sn }}/{{ item.model8_sn }}</td>
+                {% endif %}
+
+                <td>
+                  <a href="/item_history_quality/{{item.id }}" class="btn btn-dark" role="button" aria-disabled="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-menu-button-wide" viewBox="0 0 16 16">
+                      <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h13A1.5 1.5 0 0 1 16 1.5v2A1.5 1.5 0 0 1 14.5 5h-13A1.5 1.5 0 0 1 0 3.5zM1.5 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5z"/>
+                      <path d="M2 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m10.823.323-.396-.396A.25.25 0 0 1 12.604 2h.792a.25.25 0 0 1 .177.427l-.396.396a.25.25 0 0 1-.354 0zM0 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm1 3v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2zm14-1V8a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2zM2 8.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/>
+                    </svg>
+                    History</a>
+                  <!-- Modal item details -->
+                  <div class="modal fade" id="modal_details{{ item.id }}" tabindex="-1"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">{{ item.nazwa_produktu }}</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Id model 1</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.id_model1 }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Id model 2</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.id_model2 }}" disabled>
+                              </div>
+                            </div>
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Id model 3</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.id_model3 }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Id model 4</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.id_model4 }}" disabled>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Numer formowania</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.nr_formowania}}"
+                                  disabled>
+                              </div>
+
+                            </div>
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Numer kadzi</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.nr_kadzi }}" disabled>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col">
+                              <label for="f1">Komentarz biura odlewni:</label>
+                              <textarea class="form-control" id="f1" rows="3" disabled>{{ item.komentarz }}</textarea>
+                            </div>
+                          </div>
+                          <br>
+                          <div class="row">
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Id</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.id}}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Skrzynia 2</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.skrzynia_2 }}" disabled>
+                              </div>
+                            </div>
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Skrzynia 1</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.skrzynia_1 }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Skrzynia 3</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.skrzynia_3 }}" disabled>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Skrzynia 4</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.skrzynia_4 }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Data dodania</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.data_dodania }}"
+                                  disabled>
+                              </div>
+                            </div>
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Ilość sztuk</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.sztuk_na_model }}"
+                                  disabled>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="f1">Dodane przez</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.dodane_przez }}"
+                                  disabled>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Data ostatniej modyfikacji</label>
+                                <input type="text" class="form-control" id="f1"
+                                  value="{{ item.data_ostatniej_modyfikacji }}" disabled>
+                              </div>
+
+                            </div>
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Autor ostatniej modyfikacji</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.zmodyfikowane_przez }}"
+                                  disabled>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                          <!--button type="button" class="btn btn-primary">Save changes</button-->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+    <script>
+      $(document).ready(function () {
+        $('#table_id').DataTable({
+          order: [
+            [3, 'desc']
+          ],
+          "pageLength": 50,
+        });
+        {
+        const loader = document.querySelector(".loader");
+        loader.classList.add("loader-hidden");
+        loader.addEventListener("transitionend", () => {
+          document.body.removeChild("loader");
+        })
+      }
+      });
+
+    </script>
+
+     <script>
+      var time = new Date().getTime();
+      $(document.body).bind("mousemove keypress", function (e) {
+        time = new Date().getTime();
+      });
+  
+      function refresh() {
+        if (new Date().getTime() - time >= 60000)
+          window.location.reload(true);
+        else
+          setTimeout(refresh, 10000);
+      }
+      setTimeout(refresh, 10000);
+    </script>
+
+    <script>
+    
+    </script>
+
+
+</body>
+
+</html>

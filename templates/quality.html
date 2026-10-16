@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Skrzynie do zasypania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <style>
+      @keyframes blink {
+        0%   { opacity: 1; }
+        50%  { opacity: 0; }
+        100% { opacity: 1; }
+      }
+
+      .blink-text {
+        animation: blink 1s infinite;
+      }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <!--li class="nav-item text-nowrap" style="color: aliceblue;">
+        Logged as: <b> {{ session['user'] }} </b>
+        <a class="nav-link active" href="/logout">Sign out</a-->
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                QUALITY ASSURANCE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Home
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                SHIPMENTS
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/shipment" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Shipments
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                GRINDING
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/grinding" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Grinding
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Quality control</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-danger alert-dismissible fade show h4" role="alert">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+
+                      
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-md-6">
+             <a href="/qa_report/Liebherr" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">QA inspection <br> Liebherr</a>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <a href="/qa_report/Mecalac France" class="btn btn-secondary btn-lg btn-block" role="button" aria-pressed="true">QA inspection Mecalac France</a>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <a href="/qa_report/Mitsubishi Spain" class="btn btn-success btn-lg btn-block" role="button" aria-pressed="true">QA inspection Mitsubishi Spain</a>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <a href="/qa_report/Mitsubishi Finland" class="btn btn-info btn-lg btn-block" role="button" aria-pressed="true">QA inspection Mitsubishi Finland</a>
+          </div>
+      </div>
+
+      <hr>
+
+        <div class="row">
+          <div class="col-3">
+             <a href="/casting_report_tmp" class="btn btn-warning btn-lg btn-block" role="button" aria-pressed="true">Casting report (fast)</a>
+          </div>
+          <div class="col-3">
+             <a href="/casting_report" class="btn btn-outline-warning btn-lg btn-block" role="button" aria-pressed="true">Casting report (slow)</a>
+          </div>
+          <div class="col-3">
+             <a href="/qa_report/Still" class="btn btn-dark btn-lg btn-block" role="button" aria-pressed="true">QA Still Inspection</a>
+          </div>
+          <div class="col-3">
+             <a href="/claims" class="btn btn-danger btn-lg btn-block" role="button" aria-pressed="true">Reklamacje</a>
+          </div>
+      </div>
+
+       <hr>
+
+        <div class="row">
+          <div class="col-3">
+             <a href="/qa_report/Kion Polska" class="btn btn-success btn-lg btn-block" role="button" aria-pressed="true">QA Kion Polska</a>
+          </div>
+
+
+      </div>
+
+        <br>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Historia odlewu</h1>
+
+        </div>
+
+        <div class="row">
+          <div class="col-3">
+
+            <form action="/qa_sn_search" method="POST">
+              <div class="card">
+                <h5 class="card-header">Wyszukaj produkt S/N</h5>
+                <div class="card-body">
+                  <div class="form-group">
+
+                      <input type="text" class="form-control" id="sn" name="sn" aria-describedby="emailHelp" placeholder="XX-DDD" required>
+                      <small id="sn" class="form-text text-muted">Numer serujny należy wporwadzć w formacie AB-123</small>
+
+                  </div>
+
+                  <button type="submit" class="btn btn-success">Submit</button>
+                  <a href="/quality" class="btn btn-primary" role="button" aria-pressed="true">Clear</a>
+          
+                </div>
+              </div>
+            </form>
+
+          <hr>
+            <div {% if data.nazwa == '-' %} style="visibility: hidden;" {% endif %}>
+              <div class="card">
+                <h5 class="card-header">Dane odlewu 1:</h5>
+                <div class="card-body">
+                  <div class="form-group">
+                    <p>Nazwa : <b>{{ data.nazwa }}</b></p>
+                    <p>S/N : <b>{{ data.sn }}</b></p>
+                    <p>System ID : <b>{{ data.system_id }}</b></p>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+          </div>
+
+          <div class="col-9">
+          <table id="" class="table table-striped">
+            <thead class="thead-dark">
+              <tr>
+                
+                <!-- <th>ID formy</th>
+                <th>Nazwa odlewu</th> -->
+                <th>ID</th>
+                <th>S/N</th>
+                <th>Production stage</th>
+                <th>Date</th>
+                <th>Operator</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <!-- <td>{{ item.produkt_id }}</td>
+                <td>{{ item.nazwa_produktu }}</td> -->
+                <td>{{ item.id }}</td>
+                {% if item.prefix == none %}
+                  <td>Forma</td>
+                {% else %}
+                  <td>{{ item.prefix }}-{{ item.sn }}</td>
+                {% endif %}
+                {% if item.production_stage == 'casted' %}
+                    <td><a href="" data-toggle="modal" data-target="#modal_details_casting_{{ item.id }}">{{ item.production_stage }}</a></td>
+                {% elif item.production_stage == 'formed' %}
+                    <td><a href="" data-toggle="modal" data-target="#modal_details_forming_{{ item.produkt_id }}">{{ item.production_stage }}</a></td>
+                {% else %}
+                    <td>{{ item.production_stage }}</td>
+                {% endif %}
+                <!-- <td>
+                  {% if item.alias %}
+                  <label class="blink-text" for="koment"><h5><span class="badge badge-danger">Tak</span></h5></label>
+                  {% else %}
+                  Nie       
+                  {% endif %}
+                </td> -->
+                <td>{{ item.czas }}</td>
+                <td>{{ item.operator }}</td>
+              </tr>
+
+                              <!-- Modal casting details -->
+                              <div class="modal fade" id="modal_details_casting_{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabel">{{ item.nazwa_produktu }}</h5>
+                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                      </button>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <div class="row">
+                                          <div class="col-sm">
+                                            <div class="form-group">
+                                              <label for="f1">Nr kadzi</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.nr_kadzi }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Tempertura żeliwa</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.temp_zeliwa }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Czas chłodzenia [dni]</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.dni_do_wybicia }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Komentarz formiernia</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.komentarz_formowanie }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Komentarz rdzeniarnia</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.komentarz_rdzeniarnia }}" disabled>
+                                            </div>
+
+                                          </div>
+                                          <div class="col-sm">
+                                            <div class="form-group">
+                                              <label for="f1">Dolewka</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.filtr }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Wyciek</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.broken }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Data zalania</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.data_zalania }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Komentarz zalew</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.komentarz_zalew }}" disabled>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="f1">Komentarz wybijanie</label>
+                                              <input type="text" class="form-control" id="f1" value="{{ item.komentarz_wybijanie }}" disabled>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+              
+              
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                      <!--button type="button" class="btn btn-primary">Save changes</button-->
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+              {% endfor %}
+              
+          </table>
+          <br>
+
+
+   
+        </div>
+
+          </div>
+
+        </div>
+
+      </main>
+
+                                                            <!-- Modal item details -->
+                                <div class="modal fade" id="modal_details_forming_{{id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Zarejestrowne tagi RFID (formowanie mechaniczne)</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                        </button>
+                                      </div>
+                                      <div class="modal-body">
+
+                                          <div class="row">
+                                            <div class="col">
+                                            <table class="table table-striped">
+                                              <thead class="text-center">
+                                                <tr>
+                                                <th>Tag skrzyni</th>
+                                                <th>Nazwa modelu</th>
+                                                <th>Tag model</th>
+                                                <th>Czas skanownaia</th>
+                                                </tr>
+                                              </thead>
+                                              
+                                              <tbody class="text-center">
+                                                {% for item in flasks %}
+                                                <tr>
+                                                <td>{{ item.rfid_tag }}</td>
+                                                <td>{{ item.nazwa }}</td>
+                                                <td>{{ item.tag }}</td>
+                                                <td>{{ item.czas }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                              </tbody>
+                                              </table>
+                                
+                                          </div>
+                                        </div>
+                                      </div>
+                
+                
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                        <!--button type="button" class="btn btn-primary">Save changes</button-->
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+
+
+
+    <script>
+    
+    </script>
+
+
+</body>
+
+</html>

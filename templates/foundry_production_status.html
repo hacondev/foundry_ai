@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Status produkcji</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <!--li class="nav-item text-nowrap" style="color: aliceblue;">
+        Logged as: <b> {{ session['user'] }} </b>
+        <a class="nav-link active" href="/logout">Sign out</a-->
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Zlecenia produkcyjne
+              </a>
+
+            </li>
+            <!-- <li class="nav-item" >
+              <a class="nav-link active" href="/defects" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li> -->
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Status produkcji</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+
+                          <!-- Button trigger modal -->
+                          <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                            Items to dispalay
+                          </button> -->
+            
+                          <!-- Modal -->
+                          <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLabel">Items to dispalay</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  <form action="/dashboard" method="POST">
+                                        
+                                    <div class="form-group">
+                                      <input type="number" class="form-control" id="n_items" name="n_items" value="500" required>
+                                    </div>
+            
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+            
+
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-{{ response.forming_list_new_items_flag }} text-white mb-4">
+                  <div class="card-body">
+                    <h4>Formiernia (nowe formy)</h4>
+                    <h6>Forming - Form list</h6>
+                    <a href="/forming" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Linia mechaniczna</a>  &nbsp;
+                    <a href="/forming_operator_m_view" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Linia manualna</a>
+                  </div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                      <h4>{{ response.forming_list_new_items }} sztuki</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-{{ response.forming_new_time_diff_flag }} text-white mb-4">
+                  <div class="card-body">
+                    <h4>Formiernia (najstarsza forma)</h4>
+                    <h6>Forming - Form list</h6>
+                    <a href="/forming" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Linia mechaniczna</a>  &nbsp;
+                    <a href="/forming_operator_m_view" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Linia manualna</a>
+                  </div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ response.forming_new_time_diff }} h</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-{{ response.assambling_items_count_flag }} text-white mb-4">
+                  <div class="card-body">
+                    <h4>Rdzeniarnia (do zmontowania)</h4>
+                    <h6>Core shop - Form list</h6>
+                    <a href="/cores_operator_view" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Rdzeniarnia linia mech.</a>  &nbsp;
+                    <a href="/forming_operator_m_view4" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Rdzeniarnia linia manualna</a>
+                  </div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ response.assambling_items_count }} sztuk</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-{{ response.formy_do_zalania_tonaz_flag }} text-white mb-4">
+                  <div class="card-body">
+                    <h4>Odlewnia (formy do zalania)</h4>
+                    <h6>Foundry - Boxes to pour</h6>
+                    <a href="/foundry_operator_view2" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Odlewnia</a>  &nbsp;
+                  </div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ response.formy_do_zalania_tonaz }} t / {{ response.formy_do_zalania_liczba }} sztuk</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-{{ response.casted_items_count_flag }} text-white mb-4">
+                  <div class="card-body">
+                    <h4>Odlewnia - zalew (formy zalane)</h4>
+                    <h6>Foundry - Poured boxes</h6>
+                    <a href="/foundry_operator_view2" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Odlewnia</a>
+                  </div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ response.casted_items_count }} sztuki</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-{{ response.foundry_dwell_time_flag }} text-white mb-4">
+                  <div class="card-body">
+                    <h4>Odlewnia - chłodzenie (opóźnienie najstarszej formy)</h4>
+                    <h6>Foundry - Dwell time in hall</h6>
+                    <a href="/foundry_operator_view2" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Odlewnia</a>
+                  </div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ response.foundry_dwell_time }} min</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+              <div class="card bg-{{ response.mafi_delay_under_24h_count_flag }} text-white mb-4">
+                  <div class="card-body">
+                    <h4>Wybijanie - opóźnienie mafi > 24h</h4>
+                    <h6>Shake-out - Load date</h6>
+                    <a href="/knockout_operator_view" target=_blank class="link-underline link-underline-opacity-100" style="color: aliceblue;">Wybijanie</a>
+                  </div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ response.mafi_delay_under_24h_count }} sztuk</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div>
+          <!-- <div class="col-xl-3 col-md-6">
+              <div class="card bg-danger text-white mb-4">
+                  <div class="card-body">Items shacked-out</div>
+                  <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h4>{{ knockout }}</h4>
+                      <div class="small text-white"><svg class="svg-inline--fa fa-angle-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" data-fa-i2svg=""><path fill="currentColor" d="M246.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 41.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg><!-- <i class="fas fa-angle-right"></i> Font Awesome fontawesome.com --></div>
+                  </div>
+              </div>
+          </div> -->
+      </div>
+
+      </main>
+    </div>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+
+     <script>
+      var time = new Date().getTime();
+      $(document.body).bind("mousemove keypress", function (e) {
+        time = new Date().getTime();
+      });
+      function refresh() {
+        if (new Date().getTime() - time >= 60000)
+          window.location.reload(true);
+        else
+          setTimeout(refresh, 10000);
+      }
+      setTimeout(refresh, 10000);
+    </script>
+    <script>
+    </script>
+
+
+</body>
+
+</html>

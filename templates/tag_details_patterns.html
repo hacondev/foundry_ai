@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Szegóły tagu</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#"><b>&nbsp;</b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="/rfid_tags">
+                <span data-feather="arrow-right"></span>
+                Odczyt tagów RFID
+              </a>
+            </li>
+          </ul>
+
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Szczegóły tagu modelu</h1>
+
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for msg in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+          {{ msg }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="form-group">
+          <label for="id" class="">TAG id:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.ID }}'
+              disabled>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="TAG" class="">TAG:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.tag }}'
+              disabled>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="TAG" class="">SN:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data" value='{{ tag.sn }}'
+              disabled>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="TAG" class="">Nazwa:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+              value='{{ tag.nazwa }}' disabled>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="TAG" class="">Wysokość:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+              value='{{ tag.wysokosci }}' disabled>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="TAG" class="">Skrzynia 1:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+              value='{{ tag.skrzynia1 }}' disabled>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="TAG" class="">Skrzynia 2:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+              value='{{ tag.skrzynia2 }}' disabled>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="TAG" class="">Skrzynia 3:</label>
+          <div class="">
+            <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+              value='{{ tag.skrzynia3 }}' disabled>
+          </div>
+        </div>
+
+        <br>
+        <a class="btn btn-success btn-lg" role="button" href="/rfid_tags">Powrót</a>
+        <a class="btn btn-primary btn-lg" tabindex="-1" role="button" data-toggle="modal"
+          data-target="#modal_edit_form">Edycja</a>
+        <br>
+        <br>
+
+        <!-- Modal edit pattern -->
+        <div class="modal fade" id="modal_edit_form" tabindex="-1" aria-labelledby="exampleModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modal_edit_form">Edycja danych modelu tag: <b> {{ tag.tag }} </b></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form action="/edit_pattern/{{ tag.ID }}" method="POST">
+
+                  <div class="form-group">
+                    <label for="id">TAG id:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+                        value='{{ tag.ID }}' disabled>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="id" class="">TAG:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="id" placeholder="No data"
+                        value='{{ tag.tag }}' disabled>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="opis" class="">SN:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="sn" name="sn" placeholder="No data"
+                        value='{{ tag.sn }}' disabled>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="nazwa" class="">Nazwa:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="nazwa" name="nazwa"
+                        placeholder="No data" value='{{ tag.nazwa }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="wysokosci" class="">Wysokości:</label>
+                    <div class="">
+                      <input type="number" class="form-control form-control-lg" id="wysokosci" name="wysokosci"
+                        placeholder="No data" value='{{ tag.wysokosci }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="skrzynia1" class="">Skrzynia 1:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="skrzynia1" name="skrzynia1"
+                        placeholder="No data" value='{{ tag.skrzynia1 }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="skrzynia2" class="">Skrzynia 2:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="skrzynia2" name="skrzynia2"
+                        placeholder="No data" value='{{ tag.skrzynia2 }}'>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="skrzynia3" class="">Skrzynia 3:</label>
+                    <div class="">
+                      <input type="text" class="form-control form-control-lg" id="skrzynia3" name="skrzynia3"
+                        placeholder="No data" value='{{ tag.skrzynia3 }}'>
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                    <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+</body>
+
+</html>

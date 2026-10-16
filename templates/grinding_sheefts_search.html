@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Szlifiernia - Akord</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+<!-- Data Table css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+<!-- Custom styles for this template -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+<!-- jQuery UI CSS (dla datepicker) -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<!-- Bootstrap Select CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+<!-- Inicjalizacja Bootstrap Select -->
+<script>
+  $(document).ready(function() {
+        $('.selectpicker').selectpicker();
+  });
+</script>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <!--a class="nav-link active" href="/logout">Sign out</a-->
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Wyloguj 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="\grinding_sheefts" style="color: rgb(197, 180, 180);">
+                Szlifiernia
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Wyniki wyszukiwania: <b> {{ item }} </b> </h1>
+
+        
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for msg in messages %}
+
+        <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+          {{ msg }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group mr-2">
+            <!--button type="button" class="btn btn-primary" data-toggle="modal" data-target="#search">Wyszukaj odlew</button-->
+            <!--a href="/grinding_sheefts_add" class="btn btn-success btn-lg active" role="button" aria-pressed="true">Dodaj akord pracownika</a-->
+            &nbsp;
+          </div>
+
+          <!-- Modal search produkt -->
+          <div class="modal fade" id="search" tabindex="-1" aria-labelledby="search" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="search">Wyszukaj odlew</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <form action="/search_casting_item" method="POST">
+
+                    <div class="container">
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label for="search">Odlew</label>
+                              <select id="search" class="selectpicker form-control" data-live-search="true" name="search" required>
+                                  <option value=""></option>
+                                  {% for i in casts %}
+                                    <option value="{{ i.nazwa }}___{{ i.grinding_points }}" id="n1">{{ i.nazwa }} / {{ i.grinding_points }}</option>
+                                  {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                    </div> 
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button>
+                    <button type="submit" class="btn btn-success">Zatwierdź</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+
+
+          <!--div class="btn-group mr-2">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_produkt">Dodaj akord</button>
+            <a href="/grinding_sheefts_add" class="btn btn-success btn-lg active" role="button" aria-pressed="true">Dodaj akord pracownika</a>
+            &nbsp;
+          </div-->
+
+          <!-- Modal add produkt -->
+          <div class="modal fade" id="add_produkt" tabindex="-1" aria-labelledby="add_prod" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="add_prod">Dodaj raport akordów</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="modal-body">
+                  <form action="/add_akord" method="POST">
+
+                    <div class="container">
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <div class="form-group">
+                                <label for="data">Data:</label><br>
+                                <input type="date" class="form-control" id="data" name="data" value="" min="2020-01-01" max="2030-12-31" required/>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col">
+                              <div class="form-group">
+                                <label for="zmiana">Zmiana</label>
+                                <select class="form-control" id="zmiana" name="zmiana"  required>   
+                                    <option value="1" >Zmiana 1</option>
+                                    <option value="2" >Zmiana 2</option>
+                                    <option value="3" >Zmiana 3</option>
+                                </select>
+                              </div>
+                          </div>
+                        </div>
+                    </div> 
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                    <button type="submit" class="btn btn-danger">Zatwierdź</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+
+          <div class="table-responsive">
+            <table id="table_id" class="display">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Mistrz</th>
+                  <th>Czas rozliczenia zmiany</th>
+                  <th>Zmiana</th>
+                  <th>Ostatnia modyfikacja rekordu</th>
+                  <th>Funckje</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in items %}
+                <tr>
+                  <td>{{ item.id }}</td>
+                  <td>{{ item.leader }}</td>
+                  <td>{{ item.data }}</td>
+                  <td>{{ item.sheeft }}</td>
+                  <td>{{ item.czas }}</td>
+                  <td><!--button type="button" class="btn btn-primary btn-sm">Edycja</button-->
+                  <!--button type="button" class="btn btn-danger btn-sm">Delete</button-->
+                  <a class="btn btn-primary btn-sm" href="/edit_akord/{{item.id}}">Edycja</a>
+                  <!--a class="btn btn-danger btn-sm" tabindex="-1" role="button" data-toggle="modal" data-target="#modal_del{{ item.id }}">Usuń</a-->
+                  
+                  <a class="btn btn-danger btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                    data-target="#remove_akord{{ item.id }}">Usuń</a>
+                  
+                    <!-- Modal delete item -->
+                  <div class="modal fade" id="remove_akord{{ item.id }}" tabindex="-1"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Usuwanie akordu</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/del_akord/{{item.id}}" method="POST">
+                            <h5>Czy napewno chcesz usunąć akord?</h5>
+                            <br>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                              <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  </td>
+                </tr>
+                {% endfor %}
+  
+  
+                
+            </table>
+          </div>
+
+          
+
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+  <!-- Bootstrap Select JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [0, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Demo</title>
+
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" type="text/css" href ="https://cdn.datatables.net/rowreorder/1.3.1/css/rowReorder.dataTables.css" />
+
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.bundle.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/rowreorder/1.3.1/js/dataTables.rowReorder.js"></script>
+
+</head>
+
+<body>
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a> 
+      </li>
+    </ul>
+
+  </nav>
+
+	<div class="container-fluid" style="padding: 40px;">
+	
+
+    <div class="row" >
+	    <div class="col-4">
+		<div style="position: fixed; width: 30%">
+		<div style="border: 1px solid #eee; border-radius: 10px; padding: 10px; background-color: #eee">
+		<p class="display-6">New item:</p>
+		
+		
+			<label for="cars" class="form-label">Product:</label>
+			<select class="form-select" aria-label="Default select example" name="cars" id="choices">
+        		{% for item in items %}
+			  <option value="<span class='test'>{{ item['nazwa'] }}</span>">{{ item['nazwa'] }}</option>
+        		{% endfor %}
+			</select>
+			
+			<br>
+ 
+			<label for="customer" class="form-label">Custormer:</label>
+			<select class="form-select" aria-label="Default select example" name="customer" id="choices2">
+			  <option value="seat">Seat</option>
+			  <option value="skoda">Skoda</option>
+			  <option value="mercedes">Mercedes</option>
+			  <option value="audi">Audi</option>
+			</select>
+			
+			<br>
+			
+			<!--label for="startDate">Production date:</label>
+			<input id="startDate" class="form-control" type="date" /-->
+			
+			<br>
+	
+			<button id="appendChoices" class="btn btn-primary">Add item to foromig list</button>
+			
+			
+			
+		</div>	
+		
+		<hr>
+		
+		<div style="padding: 10px;" >
+			
+			<!--button class="btn btn-success" onclick="alert('The list will be saved')">Save list</button-->
+			<button class="btn btn-success" onclick=myFunction()>Save list</button>
+			<button class="btn btn-primary" onclick="location.reload(); ">Cancel</button>
+		</div>
+		</div>
+		</div>
+	
+	
+		<div class="col-8">
+			<p class="display-6">Recent formed items:</p>
+			<table class="table table-striped text-center ">
+			  <thead>
+				<tr >
+				  <th>Idx.</th>
+				  <th>Product</th>
+				  <th>Custormer</th>
+				  <th>Added on:</th>
+				  <th>Scheduled on:</th>
+				</tr>
+			  </thead>
+			  <tbody>
+				<tr>
+				  <th scope="row">1</th>
+				  <td>skoda</td>
+				  <td>audi</td>
+				  <td>2023-07-17</td>
+				  <td>2023-07-27</td>
+				</tr>
+				<tr>
+				  <th scope="row">2</th>
+				  <td>skoda</td>
+				  <td>audi</td>
+				  <td>2023-07-17</td>
+				  <td>2023-07-27</td>
+				</tr>
+				<tr>
+				  <th scope="row">3</th>
+				  <td>skoda</td>
+				  <td>audi</td>
+				  <td>2023-07-17</td>
+				  <td>2023-07-27</td>
+				</tr>
+				<tr>
+				  <th scope="row">4</th>
+				  <td>skoda</td>
+				  <td>audi</td>
+				  <td>2023-07-17</td>
+				  <td>2023-07-27</td>
+				</tr>
+				<tr>
+				  <th scope="row">5</th>
+				  <td>skoda</td>
+				  <td>audi</td>
+				  <td>2023-07-17</td>
+				  <td>2023-07-27</td>
+				</tr>
+			  </tbody>
+			</table>
+			
+			<br>
+		
+			
+			<p class="display-6">Forming list:</p>
+			<table class="table text-center table-bordered table-striped dataTable dtr-inline" id="ADDchoicesARTableListSequence">
+			  <thead>
+				<tr>
+				  <th>Idx.</th>
+				  <!--th>No.</th-->
+				  <th>Product</th>
+				  <th>Custormer</th>
+				  <th>Added on:</th>
+				  <th>Action</th>
+				</tr>
+			  </thead>
+			  {% for item in formings %}
+			  <tr>
+				<td>{{ item.id }}</td>
+				<td>{{ item.nazwa_produktu }}</td>
+				<td>STILL</td>
+				<td>{{ item.data_dodania }}</td>
+				<td><button type="button" class="btn btn-danger">Danger</button></td>
+				</tr>
+			  {% endfor %}
+			</table>
+			
+		</div>
+
+  </div>
+  </div>
+
+
+
+</body>
+
+<script>
+$(document).ready(function() {
+
+  var table = $('#ADDchoicesARTableListSequence').DataTable({
+     rowReorder: {
+      selector: 'tr'
+    },
+	order: [[0, 'desc']],
+	responsive: true
+  });
+  
+    $('#ADDchoicesARTableListSequence tbody').on( 'mousedown', '.remove', function () {
+    table
+        .row( $(this).parents('tr') )
+        .remove()
+        .draw();
+	} );
+
+  var row = $(this).parents('tr');
+  const date_now =  new Date().toISOString().slice(0, 10);
+  const tbody = document.getElementById("choicesListTbodyADD");
+  const btnAdd = document.querySelector("button");
+  const inputChoices = document.querySelector("select");
+  const inputChoices2 = document.getElementById("choices2");
+  const inputChoices3 = document.getElementById("startDate");
+  var count = 1;
+  
+  btnAdd.addEventListener("click", function() {
+    table.row.add([count, inputChoices.value.trim(), inputChoices2.value.trim(),  date_now, '<button type="button" class="btn btn-danger btn-sm remove">remove</button>']).draw();
+    count += 1;
+    //inputChoices.value = '';
+  })
+});
+</script>
+
+<script>
+    function myFunction() {
+      var spans = document.getElementsByClassName("test");
+      var roles = [];
+
+      //Iterate the elements
+      for (var i = 0; i < spans.length; i++) {
+        roles = roles + spans[i].textContent + '<break>' 
+      }
+
+      console.log(JSON.stringify(roles));
+      //alert("Processing request please wait")
+
+      //var msg = document.getElementById('msg-waiting');
+      //msg.innerHTML = "<br><p>Procesing request...</p><div class='spinner-border text-success' role='status'><span class='sr-only'>Loading...</span></div>";
+
+      $.ajax({
+            type: "GET",
+            url: "/add_forming_list",
+            data: {'roles' : roles },
+            //dataType: 'json',
+            success: function(html){
+              window.location.replace("/forming_list");;
+                }
+          });
+    }
+  </script>
+
+</html>

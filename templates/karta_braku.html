@@ -1,0 +1,140 @@
+<style>
+.table td, .table th {
+  width:  1px;
+  border: 1px solid black;
+  border-collapse: collapse; 
+  padding-left: 5px;
+}
+table {
+  width: 100%;
+  height: 40%;
+  border: 3px solid black;
+}
+
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button1 {background-color: #04AA6D;} /* Green */
+.button2 {background-color: #008CBA;} /* Blue */
+</style>
+
+<figure class="table" >
+    <table>
+	        <colgroup>
+            <col style="width:30.00%;">
+            <col style="width:30.00%;">
+            <col style="width:20.00%;">
+            <col style="width:20.00%;">
+        </colgroup>
+        <tbody>
+            <tr>
+                <td  colspan="2">
+                        <picture><img src="{{ url_for('static', filename='img/h1.jpg') }}" width="70" height="20"></picture>
+                        <strong><span style="text-align: center; padding-left: 20%;">Karta braku</strong></span>
+                </td>
+                <td style="text-align:center;">Numer braku</td>
+                <td style="text-align:center;">{{ item.karta_brakow }}</td>
+            </tr>
+            <tr>
+                <td  colspan="2"> </td>
+                <td  colspan="2">
+                    <p style="text-align:center;"><strong>Stan po naprawie</strong></p>
+                </td>
+            </tr>
+            <tr>
+                <td ><strong>Nazwa odlewu</strong></td>
+                <td >
+                    <p style="text-align:center;">{{ item.product }}</p>
+                </td>
+                <td >
+                    <p style="text-align:center;"><strong>OK</strong></p>
+                </td>
+                <td >
+                    <p style="text-align:center;">&nbsp;</p>
+                </td>
+            </tr>
+            <tr>
+                <td ><strong>Numer seryjny</strong></td>
+                <td >
+                    <p style="text-align:center;">{{ item.sn }}</p>
+                </td>
+                <td >
+                    <p style="text-align:center;"><strong>NOK</strong></p>
+                </td>
+                <td >
+                    <p style="text-align:center;">&nbsp;</p>
+                </td>
+            </tr>
+            <tr>
+                <td ><strong>Rodzaj wady</strong></td>
+                <td >
+                    <p style="text-align:center;">{{ item.wada }}</p>
+                </td>
+                <td >
+                    <p style="text-align:center;"><strong>Złom</strong></p>
+                </td>
+                <td >
+                    <p style="text-align:center;">&nbsp;</p>
+                </td>
+            </tr>
+            <tr>
+                <td ><strong>Decyzja</strong></td>
+                <td >
+                    <p style="text-align:center;">{{ item.decyzja }}</p>
+                </td>
+                <td  colspan="2">
+                    <p style="text-align:center; font-size: 10px; line-height: 0.5">Weryfikację przeprowadzić zgodnie z procedurą "&nbsp;</p>
+                    <p style="text-align:center; font-size: 10px; line-height: 0.5">Nadzór nad wyrobem niezgodnym.</p>
+                </td>
+            </tr>
+            <tr style="height: 20px;"> 
+                <td >
+                    <p style="text-align:center;"><span style="font-size:12px;"><strong>Data</strong></span></p>
+                </td>
+                <td >
+                    <p style="text-align:center;"><span style="font-size:12px;"><strong>Zarejestrował</strong></span></p>
+                </td>
+                <td >
+                    <p style="text-align:center;"><span style="font-size:12px;"><strong>Data</strong></span></p>
+                </td>
+                <td >
+                    <p style="text-align:center;"><span style="font-size:12px;"><strong>Naprawa przez</strong></span></p>
+                </td>
+            </tr>
+            <tr>
+                <td >{{ item.data }}</td>
+                <td ><p style="text-align:center;">{{ item.operator }}</p></td>
+                <td >&nbsp;</td>
+                <td >&nbsp;</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!--table style=" width: 80%; height: 3%; border: 3px solid white;">
+        <colgroup>
+            <col style="width:30.00%;">
+            <col style="width:30.00%;">
+            <col style="width:20.00%;">
+            <col style="width:20.00%;">
+        </colgroup>
+        <tr>
+          <td style="border: solid 1px white; text-align:center;">Zatwierdził:</td>
+          <td style="border: solid 1px white">Pełnomocnik ds. ZSZJ:</td>
+          <td style="border: solid 1px white"></td>
+          <td style="border: solid 1px white"></td>
+        </tr>
+      </table--> 
+    <div style="padding-top: 5%;">
+        <button type="button" class="button button2" onClick="window.print()">&nbsp;Wydrukuj&nbsp;</button>
+    </div>
+</figure>
+<p>&nbsp;</p>

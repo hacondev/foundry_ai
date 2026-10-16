@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Szlifiernia - Akord</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+<!-- Data Table css -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+<!-- Custom styles for this template -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+<!-- jQuery UI CSS (dla datepicker) -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<!-- Bootstrap Select CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+<!-- Inicjalizacja Bootstrap Select -->
+<script>
+  $(document).ready(function() {
+        $('.selectpicker').selectpicker();
+  });
+</script>
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <!--a class="nav-link active" href="/logout">Sign out</a-->
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/quality" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Kontrola jakości
+              </a>
+            </li>
+
+            <!-- <li class="nav-item" >
+              <a class="nav-link active" href="/casting_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li> -->
+
+          </ul>
+        </div>
+      </nav>
+
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Reklamacje</h1>
+
+        
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for msg in messages %}
+
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="width: 60%">
+          {{ msg }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group mr-2">
+
+            <button type="button" id="download-button" class="btn btn-success">Export to CSV</button>
+            &nbsp
+
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_claim_modal">
+              Dodaj reklamację
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="add_claim_modal" tabindex="-1" aria-labelledby="addClaimModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addClaimModalLabel">Dodaj reklamację</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form method="POST" action="/add_new_claim" enctype="multipart/form-data">
+                      <div class="form-group">
+                        <label for="claim_sn">Wprowadź S/N przeciwwagi:</label>
+                        <input type="text" class="form-control" id="claim_sn" name="claim_sn" placeholder="AB-1234 lub ab-1234">
+                      </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                    <button type="submit" class="btn btn-primary">Zapisz</button>
+                  </div>
+                    </form>
+
+                </div>
+              </div>
+            </div>
+          
+        </div>
+        </div>
+
+
+  
+
+
+
+
+
+
+      </div>
+
+        <div class="table-responsive">
+          <table id="table_claims" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Status</th>
+                <th>Customer id</th>
+                <th>Client</th>
+                <th>Serial No</th>
+                <th>Product</th>  
+
+                <th>Koszt przeciwwagi</th>
+                <th>Koszt naprawy</th>
+                <th>Koszt reklamacji</th>
+                <th>Koszt transportu</th>
+
+                <th>Data reklamacji</th>
+                <th>Data powrotu</th>
+                <th>Wyrób wrócił</th>
+                <th>Akceptacja reklamacji</th>
+                <th>Functions</th>
+              
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.id }}</td>
+                <td>{% if item.claim_status == 'Open' %} <span class="badge badge-pill badge-success">Open</span> {% else %} <span class="badge badge-pill badge-danger">Closed</span> {% endif %}</td>
+                <td>{% if item.claim_id is none %} - {% else %} {{ item.claim_no }} {% endif %}</td>
+                <td>{{ item.klient }}</td>
+                <td>{{ item.serial_no }}</td>
+                <td>{{ item.product }}</td>
+
+                <td>{% if item.koszt_przeciwwagi is none %} - {% else %} {{ item.koszt_przeciwwagi }} {% endif %}</td>
+                <td>{% if item.koszt_naprawy is none %} - {% else %} {{ item.koszt_naprawy }} {% endif %}</td>
+                <td>{% if item.koszt_obslugi is none %} - {% else %} {{ item.koszt_obslugi }} {% endif %}</td>
+                <td>{% if item.koszt_transportu is none %} - {% else %} {{ item.koszt_transportu }} {% endif %}</td>
+
+                <td>{% if item.data_reklamacji is none %} - {% else %} {{ item.data_reklamacji }} {% endif %}</td>
+                <td>{% if item.data_powrotu is none %} - {% else %} {{ item.data_powrotu }} {% endif %}</td>
+                <td>{% if item.wyrob_wrocil is none %} - {% else %} {{ item.wyrob_wrocil }} {% endif %}</td>
+                <td>{% if item.akceptacja is none %} - {% else %} {{ item.akceptacja }} {% endif %}</td>
+                <td>
+                  <a href="/edit_claim/{{ item.serial_no }}" class="btn btn-link" role="button" aria-pressed="true">Edycja</a> |
+
+                  <!-- Button trigger modal -->
+                  <button type="button" class="btn btn-link" data-toggle="modal" data-target="#deleteModal{{ item.id }}">
+                    Usuń
+                  </button>
+
+                  <!-- Modal -->
+                  <div class="modal fade" id="deleteModal{{ item.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ item.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="deleteModalLabel{{ item.id }}">Usuń reklamację</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          Czy na pewno chcesz usunąć reklamację o id {{ item.id }} i S/N {{ item.serial_no }}? Ta operacja jest nieodwracalna!
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                          <a href="/delete_claim/{{ item.id }}" class="btn btn-success" role="button" aria-pressed="true">Zatwierdź</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+
+
+
+          
+
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+  <!-- Bootstrap Select JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#table_claims').DataTable({
+        order: [
+          [0, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+      <script>
+        function htmlToCSV(html, filename) {
+          var data = [];
+          var rows = document.querySelectorAll("table tr");
+
+          for (var i = 0; i < rows.length; i++) {
+            var row = [];
+            var cols = rows[i].querySelectorAll("td, th");
+
+            for (var j = 0; j < cols.length; j++) {
+              var val = cols[j].innerText;
+              var t = val.trim();
+              if (t === "-") val = "";
+              row.push(val);
+            }
+
+            data.push(row.join(";"));
+          }
+
+          downloadCSVFile(data.join("\n"), filename);
+        }
+      </script>
+          
+      <script>
+        function downloadCSVFile(csv, filename) {
+          var csv_file, download_link;
+          csv_file = new Blob([csv], {
+            type: "text/csv"
+          });
+          download_link = document.createElement("a");
+          download_link.download = filename;
+          download_link.href = window.URL.createObjectURL(csv_file);
+          download_link.style.display = "none";
+          document.body.appendChild(download_link);
+          download_link.click();
+        }
+      </script>
+    
+      <script>
+        document.getElementById("download-button").addEventListener("click", function () {
+          var html = document.querySelector("table").outerHTML;
+          htmlToCSV(html, "forms.csv");
+        });
+      </script>
+
+
+</body>
+
+</html>

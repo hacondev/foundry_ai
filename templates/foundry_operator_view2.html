@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Pulpit: Odlewnia</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/mafi-status.css') }}">
+
+  <style>
+    .switch-big {
+      transform: scale(1.6);
+      transform-origin: left center;
+    }
+
+    .odstep {
+      padding-left: 1%;
+    }
+
+    .pulse-text {
+      color: red;
+      font-size: 110%;          /* +10% */
+      font-weight: bold;
+
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%   { opacity: 1; }
+      50%  { opacity: 0.1; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes blink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .blink-text {
+      animation: blink 1s infinite;
+    }
+    
+  </style>
+
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+
+  <!--------------------------------------------------------------------------------------------------
+    Blok Formy do zalania
+  -->
+
+      <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-md-12">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Skrzynie do zalania: {{ suma }} t</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-danger alert-dismissible fade show h4" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <!-- Button trigger modal MAfi closed-->
+            <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#mafi_closed">
+              Mafi do wybicia
+            </button>
+            &nbsp;
+
+          <!-- MAfi closed --->
+          <div class="modal fade" id="mafi_closed" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="staticBackdropLabel">Mafi do wybicia (oznaczone jako załadowane). </h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                <div class="alert alert-primary" role="alert">
+                    <b>Uwaga!</b> Kliknięcie [Oznacz jako rozaładowana] spowoduje tylko zmianę statusu mafi, a nie form. Tzn. formy nie zostaną oznaczone jako do wybicia.
+                </div>
+                  
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID MAFI</th>
+                        <th scope="col">Udzwig maksymalny [kg]</th>
+                        <th scope="col">Akualna masa [kg]</th>
+                  
+                        <th scope="col">Formy</th>
+                        <th scope="col">Funckja</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in mafi_to_display_closed %}
+                      <tr>
+
+                        <td scope="row">{{ item['SerialNumber'] }}</td>
+                        <td scope="row">{{ item['carry'] }}</td>
+
+                        {% if item['carry_actual']  %} 
+                            <td scope="row">{{ item['carry_actual'] }}</td>
+                        {% else %} 
+                            <td scope="row">0</td>
+                        {% endif %}
+                        
+                        <td scope="row">
+                          {% for forma in item['formy'] %}
+                              {{ forma[0] }} -> {{ forma[1] }} <br>
+                          {% endfor %}
+                        </td>
+                  
+                        
+                        {% if item['carry_actual'] %} 
+                            <td scope="row"><a href="/mark_mafi_as_unload_manual/{{item['SerialNumber']}}" class="btn btn-danger btn-sm " tabindex="-1" role="button" aria-disabled="true" >Oznacz jako rozaładowana</a></td>
+                        {% else %} 
+                            <td scope="row"><a href="/mark_mafi_as_unload_manual/{{item['SerialNumber']}}" class="btn btn-danger btn-sm disabled" tabindex="-1" role="button" aria-disabled="false">Oznacz jako rozaładowana</a></td>
+                        {% endif %}
+
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-success" data-dismiss="modal">Zamknij</button>
+                  <!--button type="button" class="btn btn-primary">Understood</button-->
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          
+            <!-- Button trigger modal MAfi in use -->
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#staticBackdrop">
+              Mafi do załadunku
+            </button>
+            &nbsp;
+            <div class="btn-group mr-2">
+              <!--button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_to_forming">Dodaj do listy zalewu</button-->
+              <a href="foundry_operator_view2" class="btn btn-success btn-lg" role="button" aria-pressed="true" >
+                Odśwież stronę</a>
+              &nbsp;
+              
+          <!-- Modal -->
+          <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="staticBackdropLabel">Mafi w trakcie załadunku (nieoznaczone jako załadowane)</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                  <div class="alert alert-success" role="alert">
+                    <b>Uwaga!</b> Kliknięcie klawisza [Oznacz jako załadowana] spowoduje tylko zmianę statusu mafi, a nie form. Tzn. etap studzenia formy nie zakończy się oraz czas chłodzenia formy nie zacznie być mierzony.
+                  </div>
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID MAFI</th>
+                        <th scope="col">Udzwig maksymalny [kg]</th>
+                        <th scope="col">Akualna masa [kg]</th>
+                        <th scope="col">Formy</th>
+                        <th scope="col">Funckja</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in mafi_to_display %}
+                      <tr>
+
+                        <td scope="row">{{ item['SerialNumber'] }}</td>
+                        <td scope="row">{{ item['carry'] }}</td>
+
+                        {% if item['carry_actual']  %} 
+                            <td scope="row">{{ item['carry_actual'] }}</td>
+                        {% else %} 
+                            <td scope="row">0</td>
+                        {% endif %}
+
+                        <td scope="row">
+                          {% for forma in item['formy'] %}
+                              {{ forma[0] }} -> {{ forma[1] }} <br>
+                          {% endfor %}
+                        </td>
+                        
+                        {% if item['carry_actual'] %} 
+                            <td scope="row"><a href="/mark_mafi_as_load_manual/{{item['SerialNumber']}}" class="btn btn-primary btn-sm " tabindex="-1" role="button" aria-disabled="true" >Oznacz jako załadowana</a></td>
+                        {% else %} 
+                            <td scope="row"><a href="/mark_mafi_as_load_manual/{{item['SerialNumber']}}" class="btn btn-primary btn-sm disabled" tabindex="-1" role="button" aria-disabled="false">Oznacz jako załadowana</a></td>
+                        {% endif %}
+
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-success" data-dismiss="modal">Zamknij</button>
+                  <!--button type="button" class="btn btn-primary">Understood</button-->
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="table1" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nazwa</th>
+                <th>Id skrzyni</th>
+                <th>Próba</th>
+                <th>Powrtórka</th>
+                <th>Czas w hali [min]</th>
+                <th>Waga netto [kg]</th>
+                <th>Funkcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in formy_do_zalania %}
+              <tr >
+                <td>{{ item.id }}</td>
+                <td>{{ item.nazwa_produktu }}</td>
+                <!--td>{{ item.flask1 }}</td-->
+                <td>
+                  {% if item.numery_seryjne and item.numery_seryjne|length > 0 %}
+                      <b>{{ item.numery_seryjne[0] }}</b>{% if item.numery_seryjne|length > 1 %}, {{ item.numery_seryjne[1:]|join(', ') }}{% endif %}
+                  {% else %}
+                      -
+                  {% endif %}
+              </td>
+                <td>
+                  {% if item.trail == '1' %} 
+                      <h5><span class="badge badge-info blink-text">Tak</span></h5>
+                  {% else %} 
+                      Nie
+                  {% endif %}
+                </td>
+                <td>
+                  {% if item.alias %} 
+                      <h5><span class="badge badge-danger blink-text">Tak</span></h5>
+                    {% else %} 
+                      Nie
+                  {% endif %}
+                </td>
+                <td>{{ item.data_od_zmontowania }}</td>
+                <td>{{ item.waga_netto }} </td>
+                <td>
+                  <a class="btn btn-dark btn-lg" tabindex="-1" role="button" data-toggle="modal"  data-target="#modal_form{{ item.id }}">Zalano</a>
+                  <div class="modal fade" id="modal_form{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Edycja pozycji listy zalewu</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/mark_as_casted/{{ item.id }}" method="POST">
+                            <h5>Czy chcesz oznaczyć produkt <b> {{ item.nazwa_produktu }} </b> jako zalany? </h5>
+                        <br>
+
+                          <div class="form-group">
+                            <label for="koment"> <h5>Komentarz biura odlewni:</h5> </label>
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <textarea class="form-control" id="koment" rows="3" disabled>{{ item.komentarz }}</textarea>
+                                <!--label class="" for="textAreaExample6"><span class="badge badge-danger">Uwaga ważne !!!</span></label-->
+                            {% if item.komentarz %}
+                                  <label class="blink-text" for="textAreaExample6"><span class="badge badge-danger">Uwaga komantarz biura odlewni !!!</span></label>
+                            {% endif %}
+                            </div>  
+                          </div>
+
+                            <hr>
+
+                            <div class="form-group">
+                              <label for="operator">
+                                <h5>Operator:</h5>
+                              </label>
+                              <select class="form-control" id="operator" name="operator" required>
+                                <option value=""></option>
+                                <option value="Ogłoza Krzysztof">Ogłoza Krzysztof</option>
+                                <option value="Strenczek Dawid">Strenczek Dawid</option>
+                                <option value="Szewczuk Mirosław">Szewczuk Mirosław</option>
+                                <option value="Zawisza Józef">Zawisza Józef</option>
+                                <option value="Wodyk Bartosz">Wodyk Bartosz</option>
+                              </select>
+                            </div>
+
+                            <div class="row">
+                              <div class="col">
+                                <div class="form-group">
+                                  <label for="nr_kadzi">
+                                    <h5>Numer kadzi:</h5>
+                                  </label>
+                                  <input type="number" class="form-control" id="nr_kadzi" name="nr_kadzi" required>
+                                  <small class="form-text text-muted">Numer kadzi jest obowiązkowy</small>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="form-group">
+                                  <label for="nr_kadzi">
+                                    <h5>Ilość odszlakowań kadzi:</h5>
+                                  </label>
+                                  <input type="number" class="form-control" id="kadz_odzlakowania" name="kadz_odzlakowania" required>
+                                  <small class="form-text text-muted">Ilość odszlakowań kadzi jest obowiązkowa</small>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="komentarz"><h5>Komentarz:</h5></label>
+                              <textarea class="form-control" id="komentarz" name="komentarz" rows="3"></textarea>
+                              <small class="form-text text-muted">Komentarz nie jest obowiązkowy</small>
+                            </div>                    
+
+                            <div class="form-group">
+                              <label for="fl_time"><h5>Czas zalewania [s]:</h5></label>
+                              <input type="text" class="form-control" id="fl_time" name="fl_time" required>
+                              <small class="form-text text-muted">Czas jest obowiązkowy</small>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="fe_temp"><h5>Tempertura żeliwa:</h5></label>
+                              <input type="text" class="form-control" id="fe_temp" name="fe_temp" required>
+                              <small class="form-text text-muted">Numer kadzi jest obowiązkowy</small>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="filtr"><h5>Dolewka:</h5></label>
+                              <select class="form-control" id="filtr" name="filtr" required>
+                                <option value="nie">Nie</option>
+                                <option value="tak">Tak</option>
+                              </select>
+                              <small class="form-text text-muted">Pole Filtr jest obowiązkowe</small>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="broken"><h5>Wyciek:</h5></label>
+                              <select class="form-control" id="broken" name="broken" required>
+                                <option value="nie">Nie</option>
+                                <option value="tak">Tak</option>
+                              </select>
+                              <small class="form-text text-muted">Pole Forma uszkodzona jest obowiązkowe</small>
+                            </div>
+
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="zlom" id="zlom" name="zlom">
+                              <label class="form-check-label" for="zlom">
+                                Złom 
+                              </label>
+                            </div>
+
+                            <br>
+
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                              <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+
+
+ <!--------------------------------------------------------------------------------------------------
+    Blok: Formy zalane
+  -->
+
+    <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-md-12" style="padding-top: 5%;">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Skrzynie zalane</h1>
+
+        <!-- {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for msg in messages %}
+        <div class="alert alert-danger alert-dismissible fade show h4" role="alert" style="width: 60%">
+          {{ msg }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %} -->
+
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group mr-2">
+            &nbsp;
+            <!-- Modal adding nnew item -->
+            <div class="modal fade" id="add_to_forming" tabindex="-1" aria-labelledby="exampleModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+
+                  <div class="modal-body">
+                    <form action="/add_to_casting_list" method="POST">
+
+                      <div class="form-group">
+                        <label for="nazwa">Wybierz produkt</label>
+                        <select class="form-control" id="nazwa" name="nazwa">
+                          {% for idx in products %}
+                          {% if idx.status != 'inactive' %}
+                          <option value="{{ idx.nazwa }}"> {{ idx.nazwa }} </option>
+                          {% endif %}
+                          {% endfor %}
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="quantity">Ilość sztuk</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" value="1">
+                      </div>
+
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                    <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                    <!--button type="button" class="btn btn-primary">Save changes</button-->
+                  </div>
+
+                  </form>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="">
+        <table id="table_id2" class="display">
+          <thead>
+            <tr>
+              <th >Id</th>
+              <th >Nazwa</th>
+              <th >Id skrzyni</th>
+              <th >Próba</th>
+              <th >Powtórka</th>
+              <th >Czas do transportu [min]</th>
+              <th >Funkcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in formy_zalane %}
+          
+            <tr {% if '-' in item.data_studzenia %} style="background-color: rgb(255, 112, 112);" {% else %} class="table-success" {% endif %}>
+              <td >{{ item.id }}</td>
+              <td >{{ item.nazwa_produktu }}</a></td>
+              <td>
+                  {% if item.numery_seryjne and item.numery_seryjne|length > 0 %}
+                      <b>{{ item.numery_seryjne[0] }}</b>{% if item.numery_seryjne|length > 1 %}, {{ item.numery_seryjne[1:]|join(', ') }}{% endif %}
+                  {% else %}
+                      -
+                  {% endif %}
+              </td>
+              <td>
+                  {% if item.trail == '1' %} 
+                      <h5><span class="badge badge-info blink-text">Tak</span></h5>
+                  {% else %} 
+                      Nie
+                  {% endif %}
+              </td>
+
+              <td>
+                  {% if item.alias %} 
+                      <h5><span class="badge badge-danger blink-text">Tak</span></h5>
+                    {% else %} 
+                      Nie
+                  {% endif %}
+              </td>
+
+              <td >{{ item.data_studzenia }}</td>
+              <td >
+                <a class="btn btn-dark btn" tabindex="-1" role="button" data-toggle="modal"  data-target="#modal_form{{ item.id }}">Wywieziono</a>
+                  
+                  <!-- Modal from item -->
+                  <div class="modal fade" id="modal_form{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edycja pozycji listy wybijania</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/mark_as_taken_outside/{{ item.id }}" method="POST"></form>
+                        <form action="/mark_as_taken_outside/{{ item.id }}" method="POST">
+                          <h5>Czy chcesz oznaczyć produkt <b> {{ item.nazwa_produktu }} </b> jako wywieziony? </h5>
+                          <hr>
+                          <div class="form-group">
+                            <label for="komentarz"><h5>Komentarz biura dolewni:</h5></label>
+                            <textarea class="form-control" id="komentarz" name="komentarz" rows="3" disabled>{{ item.komentarz }}</textarea>
+                            {% if item.komentarz %}
+                                  <label class="blink-text" for="textAreaExample6"><span class="badge badge-danger">Uwaga komantarz biura odlewni !!!</span></label>
+                            {% endif %}
+                            <!-- <small class="form-text text-muted">Komentarz nie jest obowiązkowy</small> -->
+                            <!--label class="" for="komentarz"><span class="badge badge-danger">Uwaga ważne !!!</span></label-->
+                          </div>
+                          <div class="form-group">
+                            <label for="nazwa"><h5>Wybierz mafi id</h5></label>
+                            <select class="form-control" id="mafi" name="mafi" required>
+                                  <option value="" selected="selected"></option> 
+                                  <option value="0">0</option> 
+                              {% for item in mafi %}
+                                  <option value="{{ item['SerialNumber'] }}">{{ item['SerialNumber'] }}</option> 
+                                {% else %}
+                              {% endfor %}
+                            </select>
+                            <small id="mafi" class="form-text text-muted">ID MAFI jest obowiązkowe. W razie braku ID MAFI proszę wybrać ID: 0</small>
+                          </div>
+                          <br>
+                             <!-- RESULT -->
+                                <div id="resultDiv" class="border rounded p-3 bg-light">
+
+                                  <div class="text-muted">
+                                    Wybierz wartość z listy, aby pobrać dane.
+                                  </div>
+
+                                </div>
+                                                      <!-- <div class="form-group">
+                            <input type="checkbox" id="lock_mafi" name="lock_mafi">
+                            <label for="leaks">Mafi załadowana</label><br>
+                          </div> -->
+
+                          <!-- ================= COMPONENT SWITCH MAFI ================= -->
+
+                          <!-- <div id="mafi-status" class="container mt-4">
+                            <div class="row justify-content-center align-items-center">
+                          
+                              <div class="col-auto mr-5">
+                                <div class="mafi-wrapper">
+                                  <div id="boxLoaded" class="mafi-box mafi-red">
+                                    MAFI ZAŁADOWANA
+                                  </div>
+                                  <div id="boxEmpty" class="mafi-box mafi-green">
+                                    MAFI NIEDOŁADOWANA
+                                  </div>
+                                </div>
+                              </div>
+                       
+                              <div class="col-auto d-flex align-items-center">
+                                <span class="mr-3 font-weight-bold">NIEDOŁADOWANA</span>
+                                <div class="custom-control custom-switch switch-lg">
+                                  <input type="checkbox" class="custom-control-input" id="mafiSwitch" name="lock_mafi" value="1">
+                                  <label class="custom-control-label" for="mafiSwitch"></label>
+                                </div>
+                                <span class="ml-3 font-weight-bold">ZAŁADOWANA</span>
+                              </div>
+                            </div>
+                          </div-->
+
+                          <br>
+                          <div class="form-check form-switch">
+                            <input class="form-check-input switch-big" type="checkbox" name="lock_mafi" id="mafiSwitch">
+                            <label class="form-check-label odstep" for="mafiSwitch"><div class="pulse-text">Platforma załadowana</div></label>
+                          </div>
+
+                          <br>
+                          <div class="form-group">
+                            <label for="komentarz_wywoz">Czas studzenia</label>
+                            <select id="komentarz_wywoz" class="selectpicker form-control" data-live-search="true" name="komentarz_wywoz" required>
+                              <option value=""></option>
+                              <option value="Czas OK - zgodny z instrukcją">CZAS OK - Zgodny z instrukcją</option>
+                              <option value="Czas NOK - Brak miejsca na hali">CZAS NOK - Brak miejsca na hali</option>
+                            </select>
+                            <small id="komentarz_wywoz" class="form-text text-muted">Komentarz jest obowiązkowy</small>
+                          </div>
+
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btn-lg" data-dismiss="modal">Zrezygnuj</button>
+                            <button type="submit" class="btn btn-success btn-lg">Zatwiedź</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <a class="btn btn-primary btn" tabindex="-1" role="button" data-toggle="modal"  data-target="#modal_details{{ item.id }}">Szczegóły</a>
+                  
+                <!-- Modal item details -->
+                <div class="modal fade" id="modal_details{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">{{ item.nazwa_produktu }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/mark_as_formed/{{ item.id }}" method="POST">
+                          <div class="row">
+                            <div class="col-sm">
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Nr kadzi</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.nr_kadzi }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Tempertura żeliwa</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.temp_zeliwa }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Czas chłodzenia [dni]</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.dni_do_wybicia }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Data zalania</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.data_zalania }}" disabled>
+                              </div>
+                            </div>
+                            <div class="col-sm">
+                              <div class="form-group">
+                                <label for="f1">Dolewka</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.filtr }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Wyciek</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.broken }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Czas studzenia [min]</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.czas_studzenia * 60 }}" disabled>
+                              </div>
+                              <div class="form-group">
+                                <label for="f1">Data wprowadzenia do systemu</label>
+                                <input type="text" class="form-control" id="f1" value="{{ item.data_dodania }}" disabled>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm">
+                              <label for="f1">Operator</label>
+                              <input type="text" class="form-control" id="f1" value="{{ item.zmodyfikowane_przez }}" disabled>
+                            </div>
+                          </div>
+                          <!--div class="row">
+                            <div class="col">
+                              <label for="f1">Komentarz biura odlewni:</label>
+                              <textarea class="form-control" id="f1" rows="3" disabled>{{ item.komentarz }}</textarea>
+                            </div>
+                          </div>
+                          <br>
+                          <div class="row">
+                            <div class="col">
+                              <label for="f1">Komentarz wybijanie:</label>
+                              <textarea class="form-control" id="f1" rows="3"
+                                disabled>{{ item.komentarz_wybijanie }}</textarea>
+                            </div>
+                          </div>
+                          <br>
+                          <div class="row">
+                            <div class="col">
+                              <label for="f1">Komentarz zalew:</label>
+                              <textarea class="form-control" id="f1" rows="3"
+                                disabled>{{ item.komentarz_zalew  }}</textarea>
+                            </div>
+                          </div>
+                          <br>
+                          <div class="row">
+                            <div class="col">
+                              <label for="f1">Komentarz rdzeniarnia:</label>
+                              <textarea class="form-control" id="f1" rows="3"
+                                disabled>{{ item.komentarz_rdzeniarnia }}</textarea>
+                            </div>
+                          </div>
+                          <br>
+                          <div class="row">
+                            <div class="col">
+                              <label for="f1">Komentarz formiernia:</label>
+                              <textarea class="form-control" id="f1" rows="3"
+                                disabled>{{ item.komentarz_formowanie }}</textarea>
+                            </div>
+                          </div-->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                          <!--button type="button" class="btn btn-primary">Save changes</button-->
+                        </div>
+                        </form>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <a class="btn btn-success btn" tabindex="-1" role="button" data-toggle="modal"  data-target="#modal_edit_{{ item.id }}">Edycja</a>
+                  
+                <!-- Modal item details -->
+                <div class="modal fade" id="modal_edit_{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edycja formy: <b>{{ item.nazwa_produktu }}</b></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="/edit_casted_form/{{ item.id }}" method="POST">
+                          <div class="row">
+                            <div class="col-sm">
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm">
+
+                              <div class="form-group">
+                                <label for="nr_kadzi">Nr kadzi</label>
+                                <input type="text" class="form-control" id="nr_kadzi" name="nr_kadzi" value="{{ item.nr_kadzi }}">
+                              </div>
+
+                              <div class="form-group">
+                                <label for="temp_zeliwa">Tempertura żeliwa</label>
+                                <input type="text" class="form-control" id="temp_zeliwa" name="temp_zeliwa" value="{{ item.temp_zeliwa }}" >
+                              </div>
+
+                            </div>
+                            <div class="col-sm">
+                              <div class="form-group">
+                                  <label for="filtr">Dolewka</label>
+                                    <select class="form-control" id="filtr" name="filtr">  
+                                        {% if 'tak' in item.filtr %}
+                                            <option value="tak">Tak</option>
+                                            <option value="nie">Nie</option>                            
+                                        {% else %}
+                                            <option value="nie">Nie</option>  
+                                            <option value="tak">Tak</option> 
+                                        {% endif %}
+                                    </select>
+                              </div>
+                              <div class="form-group">
+                                  <label for="broken">Wyciek</label>
+                                    <select class="form-control" id="broken" name="broken">  
+                                        {% if 'tak' in item.broken %}
+                                            <option value="tak">Tak</option>
+                                            <option value="nie">Nie</option>                            
+                                        {% else %}
+                                            <option value="nie">Nie</option>  
+                                            <option value="tak">Tak</option> 
+                                        {% endif %}
+                                    </select>
+                              </div>
+                            </div>
+                          </div>
+
+                      </div>
+
+
+                      <div class="modal-footer">     
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                          <button type="submit" class="btn btn-danger">Zatwiedź</button>
+                      </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+    
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/mafi-status.js') }}"></script>
+  
+  <script>
+    $(document).ready(function () {
+      $('#table1').DataTable({
+        order: [
+          [0, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+
+<script>
+  $(document).ready(function () {
+    $('#table_id2').DataTable({
+      order: [
+        [3, 'desc']
+      ],
+      "pageLength": 50,
+    });
+  });
+</script>
+
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+
+  <script>
+    const select = document.getElementById('mafi');
+    const resultDiv = document.getElementById('resultDiv');
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    async function loadFormByIdMafi(idMafi) {
+      if (!idMafi) return;
+
+      resultDiv.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+          <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+          <div>Ładowanie...</div>
+        </div>
+      `;
+
+      try {
+        const resp = await fetch(`/api/mafi/form?id_mafi=${encodeURIComponent(idMafi)}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (!resp.ok) {
+          const txt = await resp.text();
+          throw new Error(`HTTP ${resp.status}: ${txt}`);
+        }
+
+        const data = await resp.json();
+        // data: { id_mafi: "25", form: "32384\n32385\n..." } albo { form: "" }
+
+        if (data.form === null || data.form === undefined || data.form === "") {
+          resultDiv.innerHTML = `<div class="text-warning">Brak wyniku dla id_mafi=${escapeHtml(idMafi)}</div>`;
+          return;
+        }
+
+        // ✅ opcja 1: <pre> pokazuje \n w osobnych liniach
+        resultDiv.innerHTML = `
+          <div class="small text-muted mb-1">Wynik zapytania (form):</div>
+          <pre class="fw-semibold mb-0">${escapeHtml(data.form)}</pre>
+        `;
+      } catch (err) {
+        console.error(err);
+        resultDiv.innerHTML = `<div class="text-danger">Błąd: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    select.addEventListener('change', (e) => {
+      loadFormByIdMafi(e.target.value);
+    });
+</script>
+<script>
+  const checkbox = document.getElementById("mafiCheckbox");
+const mafiBox = document.getElementById("mafiBox");
+
+function updateMafiStatus() {
+  if (checkbox.checked) {
+    mafiBox.classList.remove("mafi-green");
+    mafiBox.classList.add("mafi-red");
+    mafiBox.textContent = "MAFI ZAŁADOWANA";
+  } else {
+    mafiBox.classList.remove("mafi-red");
+    mafiBox.classList.add("mafi-green");
+    mafiBox.textContent = "MAFI NIEDOŁADOWANA";
+  }
+}
+
+checkbox.addEventListener("change", updateMafiStatus);
+
+// init po załadowaniu
+updateMafiStatus();
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Dashboard: Products</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <!--a class="nav-link active" href="/logout">Sign out</a-->
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Wyloguj 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming"  style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Zlecenia produkcyjne
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/products"  style="color: white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Produkty
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/mafi"  style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Mafi
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/foundry_report"  style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Raport zmianowy
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Produkty</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_produkt">Nowy
+                produkt</button>
+              &nbsp;
+              <a href="/products" class="btn btn-primary" role="button" aria-pressed="true">Odśweż stronę</a>
+
+              <!-- Modal add produkt -->
+              <div class="modal fade" id="add_produkt" tabindex="-1" aria-labelledby="add_prod" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="add_prod">Nowy produkt</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+
+                    <div class="modal-body">
+                      <form action="/add_produkt" method="POST">
+                        <div class="row">
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="nazwa">Nazwa produktu</label>
+                              <input type="text" class="form-control" id="nazwa" name="nazwa" value="" required>
+                            </div>
+                            <!-- <div class="form-group">
+                              <label for="waga_zeliwa">Waga żeliwa</label>
+                              <input type="number" class="form-control" id="waga_zeliwa" name="waga_zeliwa" value=""
+                                required>
+                            </div> -->
+                          </div>
+
+                          <!-- <div class="col-sm">
+                            <div class="form-group">
+                              <label for="waga_piasku">Waga piasku</label>
+                              <input type="number" class="form-control" id="waga_piasku" name="waga_piasku" value=""
+                                required>
+                            </div>
+                            <div class="form-group">
+                              <label for="sztuk">Sztuk</label>
+                              <input type="number" class="form-control" id="sztuk" name="sztuk" value="" required>
+                            </div>
+                          </div> -->
+                        </div>
+
+                        <!-- <div class="row">
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="ilosc_rdzeni">Sztuk rdzeni</label>
+                              <input type="number" class="form-control" id="ilosc_rdzeni" name="sztuk_rdzeni" value=""
+                                required>
+                            </div>
+                            <div class="form-group">
+                              <label for="nazwa_rdzenia">Nazwa rdzenia</label>
+                              <input type="text" class="form-control" id="nazwa_rdzenia" name="nazwa_rdzenia" value=""
+                                required>
+                            </div>
+                          </div>
+
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="waga_rdzenia">Waga rdzeni</label>
+                              <input type="number" class="form-control" id="waga_rdzenia" name="waga_rdzeni" value=""
+                                required>
+                            </div>
+                            <div class="form-group">
+                              <label for="dni_do_wybicia">Ilość dni do wybicia</label>
+                              <input type="number" class="form-control" id="dni_do_wybicia" name="dni_do_wybicia"
+                                value="" required>
+                            </div>
+                          </div>
+                        </div> -->
+
+                        <!-- <div class="row">
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="filtr">Filtr</label>
+                              <input type="text" class="form-control" id="filtr" name="filtr" value="" required>
+                            </div>
+                            <div class="form-group">
+                              <label for="rdzeni">Rdzeni</label>
+                              <input type="number" class="form-control" id="rdzeni" name="rdzeni" value="" required>
+                            </div>
+                          </div>
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="uklad_wlwwody">Uklad wody</label>
+                              <input type="text" class="form-control" id="uklad_wlwwody" name="uklad_wlwwody" value=""
+                                required>
+                            </div>
+                            <div class="form-group">
+                              <label for="filtry">Filtry</label>
+                              <input type="text" class="form-control" id="filtry" name="filtry" value="" required>
+                            </div>
+                          </div>
+                        </div> -->
+
+                        <!-- <div class="row">
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="fi">Fi</label>
+                              <input type="number" class="form-control" id="fi" name="fi" value="" required>
+                            </div>
+
+                          </div>
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="sznur">Sznur</label>
+                              <input type="number" class="form-control" id="sznur" name="sznur" value="" required>
+                            </div>
+                          </div>
+                        </div> -->
+
+                        <!-- <div class="row">
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="skrzynia1">Skrzynia 1</label>
+                              <input type="text" class="form-control" id="skrzynia1" name="skrzynia1" value="">
+                            </div>
+                            <div class="form-group">
+                              <label for="skrzynia2">Skrzynia 2</label>
+                              <input type="text" class="form-control" id="skrzynia2" name="skrzynia2" value="">
+                            </div>
+                          </div>
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="skrzynia3">Skrzynia 3</label>
+                              <input type="text" class="form-control" id="skrzynia3" name="skrzynia3" value="">
+                            </div>
+                            <div class="form-group">
+                              <label for="skrzynia4">Skrzynia 4</label>
+                              <input type="text" class="form-control" id="skrzynia4" name="skrzynia4" value="">
+                            </div>
+                          </div>
+                        </div> -->
+
+                        <!-- <div class="row">
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="id_model1">Id modelu 1</label>
+                              <input type="number" class="form-control" id="id_model1" name="id_model1" value="">
+                            </div>
+                          </div>
+                          <div class="col-sm">
+                            <div class="form-group">
+                              <label for="id_model2">Id modelu 2</label>
+                              <input type="number" class="form-control" id="id_model2" name="id_model2" value="">
+                            </div>
+                          </div>
+                        </div> -->
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                      <button type="submit" class="btn btn-danger">Zatwierdź</button>
+                    </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nazwa produktu</th>
+                <th>Ostatnia modyfikacja statusu</th>
+                <th>Zmodyfikowane</th>
+                <th>Funkcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              {% if item.item_status == 'active' %}
+              <tr>
+                <td>{{ item.produkt_id }}</td>
+                <td>{{ item.nazwa }}</td>
+                <td>{{ item.last_modification_date }}</td>
+                <td>{{ item.last_modification_by }}</td>
+                <td>
+
+                  <a href="/product_details/{{ item.produkt_id }}" class="btn btn-primary btn-sm" role="button" aria-pressed="true">Szczególy</a>
+
+                  <!--a class="btn btn-primary btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                    data-target="#edit_produkt{{ item.produkt_id }}">Edycja</a-->
+
+                  <!-- Modal edit produkt -->
+                  <div class="modal fade" id="edit_produkt{{ item.produkt_id }}" tabindex="-1"
+                    aria-labelledby="edit_prod" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="add_prod">Edycja produktu</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/edit_produkt/{{ item.produkt_id }}" method="POST">
+                            <div class="row">
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="nazwa">Nazwa produktu</label>
+                                  <input type="text" class="form-control" id="nazwa" name="nazwa"
+                                    value="{{ item.nazwa }}" required>
+                                </div>
+                                <div class="form-group">
+                                  <label for="waga_zeliwa">Waga żeliwa</label>
+                                  <input type="number" class="form-control" id="waga_zeliwa" name="waga_zeliwa"
+                                    value="{{ item.waga_zeliwa }}" >
+                                </div>
+                              </div>
+
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="waga_piasku">Waga piasku</label>
+                                  <input type="number" class="form-control" id="waga_piasku" name="waga_piasku"
+                                    value="{{ item.waga_piasku }}" >
+                                </div>
+                                <div class="form-group">
+                                  <label for="sztuk">Sztuk</label>
+                                  <input type="number" class="form-control" id="sztuk" name="sztuk"
+                                    value="{{ item.sztuk }}" >
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="ilosc_rdzeni">Sztuk rdzeni</label>
+                                  <input type="number" class="form-control" id="ilosc_rdzeni" name="sztuk_rdzeni"
+                                    value="{{ item.sztuk_rdzeni }}" >
+                                </div>
+                                <div class="form-group">
+                                  <label for="nazwa_rdzenia">Nazwa rdzenia</label>
+                                  <input type="text" class="form-control" id="nazwa_rdzenia" name="nazwa_rdzenia"
+                                    value="{{ item.nazwa_rdzenia }}" >
+                                </div>
+                              </div>
+
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="waga_rdzenia">Waga rdzeni</label>
+                                  <input type="number" class="form-control" id="waga_rdzeni" name="waga_rdzeni"
+                                    value="{{ item.waga_rdzeni }}" >
+                                </div>
+                                <div class="form-group">
+                                  <label for="dni_do_wybicia">Ilość dni do wybicia</label>
+                                  <input type="number" class="form-control" id="dni_do_wybicia" name="dni_do_wybicia"
+                                    value="{{ item.dni_do_wybicia }}" >
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="filtr">Filtr</label>
+                                  <input type="text" class="form-control" id="filtr" name="filtr"
+                                    value="{{ item.filtr }}" >
+                                </div>
+                                <div class="form-group">
+                                  <label for="rdzeni">Rdzeni</label>
+                                  <input type="number" class="form-control" id="rdzeni" name="rdzeni"
+                                    value="{{ item.rdzeni }}" >
+                                </div>
+                              </div>
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="uklad_wlwwody">Uklad wlewowy</label>
+                                  <input type="text" class="form-control" id="uklad_wlwwody" name="uklad_wlwwody"
+                                    value="{{ item.uklad_wlwwody }}" >
+                                </div>
+                                <div class="form-group">
+                                  <label for="filtry">Filtry</label>
+                                  <input type="text" class="form-control" id="filtry" name="filtry"
+                                    value="{{ item.filtry }}" >
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="fi">Fi</label>
+                                  <input type="number" class="form-control" id="fi" name="fi" value="{{ item.fi }}"
+                                    required>
+                                </div>
+
+                              </div>
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="sznur">Sznur</label>
+                                  <input type="number" class="form-control" id="sznur" name="sznur"
+                                    value="{{ item.sznur }}" >
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-sm">
+                                <!--div class="form-group">
+                                  <label for="skrzynia1">Skrzynia 1</label>
+                                  <input type="text" class="form-control" id="skrzynia1" name="skrzynia1"
+                                    value="{{ item.skrzynia1 }}">
+                                </div-->
+                                <label for="skrzynia1" class="form-label">Skrzynia 1:</label>
+                                <select class="form-control" name="skrzynia1" id="skrzynia1">
+                                      <option value="{{ item.skrzynia1 }}">{{ item.skrzynia1 }}</option>
+                                      {% for flask in flasks %}
+                                        <option value="{{ flask['skrzynie_name'] }}">{{ flask['skrzynie_name'] }}</option>
+                                      {% endfor %}
+                                </select><br>
+                                <label for="skrzynia2" class="form-label">Skrzynia 2:</label>
+                                <select class="form-control" name="skrzynia2" id="skrzynia2">
+                                  <option value="{{ item.skrzynia2 }}">{{ item.skrzynia2 }}</option>
+                                  {% for flask in flasks %}
+                                    <option value="{{ flask['skrzynie_name'] }}">{{ flask['skrzynie_name'] }}</option>
+                                  {% endfor %}
+                                </select><br>
+
+                              <!--div class="form-group">
+                                  <label for="skrzynia2">Skrzynia 2</label>
+                                  <input type="text" class="form-control" id="skrzynia2" name="skrzynia2"
+                                    value="{{ item.skrzynia2 }}">
+                              </div-->
+                              
+                              </div>
+                              <div class="col-sm">
+                              <label for="skrzynia3" class="form-label">Skrzynia 3:</label>
+                                <select class="form-control" name="skrzynia3" id="skrzynia3">
+                                      <option value="{{ item.skrzynia3 }}">{{ item.skrzynia3 }}</option>
+                                      {% for flask in flasks %}
+                                        <option value="{{ flask['skrzynie_name'] }}">{{ flask['skrzynie_name'] }}</option>
+                                      {% endfor %}
+                                </select><br>
+                              <label for="skrzynia4" class="form-label">Skrzynia 4:</label>
+                                <select class="form-control" name="skrzynia4" id="skrzynia4">
+                                  <option value="{{ item.skrzynia4 }}">{{ item.skrzynia4 }}</option>
+                                  {% for flask in flasks %}
+                                    <option value="{{ flask['skrzynie_name'] }}">{{ flask['skrzynie_name'] }}</option>
+                                  {% endfor %}
+                                </select><br>
+                                <!--div class="form-group">
+                                  <label for="skrzynia3">Skrzynia 3</label>
+                                  <input type="text" class="form-control" id="skrzynia3" name="skrzynia3"
+                                    value="{{ item.skrzynia3 }}">
+                                </div-->
+                                <!--div class="form-group">
+                                  <label for="skrzynia4">Skrzynia 4</label>
+                                  <input type="text" class="form-control" id="skrzynia4" name="skrzynia4"
+                                    value="{{ item.skrzynia4 }}">
+                                </div-->
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="id_model1">Id modelu 1</label>
+                                  <input type="number" class="form-control" id="id_model1" name="id_model1"
+                                    value="{{ item.id_model1 }}">
+                                </div>
+                              </div>
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="id_model2">Id modelu 2</label>
+                                  <input type="number" class="form-control" id="id_model2" name="id_model2"
+                                    value="{{ item.id_model2 }}">
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="id_model1">Id modelu 3</label>
+                                  <input type="number" class="form-control" id="id_model3" name="id_model3"
+                                    value="{{ item.id_model3 }}">
+                                </div>
+                              </div>
+                              <div class="col-sm">
+                                <div class="form-group">
+                                  <label for="id_model2">Id modelu 4</label>
+                                  <input type="number" class="form-control" id="id_model4" name="id_model4"
+                                    value="{{ item.id_model4 }}">
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-sm">
+                              <div class="form-group">
+                                  <label for="counter"><b>Licznik</b></label>
+                                  <input type="number" class="form-control" id="counter" name="counter"
+                                    value="{{ item.counter }}">
+                              </div>
+                              </div>
+                              <div class="col-sm">
+                              <div class="form-group">
+                                    <label for="czas_studzenia"><b>Czas studzenia [h]</b></label>
+                                    <input type="number" class="form-control" id="czas_studzenia" name="czas_studzenia"
+                                      value="{{ item.czas_studzenia }}">
+                              </div>
+                              </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>
+                          <button type="submit" class="btn btn-success">Zatwierdź</button>
+                          <a href="/product_fp_materials/{{ item.produkt_id }}" class="btn btn-primary" role="button" aria-pressed="true">Materiły ogniotrwałe</a>
+                        </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                  <a class="btn btn-danger btn-sm" tabindex="-1" role="button" data-toggle="modal"
+                    data-target="#modal_del{{ item.produkt_id }}">Usuń</a>
+
+                  <!-- Modal delete product -->
+                  <div class="modal fade" id="modal_del{{ item.produkt_id }}" tabindex="-1"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Confirm forming</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/delete_produkt/{{ item.produkt_id }}" method="POST">
+                            <h5>Czy chcesz usunąć produkt: <b> {{ item.nazwa }} </b> ? </h5>
+
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-success">Save chnges</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+  <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [0, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+
+</body>
+
+</html>

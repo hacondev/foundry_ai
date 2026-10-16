@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Skrzynie do zasypania</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <!--a class="nav-link active" href="/logout">Sign out</a-->
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Wyloguj 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/forming" onClick="window.location.reload()" style="color: rgb(197, 180, 180)";>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Zlecenia produkcyjne
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/products"  style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Produkty
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/mafi"  style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Mafi
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link" href="/foundry_report"  style="color: rgb(197, 180, 180);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Raport zmianowy
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Mafi</h1>
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-danger alert-dismissible fade show h4" role="alert">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+
+              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_mafi">Dodaj Mafi</button>
+              &nbsp;
+
+              <!--a href="/forming" class="btn btn-primary" role="button" aria-pressed="true">Odśweż stronę</a-->
+
+              <!-- Modal add to forming list -->
+              <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="add_mafi" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  
+                  <div class="modal-content">
+                    <form action="/add_mafi" method="POST">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLongTitle">Dodawanie MAFI</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="form-group">
+                        <label for="sn">Numer seryjny:</label>
+                        <input type="text" class="form-control" id="sn" name="sn" placeholder="" value="" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="udzwig">Udzwig:</label>
+                        <input type="text" class="form-control" id="udzwig" name="udzwig" placeholder="" value="" >
+                      </div>
+                      <div class="form-group">
+                        <label for="mandate">Data produkcji:</label><br>
+                        <input type="date" class="form-control" id="mandate" name="mandate" value="" min="2018-01-01" max="2028-12-31" />
+                      </div>
+                      <div class="form-group">
+                        <label for="cond">Stan:</label>
+                        <select class="form-control" name="cond" id="cond">
+                            <option value="good">Dobry</option>
+                            <option value="poor">Zły</option>
+                      </select>
+                    </div>
+                      <div class="form-group">
+                        <label for="last_inspection">Data ostatniej inspekcji:</label><br>
+                        <input type="date" class="form-control" id="last_inspection" name="last_inspection" value="" min="2018-01-01" max="2028-12-31" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="inspector">Inspekcji dokonał:</label><br>
+                        <input type="taxt" class="form-control" id="inspector" name="inspector" value="" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="next_insp">Data następnej inspekcji:</label><br>
+                        <input type="date" class="form-control" id="next_insp" name="next_insp" value="" min="2018-01-01" max="2028-12-31" />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select class="form-control" name="status" id="status">
+                            <option value="available" selected>Dostępne</option>
+                            <option value="in_use">W użyciu</option>
+                            <option value="under_maintenance">W naprawie</option>
+                            <option value="out_of_service">Wycofane</option>
+                      </select>
+                    </div>
+                      <div class="form-group">
+                        <label for="rfid">RFID:</label><br>
+                        <input type="text" class="form-control" id="rfid" name="rfid" value="" />
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button>
+                      <button type="submit" class="btn btn-success">Zapisz</button>
+                    </div>
+                </div>
+                </form>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!--h2>Section title</h2-->
+        <div class="table-responsive">
+          <table id="table_id" class="display">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>S/N</th>
+                <th>Status</th>
+                <th>Nośność</th>
+                <th>Data produkcji</th>
+                <th>Kondycja</th>
+                <th>Ostatnia inspekcja</th>
+                <th>Następna inspekcja</th>
+                <th>Inspektor</th>   
+                <th>Funkcje</th>              
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.SerialNumber }}</td>
+                  {% if 'available' in item.Status %} 
+                    <td><span class="badge badge-success">Dostępne</span></td>
+                  {% elif "in_use" in item.Status %} 
+                    <td><span class="badge badge-danger">W użyciu</span></td>
+                  {% elif 'under_maintenance' in item.Status %} 
+                    <td><span class="badge badge-warning">W naprawie</span></td>
+                  {% else %} 
+                    <td><span class="badge badge-dark">Wycofane</span></td>
+                  {% endif %}
+                <td>{{ item.CarryingCapacity }}</td>
+                <td>{{ item.ManufacturedOn }}</td>
+                  {% if 'good' in item.Cond %} 
+                    <td><span class="badge badge-success">Dobra</span></td>
+                  {% else %} 
+                    <td><span class="badge badge-danger">Zła</span></td>
+                  {% endif %}
+                <td>{{ item.LastInspection }}</td>
+                <td>{{ item.NextInspection }}</td>
+                <td>{{ item.InspectedBy }}</td>
+                <td>
+                  <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#edit-mafi-{{ item.id }}">Edycja</button>
+                  <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#del-mafi-{{ item.id }}">Usuń</button>
+
+                  <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="edit-mafi-{{ item.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      
+                      <div class="modal-content">
+                        <form action="/edit_mafi/{{ item.id }}" method="POST">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLongTitle">Edycja danych MAFI</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="form-group">
+                            <label for="sn">Numer seryjny:</label>
+                            <input type="text" class="form-control" id="sn" name="sn" placeholder="" value="{{ item.SerialNumber }}" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="udzwig">Udzwig:</label>
+                            <input type="text" class="form-control" id="udzwig" name="udzwig" placeholder="" value="{{ item.CarryingCapacity }}" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="mandate">Data produkcji:</label><br>
+                            <input type="date" class="form-control" id="mandate" name="mandate" value="{{ item.ManufacturedOn }}" min="2018-01-01" max="2028-12-31" />
+                          </div>
+                          <div class="form-group">
+                            <label for="cond">Stan:</label>
+                            <select class="form-control" name="cond" id="cond">
+                              {% if item.Cond  == 'good' %} 
+                                <option value="good">Dobry</option>
+                                <option value="poor">Zły</option>
+                              {% else %} 
+                                <option value="poor">Zły</option>
+                                <option value="good">Dobry</option>
+                              {% endif %}
+                          </select>
+                        </div>
+                          <div class="form-group">
+                            <label for="last_inspection">Data ostatniej inspekcji:</label><br>
+                            <input type="date" class="form-control" id="last_inspection" name="last_inspection" value="{{ item.LastInspection }}" min="2018-01-01" max="2028-12-31" />
+                          </div>
+
+                          <div class="form-group">
+                            <label for="inspector">Inspekcji dokonał:</label><br>
+                            <input type="taxt" class="form-control" id="inspector" name="inspector" value="{{ item.InspectedBy }}" />
+                          </div>
+
+                          <div class="form-group">
+                            <label for="next_insp">Data następnej inspekcji:</label><br>
+                            <input type="date" class="form-control" id="next_insp" name="next_insp" value="{{ item.NextInspection }}" min="2018-01-01" max="2028-12-31" />
+                          </div>
+
+                          <div class="form-group">
+                            <label for="status">Status:</label>
+                            <select class="form-control" name="status" id="status">
+                              {% if 'available' in item.Status%} 
+                                <option value="available" selected>Dostępne</option>
+                                <option value="in_use">W użyciu</option>
+                                <option value="under_maintenance">W naprawie</option>
+                                <option value="out_of_service">Wycofane</option>
+                              {% elif "in_use" in item.Status %} 
+                                <option value="in_use" selected>W użyciu</option>
+                                <option value="available">Dostępne</option>
+                                <option value="under_maintenance">W naprawie</option>
+                                <option value="out_of_service">Wycofane</option>
+                              {% elif 'under_maintenance' in item.Status %} 
+                                <option value="under_maintenance" selected>W naprawie</option>
+                                <option value="in_use">W użyciu</option>
+                                <option value="available">Dostępne</option>
+                                <option value="out_of_service">Wycofane</option>
+                              {% else %} 
+                                <option value="out_of_service" selected>Wycofane</option>
+                                <option value="under_maintenance">W naprawie</option>
+                                <option value="in_use">W użyciu</option>
+                                <option value="available">Dostępne</option>
+                              {% endif %}
+                          </select>
+                        </div>
+                          <div class="form-group">
+                            <label for="rfid">RFID:</label><br>
+                            <input type="text" class="form-control" id="rfid" name="rfid" value="{{ item.RFID_1 }}"  />
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button>
+                          <button type="submit" class="btn btn-success">Zapisz</button>
+                        </div>
+                    </div>
+                    </form>
+                    </div>
+                  </div>
+
+                  <div class="modal fade" tabindex="-1" role="dialog" id="del-mafi-{{ item.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Usuwanie MAFI</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <form action="/delete_mafi/{{ item.id }}" method="POST">
+                        <div class="modal-body">
+                          <p>Czy chcesz usunąć MAFI on S/N: <b> {{ item.id }} </b> </p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal">Zrezygnuj</button>
+                          <button type="submit" class="btn btn-success">Zapisz</button>
+                        </div>
+                      </form>
+                      </div>
+                    </div>
+                  </div>
+
+                </td>
+
+
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}">
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#table_id').DataTable({
+        order: [
+          [1, 'desc']
+        ],
+        "pageLength": 50,
+      });
+    });
+  </script>
+  <script>
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function (e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if (new Date().getTime() - time >= 60000)
+        window.location.reload(true);
+      else
+        setTimeout(refresh, 10000);
+    }
+    setTimeout(refresh, 10000);
+  </script>
+
+</body>
+
+</html>

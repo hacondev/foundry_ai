@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>Szczegóły produktu</title>
+
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-4 col-lg-3 mr-0 px-3" href="#">Zalogowany jako: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link active" href="/logout">Sign out</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <main role="main" class="col-md-12 ml-sm-auto col-lg-12 px-md-12">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+          <!--h1 class="h2">Skrzynie do zalania: {{ suma }} t</h1-->
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert" style="width: 60%">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <!--button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_to_forming">Dodaj do listy zalewu</button-->
+            </div>
+          </div>
+        </div>
+        <div style="padding-left: 15%; padding-right: 15%;">
+
+            <br>
+
+            {% for item in products %}
+
+            <div class="row">
+              <div class="col-sm">
+                <div class="form-group">
+                  <label for="model1">Id model 1</label>
+                  <input type="text" class="form-control" id="model1" value="{{ item.id_model1 }}"
+                    disabled>
+                </div>
+                <div class="form-group">
+                  <label for="model2">Id model 2</label>
+                  <input type="text" class="form-control" id="model2" value="{{ item.id_model2 }}"
+                    disabled>
+                </div>
+              </div>
+              <div class="col-sm">
+                <div class="form-group">
+                  <label for="model1">Id model 3</label>
+                  <input type="text" class="form-control" id="model1" value="{{ item.id_model3 }}"
+                    disabled>
+                </div>
+                <div class="form-group">
+                  <label for="model2">Id model 4</label>
+                  <input type="text" class="form-control" id="model2" value="{{ item.id_model4 }}"
+                    disabled>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <label for="f1">Komentarz biura odlewni:</label>
+                <textarea class="form-control" id="f1" rows="3" disabled>{{ item.komentarz }}</textarea>
+              </div>
+            </div>
+
+            <br>
+            <br>
+            <br>
+
+            <div class="row">
+              <div class="col">
+                <table class="table table-striped table-bordered table-sm" class="caption-top">
+                  <thead>
+                    <tr>
+                      <th>Typ</th>
+                      <th>Nazwa</th>
+                      <th>Ilość</th>
+                      <th>Jednostka</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in materials %}
+                    <tr>
+                      <td>{{ item.typ }}</td>
+                      <td>{{ item.nazwa }}</td>
+                      <td>{{ item.ilosc }}</td>
+                      <td>{{ item.jednostka }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                  </table>
+              </div>
+            </div>
+            <br>
+            <a href="" class="btn btn-primary" role="button" aria-pressed="true" onclick="history.back()">Powrót</a>
+  
+        </div>
+      </div>
+            {% endfor %}
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+
+</body>
+
+</html>

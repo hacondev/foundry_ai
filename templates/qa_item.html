@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>QA Inspection Liebherr</title>
+  <link rel="canonical" href="">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+  <!-- Data Table css -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+  <!-- jQuery UI CSS (dla datepicker) -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <!-- Bootstrap Select CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
+
+  <style>
+    .status-ok {
+      background-color: #c6efce;
+      font-weight: bold;
+    }
+    .status-nok {
+      background-color: #ffc7ce;
+      font-weight: bold;
+    }
+    .readonly-cell {
+      background-color: #e9ecef;
+    }
+    table th, table td {
+      vertical-align: middle !important;
+      text-align: center;
+    }
+
+    table {
+      font-size: 1.1rem;
+      border-radius: 0.75rem;
+    }
+  </style>
+
+</head>
+    
+</head>
+
+<body>
+
+
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <b> {{ session['user'] }} </b> </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
+    <ul class="navbar-nav px-3">
+      <!--li class="nav-item text-nowrap" style="color: aliceblue;">
+        Logged as: <b> {{ session['user'] }} </b>
+        <a class="nav-link active" href="/logout">Sign out</a-->
+      </li-->
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
+          <ul class="nav flex-column">
+            <li class="nav-item" >
+              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
+                INTERFACE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
+                Log out 
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/forming" style="color: rgb(197, 180, 180);">
+                CORE
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="#" onClick="window.location.reload()" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Production orders
+              </a>
+            </li>
+            <li class="nav-item" >
+              <a class="nav-link active" href="/casting_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                Casting report
+              </a>
+            </li>
+            <!-- <li class="nav-item" >
+              <a class="nav-link active" href="/qa_report" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                QA report
+              </a>
+            </li> -->
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">QA inspection Liebherr</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+            <!--/div><a onclick="history.back()" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a-->
+            <!--/div><a href="#" onclick="window.history.back()" class="btn btn-primary" role="button" aria-pressed="true">Powrót</a-->
+            &nbsp;
+            </div>
+        </div>
+
+        
+      
+
+      <div class="container-fluid">
+        <form action="/add_inspection_liebherr" method="POST">
+    <table class="table table-bordered">
+      <thead class="thead-light">
+        <tr>
+          <th>Wymiar Nominalny</th>
+          <th>Narzędzie Pomiarowe</th>
+          <th>Dolna Granica</th>
+          <th>Górna Granica</th>
+          <th>Wynik Pomiaru</th>
+          <th>Decyzja</th>
+       
+        </tr>
+      </thead>
+      <tbody id="inspection-body">
+        <tr>
+          <td>Lakier na sucho</td>
+          <td>Elcometer</td>
+          <td>130 µm</td>
+          <td>250 µm</td>
+          <td><input type="number" class="form-control" placeholder="" name="w1-liebherr" id="w1-liebherr" required></td>
+          <td colspan="2">
+            <select class="form-control status-select" name="d1-liebherr" id="d1-liebherr">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Struktura</td>
+          <td>Ocena wizualna Wg wzornika</td>
+          <td colspan="3" class="readonly-cell">—</td>
+          <td colspan="2">
+            <select class="form-control status-select" name="d2-liebherr" id="d2-liebherr">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Jakość napisów</td>
+          <td>Ocena wizualna</td>
+          <td colspan="3" class="readonly-cell">—</td>
+          <td colspan="2">
+            <select class="form-control status-select"  name="d3-liebherr" id="d3-liebherr">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Powierzchnia pod naklejkę</td>
+          <td>Ocena wizualna wg rysunku 2022 95100 01 10, index 002</td>
+          <td>Bez struktury</td>
+          <td>Bez struktury</td>
+          <td class="readonly-cell">—</td>
+          <td colspan="2">
+            <select class="form-control status-select"  name="d4-liebherr" id="d4-liebherr">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Pomiar koloru Lab</td>
+          <td>Spektrofotometr - Konica Minolta</td>
+          <td colspan="2">dLab &lt; 2</td>
+          <td><input type="text" class="form-control" placeholder=""  name="w2-liebherr" id="w2-liebherr" required></td>
+          <td colspan="2">
+            <select class="form-control status-select"  name="d5-liebherr" id="d5-liebherr">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+        </tr>
+          <td>Kolor specjalny (RAL)</td>
+          <td colspan="3" class="readonly-cell">—</td>
+          <td>
+            <input type="number" class="form-control" placeholder=""  name="w3-liebherr" id="w3-liebherr" >
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Połysk (tylko RAL 9005)</td>
+          <td>Połyskomierz</td>
+          <td>25</td>
+          <td>35</td>
+          <td>
+            <input type="number" class="form-control" placeholder=""  name="polysk_ral_9005" id="polysk_ral_9005" >
+          </td>
+          <td colspan="2">
+            <select class="form-control status-select"  name="d6-liebherr" id="d6-liebherr">
+              <option value="OK">OK</option>
+              <option value="NOK">NOK</option>
+            </select>
+          </td>
+      </tbody>
+      <tfoot>
+        <tr id="status-row">
+          <td colspan="5" class="text-right font-weight-bold">STATUS</td>
+          <td colspan="2" id="status-cell" class="status-ok">OK</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div style="float: right;">
+      <input type="hidden" id="ids" name="ids" value="{{ ids }}">
+      <input type="hidden" id="sn" name="sn" value="{{ sn }}">
+      <input type="hidden" id="prefix" name="prefix" value="{{ prefix }}">
+      <a href="#" onclick="window.history.back()" class="btn btn-primary btn-lg" role="button" aria-pressed="true">Powrót</a>
+      <button type="submit" class="btn btn-success btn-lg">Prześlij wyniki inspekcji</button>
+      
+    </div>
+    </form>
+    
+      </main>
+  </div>
+
+    </div>
+  </div>
+
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
+      <!-- jQuery i jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+    <!-- Inicjalizacja Bootstrap Select -->
+    <script>
+        $(document).ready(function() {
+            $('.selectpicker').selectpicker();
+        });
+    </script>
+
+    <!-- Inicjalizacja datepicker z domyślną datą -->
+    <script>
+      $(function() {
+          var dzisiaj = new Date();  // Pobranie dzisiejszej daty
+          $("#datepicker").datepicker({
+              dateFormat: "yy-mm-dd", // Format daty
+              changeMonth: true,      // Umożliwia zmianę miesiąca
+              changeYear: true,       // Umożliwia zmianę roku
+              defaultDate: dzisiaj    // Ustawienie dzisiejszej daty jako domyślnej
+          }).datepicker("setDate", dzisiaj); // Ustawienie dzisiejszej daty w polu
+      });
+  </script>
+
+    <script>
+    const selects = document.querySelectorAll('.status-select');
+    const statusCell = document.getElementById('status-cell');
+
+    function updateStatus() {
+      const values = Array.from(selects).map(select => select.value);
+      if (values.includes("NOK")) {
+        statusCell.textContent = "NOK";
+        statusCell.classList.remove("status-ok");
+        statusCell.classList.add("status-nok");
+      } else {
+        statusCell.textContent = "OK";
+        statusCell.classList.remove("status-nok");
+        statusCell.classList.add("status-ok");
+      }
+    }
+
+    selects.forEach(select => {
+      select.addEventListener('change', updateStatus);
+    });
+
+    updateStatus(); // Initial check
+  </script>
+
+
+</body>
+
+</html>
