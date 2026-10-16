@@ -1,0 +1,6 @@
+[mcp_servers.tower_mariadb]
+command = 'C:\DEVELOP\foundry_ai\.local\mariadb-mcp\.venv\Scripts\python.exe'
+args = ['C:\DEVELOP\foundry_ai\.local\start_mariadb_mcp.py']
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+enabled_tools = ['list_databases', 'list_tables', 'get_table_schema', 'get_table_schema_with_relations', 'execute_sql']

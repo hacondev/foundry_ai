@@ -277,8 +277,14 @@ def before_request():
 
 def add_item_to_forming_list(id, id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail):
     query = "INSERT INTO lista_formowania_v2(id_produktu, id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia_1, skrzynia_2, skrzynia_3, skrzynia_4, ilosc_sztuk, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, komentarz_flag, dodane_przez, zmodyfikowane_przez, trail) VALUES (" + str(id) + "," + id_model1 + "," + id_model2 + "," + id_model3 + "," + id_model4 + "," + sztuk_na_model + ",'" + skrzynia1 + "','" + skrzynia2 + "','" + skrzynia3 + "','" + skrzynia4 + "'," + '1' + ",'" + nazwa_produktu + "','" + prefix + "'," + dni_do_wybicia + "," + czas_studzenia + ",'" + item_status + "','" + komentarz + "','0','" + user + "','" + user + "','" + trail + "')"
-    query_update(query)
-    return True
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute(query)
+        produkt_id = cur.lastrowid
+        mysql.connection.commit()
+        return produkt_id
+    finally:
+        cur.close()
 
 def add_item_to_forming_list_outline(id, id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail, alias='-'):
     query = "INSERT INTO lista_formowania_v2(id_produktu, id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia_1, skrzynia_2, skrzynia_3, skrzynia_4, ilosc_sztuk, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, komentarz_flag, dodane_przez, zmodyfikowane_przez, trail, alias) VALUES (" + str(id) + "," + id_model1 + "," + id_model2 + "," + id_model3 + "," + id_model4 + "," + sztuk_na_model + ",'" + skrzynia1 + "','" + skrzynia2 + "','" + skrzynia3 + "','" + skrzynia4 + "'," + '1' + ",'" + nazwa_produktu + "','" + prefix + "'," + dni_do_wybicia + "," + czas_studzenia + ",'" + item_status + "','" + komentarz + "','0','" + user + "','" + user + "','" + trail + "','" + alias + "')"
@@ -588,62 +594,57 @@ def update_counter_based_on_operator_entry(form_id):
     query_update(query)
     return True
     
-def nadaj_nr_seryjny(id):
-    query = "SELECT sztuk FROM produkty WHERE produkt_id=" + str(id)
-    pieces_per_pattern = query_db_first(query)['sztuk']
-    query = "SELECT model1_sn, model2_sn, model3_sn, model4_sn, model5_sn, model6_sn, model7_sn, model8_sn FROM `lista_formowania_formy_v2` WHERE prod_id =" + str(id) + " ORDER BY id DESC"
-    sn1_ath = query_db(query)
-    tab_serial_numbers = []
-    tab_serial_numbers.append(0)
-    for i in sn1_ath:
-        if i['model1_sn'] != None:
-            tab_serial_numbers.append(i['model1_sn'])
-        if i['model2_sn'] != None:
-            tab_serial_numbers.append(i['model2_sn'])
-        if i['model3_sn'] != None:
-            tab_serial_numbers.append(i['model3_sn'])
-        if i['model4_sn'] != None:
-            tab_serial_numbers.append(i['model4_sn'])
-        if i['model5_sn'] != None:
-            tab_serial_numbers.append(i['model5_sn'])
-        if i['model6_sn'] != None:
-            tab_serial_numbers.append(i['model6_sn'])
-        if i['model7_sn'] != None:
-            tab_serial_numbers.append(i['model7_sn'])
-        if i['model8_sn'] != None:
-            tab_serial_numbers.append(i['model8_sn'])
-
-    sn = max(tab_serial_numbers)
-    sn += 1
-
-    query = "SELECT id FROM lista_formowania_formy_v2 where model1_sn is NULL and model2_sn is NULL and model3_sn is NULL and model4_sn is NULL and model5_sn is NULL and model6_sn is NULL and model7_sn is NULL and model8_sn is NULL"
-    flasks = query_db(query)
-    for item in flasks:
-        if pieces_per_pattern == 1:
-            query = "UPDATE lista_formowania_formy_v2 SET model1_sn=" + str(sn) + " WHERE zaformowano='0' and id=" + str(item['id'])
-            increse_counter(id, sn)
-        elif pieces_per_pattern == 2:
-            query = "UPDATE lista_formowania_formy_v2 SET model1_sn=" + str(sn) + ", model2_sn=" + str(sn + 1) + " WHERE zaformowano='0' and id=" + str(item['id'])
-            increse_counter(id, sn + 1)
-        elif pieces_per_pattern == 3:
-            query = "UPDATE lista_formowania_formy_v2 SET model1_sn=" + str(sn) + ", model2_sn=" + str(sn + 1) + ", model3_sn=" + str(sn + 2) + " WHERE zaformowano='0' and id=" + str(item['id'])
-            increse_counter(id, sn + 2)
-        elif pieces_per_pattern == 4:
-            query = "UPDATE lista_formowania_formy_v2 SET model1_sn=" + str(sn) + ", model2_sn=" + str(sn + 1) + ", model3_sn=" + str(sn + 2) + ", model4_sn=" + str(sn + 3) + " WHERE zaformowano='0' and id=" + str(item['id'])
-            increse_counter(id, sn + 3)
-        elif pieces_per_pattern == 5:
-            query = "UPDATE lista_formowania_formy_v2 SET model1_sn=" + str(sn) + ", model2_sn=" + str(sn + 1) + ", model3_sn=" + str(sn + 2) + ", model4_sn=" + str(sn + 3) + ", model5_sn=" + str(sn + 4) + " WHERE zaformowano='0' and id=" + str(item['id'])
-            increse_counter(id, sn + 4)
-        elif pieces_per_pattern == 6:
-            query = "UPDATE lista_formowania_formy_v2 SET model1_sn=" + str(sn) + ", model2_sn=" + str(sn + 1) + ", model3_sn=" + str(sn + 2) + ", model4_sn=" + str(sn + 3) + ", model5_sn=" + str(sn + 4) + ", model6_sn=" + str(sn + 5) + " WHERE zaformowano='0' and id=" + str(item['id'])
-            increse_counter(id, sn + 5)
-        elif pieces_per_pattern == 7:
-            query = "UPDATE lista_formowania_formy_v2 SET model1_sn=" + str(sn) + ", model2_sn=" + str(sn + 1) + ", model3_sn=" + str(sn + 2) + ", model4_sn=" + str(sn + 3) + ", model5_sn=" + str(sn + 4) + ", model6_sn=" + str(sn + 5) + ", model7_sn=" + str(sn + 6) + " WHERE zaformowano='0' and id=" + str(item['id'])
-            increse_counter(id, sn + 6)
-        elif pieces_per_pattern == 8:
-            query = "UPDATE lista_formowania_formy_v2 SET model1_sn=" + str(sn) + ", model2_sn=" + str(sn + 1) + ", model3_sn=" + str(sn + 2) + ", model4_sn=" + str(sn + 3) + ", model5_sn=" + str(sn + 4) + ", model6_sn=" + str(sn + 5) + ", model7_sn=" + str(sn + 6) + " , model8_sn=" + str(sn + 7) + " WHERE zaformowano='0' and id=" + str(item['id'])   
-            increse_counter(id, sn + 7)
-        query_update(query)
+def nadaj_nr_seryjny(id, produkt_id):
+    """Reserve serials for one entry, serialized across products sharing a prefix."""
+    connection = mysql.connection
+    # Previous helpers commit independently; begin a fresh allocation transaction.
+    connection.commit()
+    cur = connection.cursor(dictionary=True)
+    try:
+        connection.start_transaction()
+        cur.execute(
+            "SELECT produkt_id, sztuk, prefix, counter FROM produkty "
+            "WHERE prefix = (SELECT prefix FROM produkty WHERE produkt_id = %s) "
+            "ORDER BY produkt_id FOR UPDATE", (id,))
+        products = cur.fetchall()
+        product = next(row for row in products if int(row['produkt_id']) == int(id))
+        pieces = int(product['sztuk'])
+        if not 1 <= pieces <= 8:
+            raise ValueError("Liczba sztuk na model musi wynosić od 1 do 8.")
+        prefix = product['prefix']
+        columns = ["model%d_sn" % n for n in range(1, 9)]
+        empty = " AND ".join(column + " IS NULL" for column in columns)
+        cur.execute(
+            "SELECT id FROM lista_formowania_formy_v2 "
+            "WHERE prod_id = %s AND produkt_id = %s AND zaformowano = '0' AND "
+            + empty + " FOR UPDATE", (id, produkt_id))
+        targets = cur.fetchall()
+        if not targets:
+            connection.commit()
+            return
+        cur.execute(
+            "SELECT GREATEST(" + ", ".join(
+                "COALESCE(MAX(" + column + "), 0)" for column in columns)
+            + ") AS maximum FROM lista_formowania_formy_v2 WHERE prefix = %s", (prefix,))
+        maximum = int(cur.fetchone()['maximum'])
+        cur.execute("SELECT COALESCE(MAX(sn), 0) AS maximum FROM lista_formowania_sn "
+                    "WHERE prefix = %s", (prefix,))
+        maximum = max(maximum, int(cur.fetchone()['maximum']),
+                      max(int(row['counter'] or 0) for row in products))
+        # Models belonging to the same entry describe the same castings and share serials.
+        serials = list(range(maximum + 1, maximum + pieces + 1))
+        assignments = ", ".join(column + " = %s" for column in columns[:pieces])
+        for target in targets:
+            cur.execute("UPDATE lista_formowania_formy_v2 SET " + assignments + " WHERE id = %s",
+                        tuple(serials) + (target['id'],))
+        cur.execute("UPDATE produkty SET counter = %s WHERE prefix = %s",
+                    (serials[-1], prefix))
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        cur.close()
 
 
 def nadaj_nr_seryjny_outline(id, prefix, serial):
@@ -8614,10 +8615,10 @@ def add_to_forming_list():
              return redirect(url_for('id_model_error'))
 
          for n in range(q):
-             add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-             produkt_id = str(get_produkt_id('new')['id'])
+             produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
              formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-             nadaj_nr_seryjny(id)
+             nadaj_nr_seryjny(id, produkt_id)
              add_sn_based_on_forms(produkt_id)
              history(produkt_id, 'new', user)
          return redirect(url_for('forming'))
@@ -8701,10 +8702,10 @@ def add_to_forming_list_from_production_orders():
             id=64
 
             for n in range(ilosc_form):
-                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-                produkt_id = str(get_produkt_id('new')['id'])
+                produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-                nadaj_nr_seryjny(id)
+                nadaj_nr_seryjny(id, produkt_id)
                 add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
                 history(produkt_id, 'new', user)
 
@@ -8774,10 +8775,10 @@ def add_to_forming_list_from_production_orders():
             id=67
 
             for n in range(ilosc_form):
-                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-                produkt_id = str(get_produkt_id('new')['id'])
+                produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-                nadaj_nr_seryjny(id)
+                nadaj_nr_seryjny(id, produkt_id)
                 add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
                 history(produkt_id, 'new', user)
 
@@ -8854,10 +8855,10 @@ def add_to_forming_list_from_production_orders():
             id=64
 
             for n in range(ilosc_form):
-                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-                produkt_id = str(get_produkt_id('new')['id'])
+                produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-                nadaj_nr_seryjny(id)
+                nadaj_nr_seryjny(id, produkt_id)
                 add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
                 history(produkt_id, 'new', user)
 
@@ -8927,10 +8928,10 @@ def add_to_forming_list_from_production_orders():
             id=65
 
             for n in range(ilosc_form):
-                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-                produkt_id = str(get_produkt_id('new')['id'])
+                produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-                nadaj_nr_seryjny(id)
+                nadaj_nr_seryjny(id, produkt_id)
                 add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
                 history(produkt_id, 'new', user)
 
@@ -9007,10 +9008,10 @@ def add_to_forming_list_from_production_orders():
             id=66
 
             for n in range(ilosc_form):
-                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-                produkt_id = str(get_produkt_id('new')['id'])
+                produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-                nadaj_nr_seryjny(id)
+                nadaj_nr_seryjny(id, produkt_id)
                 add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
                 history(produkt_id, 'new', user)
 
@@ -9079,10 +9080,10 @@ def add_to_forming_list_from_production_orders():
 
             id=68
             for n in range(ilosc_form):
-                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-                produkt_id = str(get_produkt_id('new')['id'])
+                produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-                nadaj_nr_seryjny(id)
+                nadaj_nr_seryjny(id, produkt_id)
                 add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
                 history(produkt_id, 'new', user)
 
@@ -9158,10 +9159,10 @@ def add_to_forming_list_from_production_orders():
             id=64
 
             for n in range(ilosc_form):
-                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-                produkt_id = str(get_produkt_id('new')['id'])
+                produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-                nadaj_nr_seryjny(id)
+                nadaj_nr_seryjny(id, produkt_id)
                 add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
                 history(produkt_id, 'new', user)
 
@@ -9231,10 +9232,10 @@ def add_to_forming_list_from_production_orders():
             id=67
 
             for n in range(ilosc_form):
-                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-                produkt_id = str(get_produkt_id('new')['id'])
+                produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-                nadaj_nr_seryjny(id)
+                nadaj_nr_seryjny(id, produkt_id)
                 add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
                 history(produkt_id, 'new', user)
 
@@ -9323,10 +9324,10 @@ def add_to_forming_list_from_production_orders():
 
 
         for n in range(ilosc_form):
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
+            produkt_id = add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+
             formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
+            nadaj_nr_seryjny(id, produkt_id)
             add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
             history(produkt_id, 'new', user)
 
