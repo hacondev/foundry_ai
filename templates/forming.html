@@ -827,11 +827,11 @@
                       <div class="row">
                           <div class="col-md-6">
                               <label>Data form. od:</label>
-                              <input type="date" id="min-date" class="form-control" value="2026-09-25">
+                              <input type="date" id="min-date" class="form-control">
                           </div>
                           <div class="col-md-6">
                               <label>Data form. do:</label>
-                              <input type="date" id="max-date" class="form-control" value="2026-09-28">
+                              <input type="date" id="max-date" class="form-control">
                           </div>
                       </div>
                   </div>
@@ -1176,6 +1176,18 @@
 <script>
 $(document).ready(function () {
 
+    // Default range relative to today's local calendar date.
+    var today = new Date();
+    function dateWithOffset(days) {
+        var date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        date.setDate(date.getDate() + days);
+        return date.getFullYear() + '-' +
+            String(date.getMonth() + 1).padStart(2, '0') + '-' +
+            String(date.getDate()).padStart(2, '0');
+    }
+    $('#min-date').val(dateWithOffset(-7));
+    $('#max-date').val(dateWithOffset(21));
+
     $('#table_id').DataTable({
         order: [[0, 'desc']],
         pageLength: 50
@@ -1249,6 +1261,8 @@ $(document).ready(function () {
     $('#min-date, #max-date').on('change', function () {
         productionTable.draw();
     });
+
+    productionTable.draw();
 
 });
 </script>
