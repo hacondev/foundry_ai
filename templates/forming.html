@@ -875,13 +875,13 @@
                       <th>Nr seq.</th>
                       <!-- <th>Tyg wysyłki</th>
                       <th>Tyg wypr</th> -->
-                      <!-- <th>Data dokakt</th> -->
-                      <!-- <th>Data dostawy</th> -->
-                      <!-- <th>Data wysyłki</th>
+                      <th>Data dokakt</th>
+                      <th>D. dostawy</th>
+                      <th>D. wysyłki</th>
                       <th>D. prod.</th>
                       <th>D. mal.</th>
                       <th>D. obr.</th>
-                      <th>D. szlif.</th> -->
+                      <th>D. szlif.</th>
                       <th>D. wybij.</th>
                       <th>D. form.</th>
                       <th>Dodaj</th>
@@ -889,7 +889,7 @@
                   </tr>
 
                   <tr class="filters">
-                      {% for i in range(18) %}
+                      {% for i in range(25) %}
                           <th>
                               <input type="text" placeholder="Filtruj">
                           </th>
@@ -928,14 +928,14 @@
                       <td>{{ item["nr_still"] }}</td>
                       <td>{{ item["nr_seq"] }}</td>
                       <!-- <td>{{ item["tyg_wysyłki"] }}</td>
-                      <td>{{ item["tyg_wypr"] }}</td>
+                      <td>{{ item["tyg_wypr"] }}</td>-->
                       <td>{{ item["data_dokakt"] }}</td>
-                      <td>{{ item["data_dostawy"] }}</td> -->
-                      <!-- <td>{{ item["data_wysyłki"] }}</td> -->
-                      <!-- <td>{{ item["data_prod"] }}</td>
+                      <td>{{ item["data_dostawy"] }}</td>
+                      <td>{{ item["data_wysylki"] }}</td>
+                      <td>{{ item["data_prod"] }}</td>
                       <td>{{ item["data_mal"] }}</td>
                       <td>{{ item["data_obr"] }}</td>
-                      <td>{{ item["data_szlif"] }}</td> -->
+                      <td>{{ item["data_szlif"] }}</td>
                       <td>{{ item["data_wybij"] }}</td>
                       <td>{{ item["data_form"] }}</td>
 
@@ -1207,7 +1207,10 @@ $(document).ready(function () {
         ],
         order: [],
         scrollX: true,
-        orderCellsTop: true
+        orderCellsTop: true,
+        columnDefs: [
+            { targets: 24, name: 'data_form' }
+        ]
     });
 
     // NAPRAWA DLA scrollX: Delegowanie zdarzeń na poziomie wrappera DataTables,
@@ -1229,7 +1232,7 @@ $(document).ready(function () {
             return true;
         }
 
-        var columnIndex = 17; // Kolumna data_form
+        var columnIndex = productionTable.column('data_form:name').index();
         var minDate = $('#min-date').val(); 
         var maxDate = $('#max-date').val(); 
         var rowDateStr = data[columnIndex]; 
