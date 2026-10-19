@@ -929,15 +929,15 @@
                       <td>{{ item["nr_seq"] }}</td>
                       <!-- <td>{{ item["tyg_wysyłki"] }}</td>
                       <td>{{ item["tyg_wypr"] }}</td>-->
-                      <td>{{ item["data_dokakt"] }}</td>
-                      <td>{{ item["data_dostawy"] }}</td>
-                      <td>{{ item["data_wysylki"] }}</td>
-                      <td>{{ item["data_prod"] }}</td>
-                      <td>{{ item["data_mal"] }}</td>
-                      <td>{{ item["data_obr"] }}</td>
-                      <td>{{ item["data_szlif"] }}</td>
-                      <td>{{ item["data_wybij"] }}</td>
-                      <td>{{ item["data_form"] }}</td>
+                      <td>{{ (item["data_dokakt"] | string)[:10] if item["data_dokakt"] else "" }}</td>
+                      <td>{{ (item["data_dostawy"] | string)[:10] if item["data_dostawy"] else "" }}</td>
+                      <td>{{ (item["data_wysylki"] | string)[:10] if item["data_wysylki"] else "" }}</td>
+                      <td>{{ (item["data_prod"] | string)[:10] if item["data_prod"] else "" }}</td>
+                      <td>{{ (item["data_mal"] | string)[:10] if item["data_mal"] else "" }}</td>
+                      <td>{{ (item["data_obr"] | string)[:10] if item["data_obr"] else "" }}</td>
+                      <td>{{ (item["data_szlif"] | string)[:10] if item["data_szlif"] else "" }}</td>
+                      <td>{{ (item["data_wybij"] | string)[:10] if item["data_wybij"] else "" }}</td>
+                      <td>{{ (item["data_form"] | string)[:10] if item["data_form"] else "" }}</td>
 
                       <td>
                           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#item_{{ item['unique_id'] }}">
