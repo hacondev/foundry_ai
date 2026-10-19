@@ -22,6 +22,31 @@
       font-size: 12px;
       box-sizing: border-box;
   }
+
+  #table_production_orders_wrapper .production-order-date {
+      white-space: nowrap;
+      width: 10ch;
+      min-width: 10ch;
+  }
+
+  #table_production_orders_wrapper .production-order-date input {
+      width: 10ch;
+      min-width: 0;
+      box-sizing: border-box;
+  }
+
+  #table_production_orders_wrapper .production-order-formed-date {
+      display: block;
+      width: 80%;
+      min-width: max-content;
+      margin: 0 auto;
+      padding: 3px 0;
+      border-radius: 3px;
+      background-color: #00a708;
+      color: #fff;
+      text-align: center;
+  }
+
 </style>
 
 </head>
@@ -875,27 +900,26 @@
                       <th>Nr seq.</th>
                       <!-- <th>Tyg wysyłki</th>
                       <th>Tyg wypr</th> -->
-                      <th>Data dokakt</th>
+                      <!-- <th>Data dokakt</th> -->
                       <th>D. dostawy</th>
                       <th>D. wysyłki</th>
                       <th>D. prod.</th>
-                      <th>D. mal.</th>
-                      <th>D. obr.</th>
+                      <!-- <th>D. mal.</th>
+                      <th>D. obr.</th> -->
                       <th>D. szlif.</th>
                       <th>D. wybij.</th>
                       <th>D. form.</th>
+                      <th>S/N</th>
                       <th>Dodaj</th>
-                      <th>Odlewy</th>
                   </tr>
 
                   <tr class="filters">
-                      {% for i in range(25) %}
-                          <th>
+                      {% for i in range(23) %}
+                          <th{% if 16 <= i <= 21 %} class="production-order-date"{% endif %}>
                               <input type="text" placeholder="Filtruj">
                           </th>
                       {% endfor %}
 
-                      <th></th>
                       <th></th>
                   </tr>
               </thead>
@@ -929,22 +953,60 @@
                       <td>{{ item["nr_seq"] }}</td>
                       <!-- <td>{{ item["tyg_wysyłki"] }}</td>
                       <td>{{ item["tyg_wypr"] }}</td>-->
-                      <td>{{ (item["data_dokakt"] | string)[:10] if item["data_dokakt"] else "" }}</td>
+                      <!-- <td>{{ (item["data_dokakt"] | string)[:10] if item["data_dokakt"] else "" }}</td> -->
                       <td>{{ (item["data_dostawy"] | string)[:10] if item["data_dostawy"] else "" }}</td>
-                      <td>{{ (item["data_wysylki"] | string)[:10] if item["data_wysylki"] else "" }}</td>
-                      <td>{{ (item["data_prod"] | string)[:10] if item["data_prod"] else "" }}</td>
-                      <td>{{ (item["data_mal"] | string)[:10] if item["data_mal"] else "" }}</td>
-                      <td>{{ (item["data_obr"] | string)[:10] if item["data_obr"] else "" }}</td>
-                      <td>{{ (item["data_szlif"] | string)[:10] if item["data_szlif"] else "" }}</td>
-                      <td>{{ (item["data_wybij"] | string)[:10] if item["data_wybij"] else "" }}</td>
-                      <td>{{ (item["data_form"] | string)[:10] if item["data_form"] else "" }}</td>
+                      <td>
+                          {% if item.has_shipment_history %}
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status shipment">{{ (item["data_wysylki"] | string)[:10] if item["data_wysylki"] else "" }}</span>
+                          {% else %}
+                              {{ (item["data_wysylki"] | string)[:10] if item["data_wysylki"] else "" }}
+                          {% endif %}
+                      </td>
+                      <td>
+                          {% if item.has_qa_history %}
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status qa_ok lub qa_nok">{{ (item["data_prod"] | string)[:10] if item["data_prod"] else "" }}</span>
+                          {% else %}
+                              {{ (item["data_prod"] | string)[:10] if item["data_prod"] else "" }}
+                          {% endif %}
+                      </td>
+                      <!-- <td>{{ (item["data_mal"] | string)[:10] if item["data_mal"] else "" }}</td>
+                      <td>{{ (item["data_obr"] | string)[:10] if item["data_obr"] else "" }}</td> -->
+                      <td>
+                          {% if item.has_grinding_history %}
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status grinding lub grinding-repaired">{{ (item["data_szlif"] | string)[:10] if item["data_szlif"] else "" }}</span>
+                          {% else %}
+                              {{ (item["data_szlif"] | string)[:10] if item["data_szlif"] else "" }}
+                          {% endif %}
+                      </td>
+                      <td>
+                          {% if item.has_knockout_history %}
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status knockout">{{ (item["data_wybij"] | string)[:10] if item["data_wybij"] else "" }}</span>
+                          {% else %}
+                              {{ (item["data_wybij"] | string)[:10] if item["data_wybij"] else "" }}
+                          {% endif %}
+                      </td>
+                      <td>
+                          {% if item.has_formed_history %}
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status formed">{{ (item["data_form"] | string)[:10] if item["data_form"] else "" }}</span>
+                          {% else %}
+                              {{ (item["data_form"] | string)[:10] if item["data_form"] else "" }}
+                          {% endif %}
+                      </td>
+
+                      <td style="white-space: nowrap;">
+                          {% if item.assigned_sn is not none %}
+                              {{ item.assigned_prefix or '' }}-{{ item.assigned_sn }}
+                          {% else %}
+                              &mdash;
+                          {% endif %}
+                      </td>
 
                       <td>
-                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#item_{{ item['unique_id'] }}">
+                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#item_{{ item['id'] }}">
                               Dodaj
                           </button>
 
-                          <div class="modal fade" id="item_{{ item['unique_id']  }}" tabindex="-1" aria-hidden="true">
+                          <div class="modal fade" id="item_{{ item['id'] }}" tabindex="-1" aria-hidden="true">
 
                               <div class="modal-dialog">
                                   <div class="modal-content">
@@ -987,35 +1049,6 @@
                               </div>
                           </div>
 
-                      </td>
-
-                      <td>
-                        <!-- <a href="/display_po_item_details/{{ item['unique_id'] }}" class="btn btn-success" >Historia</a> -->
-                          <a href="#" onclick="loadAndOpenModal('{{ item.unique_id }}')"  class="btn btn-success" data-toggle="modal" data-target="#hist_{{ item['unique_id'] }}" >Odlewy</a>
- 
-
-                          <div class="modal fade" id="hist_{{ item['unique_id']  }}" tabindex="-1" aria-hidden="true">
-
-                              <div class="modal-dialog">
-                                  <div class="modal-content">
-                                      <div class="modal-header">
-                                          <h5 class="modal-title">
-                                              Historia przeciwwagi:
-                                              <b>{{ item["opis_nazwa"] }}</b>
-                                          </h5>
-                                      </div>
-                                      <div class="modal-body">
-                                        <dl class="modal-items-container">
-                                          <!-- Tutaj wpadną elementy <dt> -->
-                                        </dl>
-                                      </div>
-                                      <div class="modal-footer">
-                                          <input type="button" class="btn btn-secondary" data-dismiss="modal" value="Close">
-                                      </div>
-                                  </div>
-                              </div>
-                          
-                          </div>
                       </td>
 
                   </tr>
@@ -1209,7 +1242,8 @@ $(document).ready(function () {
         scrollX: true,
         orderCellsTop: true,
         columnDefs: [
-            { targets: 24, name: 'data_form' }
+            { targets: [16, 17, 18, 19, 20, 21], className: 'production-order-date', width: '10ch' },
+            { targets: 21, name: 'data_form' }
         ]
     });
 
@@ -1270,34 +1304,7 @@ $(document).ready(function () {
 });
 </script>
 
-<script>
-  async function loadAndOpenModal(uniqueId) {
-    const modalId = `hist_${uniqueId}`;
-    const modal = document.getElementById(modalId);
-    const container = modal.querySelector('.modal-items-container');
 
-    // Pobranie danych dla danego id
-    const response = await fetch(`/display_po_item_details/${uniqueId}`);
-    const data = await response.json();
-
-    container.innerHTML = '';
-
-    data.forEach(item => {
-        const dt = document.createElement('dt');
-        
-        // Dodano target="_blank" oraz rel="noopener noreferrer"
-        dt.innerHTML = `<a href='/qa_sn_search_po/${item.prefix} - ${item.sn}' target='_blank' rel='noopener noreferrer'>${item.prefix} - ${item.sn}</a>`;
-
-        container.appendChild(dt);
-    });
-
-    modal.style.display = 'block';
-    }
-
-    function closeModalById(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-</script>
 
 
 
