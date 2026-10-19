@@ -3557,7 +3557,7 @@ def save_open_orders_mes_to_mysql(from_date, to_date):
         EXEC dbo.OpenOrdersMES
             @FromDate = ?,
             @ToDate = ?,
-            @UserID = NULL
+            @LinePerUnit = 1;
     """, from_date, to_date)
 
     while cur.description is None:
@@ -3764,9 +3764,9 @@ def forming():
         result = " , ".join(result)
         i['sn'] = result
 
-    date_minus, date_plus = get_shifted_dates(7, 30)
+    # date_minus, date_plus = get_shifted_dates(7, 30)
     # sql = f"SELECT DISTINCT tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew FROM open_orders_sap tab1 JOIN sap_mes_relation tab2 ON tab1.item_index = tab2.item_index WHERE data_prod BETWEEN '{date_minus}' AND '{date_plus}' ORDER BY tab1.data_prod DESC"
-    sql = f"SELECT DISTINCT tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew FROM open_orders_sap tab1 LEFT JOIN sap_mes_relation tab2 ON tab1.item_index = tab2.item_index ORDER BY tab1.data_prod DESC"
+    sql = f"SELECT tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew FROM open_orders_sap tab1 LEFT JOIN sap_mes_relation tab2 ON tab1.item_index = tab2.item_index ORDER BY tab1.data_prod DESC"
     production_orders = query_db(sql)        
     #production_orders = query_db("SELECT tab1.*, tab2.*, tab3.prefix, tab3.sn FROM open_orders_sap tab1 JOIN sap_mes_relation tab2 ON tab1.item_index = tab2.item_index RIGHT JOIN lista_formowania_sn tab3 ON tab3.mes_po_id = tab1.unique_id ORDER BY tab1.data_prod DESC;")
     update_time = query_db("SELECT MAX(updated_at) AS updated_at FROM open_orders_sap")
