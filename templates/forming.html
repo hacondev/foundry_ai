@@ -59,8 +59,8 @@
       data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <ul class="navbar-nav px-3">
-      <li class="nav-item text-nowrap"></li>
+    <ul class="navbar-nav ml-auto px-3">
+      <li id="production-orders-scroll-controls" class="nav-item text-nowrap py-1"></li>
     </ul>
   </nav>
 
@@ -1256,14 +1256,14 @@ $(document).ready(function () {
     });
 
     var productionWrapper = $(productionTable.table().container());
-    var scrollButtons = $('<div class="d-inline-flex mr-3" role="group" aria-label="Przewijanie tabeli Production Orders"></div>');
-    $('<button type="button" class="btn btn-outline-secondary btn-sm mr-2" aria-label="Przewiń tabelę maksymalnie w lewo" title="Przewiń maksymalnie w lewo">&larr;</button>')
+    var scrollButtons = $('<div class="d-inline-flex" role="group" aria-label="Przewijanie tabeli Production Orders"></div>');
+    $('<button type="button" class="btn btn-outline-light btn-sm mr-2" aria-label="Przewiń tabelę maksymalnie w lewo" title="Przewiń maksymalnie w lewo">&larr;</button>')
         .on('click', function () { scrollProductionOrders(false); })
         .appendTo(scrollButtons);
-    $('<button type="button" class="btn btn-outline-secondary btn-sm" aria-label="Przewiń tabelę maksymalnie w prawo" title="Przewiń maksymalnie w prawo">&rarr;</button>')
+    $('<button type="button" class="btn btn-outline-light btn-sm" aria-label="Przewiń tabelę maksymalnie w prawo" title="Przewiń maksymalnie w prawo">&rarr;</button>')
         .on('click', function () { scrollProductionOrders(true); })
         .appendTo(scrollButtons);
-    productionWrapper.find('.dataTables_filter').prepend(scrollButtons);
+    $('#production-orders-scroll-controls').append(scrollButtons);
 
     function scrollProductionOrders(toRight) {
         var scrollBody = productionWrapper.find('.dataTables_scrollBody').get(0);
