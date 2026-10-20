@@ -1255,6 +1255,24 @@ $(document).ready(function () {
         ]
     });
 
+    var productionWrapper = $(productionTable.table().container());
+    var scrollButtons = $('<div class="d-inline-flex mr-3" role="group" aria-label="Przewijanie tabeli Production Orders"></div>');
+    $('<button type="button" class="btn btn-outline-secondary btn-sm mr-2" aria-label="Przewiń tabelę maksymalnie w lewo" title="Przewiń maksymalnie w lewo">&larr;</button>')
+        .on('click', function () { scrollProductionOrders(false); })
+        .appendTo(scrollButtons);
+    $('<button type="button" class="btn btn-outline-secondary btn-sm" aria-label="Przewiń tabelę maksymalnie w prawo" title="Przewiń maksymalnie w prawo">&rarr;</button>')
+        .on('click', function () { scrollProductionOrders(true); })
+        .appendTo(scrollButtons);
+    productionWrapper.find('.dataTables_filter').prepend(scrollButtons);
+
+    function scrollProductionOrders(toRight) {
+        var scrollBody = productionWrapper.find('.dataTables_scrollBody').get(0);
+        if (!scrollBody) return;
+        scrollBody.scrollLeft = toRight ? scrollBody.scrollWidth - scrollBody.clientWidth : 0;
+        // Keep the cloned DataTables header aligned with the body.
+        $(scrollBody).trigger('scroll');
+    }
+
     // NAPRAWA DLA scrollX: Delegowanie zdarzeń na poziomie wrappera DataTables,
     // co łapie akcje zarówno z głównego, jak i ze sklonowanego nagłówka przewijania.
     $(document).on('keyup change clear', '#table_production_orders_wrapper thead input', function () {
