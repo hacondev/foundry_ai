@@ -30,9 +30,20 @@ class ProductionOrderHighlightingTests(unittest.TestCase):
                 INSERT INTO lista_formowania_historia_v2 VALUES (2,'qa_ok',NULL,NULL),(2,'qa_ok',NULL,NULL),(3,'qa_nok','Y',1),(3,'qa_ok','OTHER',2);
                 INSERT INTO lista_formowania_historia_v2 VALUES (2,'shipment',NULL,NULL),(2,'shipment',NULL,NULL),(3,'shipment','Y',2),(3,'shipment','OTHER',1);
             ''')
+            db.executescript('''
+                ALTER TABLE lista_formowania_historia_v2 ADD COLUMN czas TEXT;
+                UPDATE lista_formowania_historia_v2 SET czas = '2026-11-02 10:00:00'
+                    WHERE production_stage = 'casted';
+                INSERT INTO lista_formowania_historia_v2 VALUES
+                    (2,'casted',NULL,NULL,'2026-11-03 11:00:00'),
+                    (3,'casted','Y',2,'2026-11-04 12:00:00'),
+                    (3,'casted','OTHER',1,'2026-11-05 13:00:00');
+            ''')
             db.row_factory = sqlite3.Row
             rows = {row['id']: dict(row) for row in db.execute(query)}
         self.assertEqual(len(rows), 6)
+        self.assertEqual([rows[i]['data_zalania'] for i in (10, 20, 30, 40, 50, 60)],
+                         [None, '2026-11-03 11:00:00', None, None, None, '2026-11-04 12:00:00'])
         self.assertEqual([rows[i]['assigned_sn'] for i in (10, 20, 30)], [1, 2, None])
         self.assertEqual([rows[i]['has_formed_history'] for i in (10, 20, 30, 40, 50, 60)],
                          [0, 1, 0, 0, 0, 1])

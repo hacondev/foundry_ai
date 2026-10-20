@@ -3813,7 +3813,15 @@ def forming():
                      AND history.production_stage = 'shipment'
                      AND (history.sn IS NULL OR
                           (history.sn = sn.sn AND history.prefix = sn.prefix))
-               ) AS has_shipment_history
+               ) AS has_shipment_history,
+               (
+                   SELECT MAX(history.czas)
+                   FROM lista_formowania_historia_v2 history
+                   WHERE history.produkt_id = sn.produkt_id
+                     AND history.production_stage = 'casted'
+                     AND (history.sn IS NULL OR
+                          (history.sn = sn.sn AND history.prefix = sn.prefix))
+               ) AS data_zalania
         FROM ranked_orders tab1
         LEFT JOIN sap_mes_relation tab2 ON tab1.item_index = tab2.item_index
         LEFT JOIN ranked_serials sn ON sn.mes_po_id = tab1.unique_id
