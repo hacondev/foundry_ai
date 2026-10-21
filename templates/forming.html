@@ -15,6 +15,35 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
 
   <style>
+  #table_production_orders_wrapper .production-date-column {
+      width: 10ch;
+      min-width: 10ch;
+      white-space: nowrap;
+  }
+  #table_production_orders_wrapper .production-date-column input {
+      width: 10ch;
+      min-width: 0;
+      box-sizing: border-box;
+  }
+  #table_production_orders .production-loading-row td { padding: 0; }
+  #table_production_orders .production-loading-content {
+      position: sticky;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 52px;
+  }
+  .production-loading-gear {
+      display: inline-block;
+      font-size: 28px;
+      animation: production-loading-spin 1.2s linear infinite;
+  }
+  @keyframes production-loading-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+      .production-loading-gear { animation: none; }
+  }
   #table_production_orders tfoot input {
       width: 100%;
       min-width: 80px;
@@ -34,8 +63,15 @@
       data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <ul class="navbar-nav px-3">
-      <li class="nav-item text-nowrap"></li>
+    <ul class="navbar-nav ml-auto px-3">
+      <li class="nav-item text-nowrap py-1">
+        <div class="d-inline-flex" role="group" aria-label="Przewijanie tabeli i strony">
+          <button type="button" class="btn btn-outline-light btn-sm mr-2" id="forming-scroll-left" aria-label="Przewiń tabelę maksymalnie w lewo" title="Tabela maksymalnie w lewo">&larr;</button>
+          <button type="button" class="btn btn-outline-light btn-sm mr-2" id="forming-scroll-right" aria-label="Przewiń tabelę maksymalnie w prawo" title="Tabela maksymalnie w prawo">&rarr;</button>
+          <button type="button" class="btn btn-outline-light btn-sm mr-2" id="forming-scroll-top" aria-label="Przewiń stronę na samą górę" title="Strona na samą górę">&uarr;</button>
+          <button type="button" class="btn btn-outline-light btn-sm" id="forming-scroll-bottom" aria-label="Przewiń stronę na sam dół" title="Strona na sam dół">&darr;</button>
+        </div>
+      </li>
     </ul>
   </nav>
 
@@ -827,18 +863,18 @@
                       <div class="row">
                           <div class="col-md-5">
                               <label for="min-date">Data form. od:</label>
-                              <input type="date" id="min-date" class="form-control">
+                              <input type="date" id="min-date" class="form-control" value="{{ min_forming_date }}">
                           </div>
                           <div class="col-md-5">
                               <label for="max-date">Data form. do:</label>
-                              <input type="date" id="max-date" class="form-control">
+                              <input type="date" id="max-date" class="form-control" value="{{ max_forming_date }}">
                           </div>
                           <div class="col-md-2 d-flex align-items-end">
                               <button type="button" id="filter-production-orders" class="btn btn-primary">Filtruj</button>
                           </div>
                       </div>
                       <div class="form-check mt-2">
-                          <input type="checkbox" id="include-undated" class="form-check-input">
+                          <input type="checkbox" id="include-undated" class="form-check-input"{% if include_undated %} checked{% endif %}>
                           <label for="include-undated" class="form-check-label">Wyświetl bez daty formowania</label>
                       </div>
                   </div>
@@ -852,6 +888,17 @@
         <!-- BLOK FILTRA DATY -->
 
         <div class="table-responsive">
+          {% macro production_value(value, integer=false, date=false) -%}
+              {%- if value is undefined or value is none or (value | string | trim | lower) in ['', 'none', 'null'] -%}
+                  --
+              {%- elif date -%}
+                  {{- (value | string)[:10] -}}
+              {%- elif integer -%}
+                  {{- value | int -}}
+              {%- else -%}
+                  {{- value -}}
+              {%- endif -%}
+          {%- endmacro %}
           <table id="table_production_orders" class="display table table-striped w-100">
 
               <thead>
@@ -882,13 +929,13 @@
                       <th>Nr seq.</th>
                       <!-- <th>Tyg wysyłki</th>
                       <th>Tyg wypr</th> -->
-                      <!-- <th>Data dokakt</th> -->
-                      <!-- <th>Data dostawy</th> -->
-                      <!-- <th>Data wysyłki</th>
+                      <th>Data dokakt</th>
+                      <th>Data dostawy</th>
+                      <th>Data wysyłki</th>
                       <th>D. prod.</th>
                       <th>D. mal.</th>
                       <th>D. obr.</th>
-                      <th>D. szlif.</th> -->
+                      <th>D. szlif.</th>
                       <th>D. wybij.</th>
                       <th>D. form.</th>
                       <th>Dodaj</th>
@@ -896,8 +943,8 @@
                   </tr>
 
                   <tr class="filters">
-                      {% for i in range(18) %}
-                          <th>
+                      {% for i in range(25) %}
+                          <th{% if 16 <= i <= 24 %} class="production-date-column"{% endif %}>
                               <input type="text" placeholder="Filtruj">
                           </th>
                       {% endfor %}
@@ -910,41 +957,41 @@
               <tbody>
                   {% for item in production_orders %}
                   <tr>
-                      <td>{{ item["unique_id"] }}</td>
-                      <!-- <td>{{ item["nr_oferty"] }}</td>
-                      <td>{{ item["nr_dok"] }}</td>
-                      <td>{{ item["obj_type"] }}</td> -->
-                      <td>{{ item["nr_zam_klienta"] }}</td>
-                      <!-- <td>{{ item["kod_ph"] }}</td> -->
-                      <td>{{ item["ph"] }}</td>
-                      <td>{{ item["item_index"] }}</td>
-                      <!-- <td>{{ item["grupa_t"] }}</td> -->
-                      <td>{{ item["opis_nazwa"] }}</td>
-                      <td>{{ item["obca"] }}</td>
+                      <td>{{ production_value(item["unique_id"]) }}</td>
+                      <!-- <td>{{ production_value(item["nr_oferty"]) }}</td>
+                      <td>{{ production_value(item["nr_dok"]) }}</td>
+                      <td>{{ production_value(item["obj_type"]) }}</td> -->
+                      <td>{{ production_value(item["nr_zam_klienta"]) }}</td>
+                      <!-- <td>{{ production_value(item["kod_ph"]) }}</td> -->
+                      <td>{{ production_value(item["ph"]) }}</td>
+                      <td>{{ production_value(item["item_index"]) }}</td>
+                      <!-- <td>{{ production_value(item["grupa_t"]) }}</td> -->
+                      <td>{{ production_value(item["opis_nazwa"]) }}</td>
+                      <td>{{ production_value(item["obca"]) }}</td>
 
-                      <td>{{ item["nazwa_odlew"] }}</td>
-                      <td>{{ item["index_odlew"] }}</td>
+                      <td>{{ production_value(item["nazwa_odlew"]) }}</td>
+                      <td>{{ production_value(item["index_odlew"]) }}</td>
 
-                      <td>{{ item["ilosc"] | int }}</td>
-                      <td>{{ item["waga_jedn"] | int }}</td>
-                      <td>{{ item["waga_calk"] | int }}</td>
-                      <td>{{ item["nr_kat"] }}</td>
-                      <td>{{ item["nr_rys"] }}</td>
-                      <td>{{ item["nr_bud"] }}</td>
-                      <!-- <td>{{ item["nr_poz"] }}</td> -->
-                      <td>{{ item["nr_still"] }}</td>
-                      <td>{{ item["nr_seq"] }}</td>
-                      <!-- <td>{{ item["tyg_wysyłki"] }}</td>
-                      <td>{{ item["tyg_wypr"] }}</td>
-                      <td>{{ item["data_dokakt"] }}</td>
-                      <td>{{ item["data_dostawy"] }}</td> -->
-                      <!-- <td>{{ item["data_wysyłki"] }}</td> -->
-                      <!-- <td>{{ item["data_prod"] }}</td>
-                      <td>{{ item["data_mal"] }}</td>
-                      <td>{{ item["data_obr"] }}</td>
-                      <td>{{ item["data_szlif"] }}</td> -->
-                      <td>{{ item["data_wybij"] }}</td>
-                      <td>{{ item["data_form"] }}</td>
+                      <td>{{ production_value(item["ilosc"], integer=true) }}</td>
+                      <td>{{ production_value(item["waga_jedn"], integer=true) }}</td>
+                      <td>{{ production_value(item["waga_calk"], integer=true) }}</td>
+                      <td>{{ production_value(item["nr_kat"]) }}</td>
+                      <td>{{ production_value(item["nr_rys"]) }}</td>
+                      <td>{{ production_value(item["nr_bud"]) }}</td>
+                      <!-- <td>{{ production_value(item["nr_poz"]) }}</td> -->
+                      <td>{{ production_value(item["nr_still"]) }}</td>
+                      <td>{{ production_value(item["nr_seq"]) }}</td>
+                      <!-- <td>{{ production_value(item["tyg_wysyłki"]) }}</td>
+                      <td>{{ production_value(item["tyg_wypr"]) }}</td> -->
+                      <td>{{ production_value(item["data_dokakt"], date=true) }}</td>
+                      <td>{{ production_value(item["data_dostawy"], date=true) }}</td>
+                      <td>{{ production_value(item["data_wysylki"], date=true) }}</td>
+                      <td>{{ production_value(item["data_prod"], date=true) }}</td>
+                      <td>{{ production_value(item["data_mal"], date=true) }}</td>
+                      <td>{{ production_value(item["data_obr"], date=true) }}</td>
+                      <td>{{ production_value(item["data_szlif"], date=true) }}</td>
+                      <td>{{ production_value(item["data_wybij"], date=true) }}</td>
+                      <td>{{ production_value(item["data_form"], date=true) }}</td>
 
                       <td>
                           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#item_{{ item['unique_id'] }}">
@@ -1183,17 +1230,6 @@
 <script>
 $(document).ready(function () {
 
-    var today = new Date();
-    function formingDateWithOffset(days) {
-        var date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        date.setDate(date.getDate() + days);
-        return date.getFullYear() + '-' +
-            String(date.getMonth() + 1).padStart(2, '0') + '-' +
-            String(date.getDate()).padStart(2, '0');
-    }
-    $('#min-date').val(formingDateWithOffset(-7));
-    $('#max-date').val(formingDateWithOffset(21));
-
     $('#table_id').DataTable({
         order: [[0, 'desc']],
         pageLength: 50
@@ -1206,15 +1242,38 @@ $(document).ready(function () {
 
     // Inicjalizacja Production orders
     var productionTable = $('#table_production_orders').DataTable({
-        pageLength: 50,
+        pageLength: 100,
         lengthMenu: [
-            [10, 25, 50, 100, -1],
-            [10, 25, 50, 100, "All"]
+            [100, 200, 300, 500, -1],
+            [100, 200, 300, 500, "All"]
         ],
         order: [],
         scrollX: true,
-        orderCellsTop: true
+        orderCellsTop: true,
+        columnDefs: [
+            { targets: [16, 17, 18, 19, 20, 21, 22, 23, 24], className: 'production-date-column', width: '10ch' }
+        ]
     });
+
+    function scrollProductionOrders(toRight) {
+        var body = $(productionTable.table().container()).find('.dataTables_scrollBody').get(0);
+        if (!body) return;
+        body.scrollLeft = toRight ? body.scrollWidth - body.clientWidth : 0;
+        $(body).trigger('scroll');
+    }
+    function scrollFormingPage(toBottom) {
+        var page = document.scrollingElement || document.documentElement;
+        window.scrollTo({
+            top: toBottom ? page.scrollHeight - page.clientHeight : 0,
+            left: window.scrollX,
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+        });
+    }
+    $('#forming-scroll-left').on('click', function () { scrollProductionOrders(false); });
+    $('#forming-scroll-right').on('click', function () { scrollProductionOrders(true); });
+    $('#forming-scroll-top').on('click', function () { scrollFormingPage(false); });
+    $('#forming-scroll-bottom').on('click', function () { scrollFormingPage(true); });
+    $('#tab-production-orders').on('shown.bs.tab', function () { productionTable.columns.adjust(); });
 
     // NAPRAWA DLA scrollX: Delegowanie zdarzeń na poziomie wrappera DataTables,
     // co łapie akcje zarówno z głównego, jak i ze sklonowanego nagłówka przewijania.
@@ -1229,60 +1288,39 @@ $(document).ready(function () {
         }
     });
 
-    var appliedFormingFilter = {
-        min: $('#min-date').val(),
-        max: $('#max-date').val(),
-        includeUndated: false
-    };
-    // Use the last applied settings, not the values currently being edited.
-    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-        if (settings.nTable.id !== 'table_production_orders') {
-            return true;
-        }
-
-        var columnIndex = 17; // Kolumna data_form
-        var minDate = appliedFormingFilter.min;
-        var maxDate = appliedFormingFilter.max;
-        var rowDateStr = String(data[columnIndex] || '').trim();
-
-        if (!rowDateStr || /^(None|null|—|0000-00-00)/i.test(rowDateStr)) {
-            return appliedFormingFilter.includeUndated;
-        }
-
-        if (!minDate && !maxDate) {
-            return true;
-        }
-
-        var rowDate = rowDateStr.substring(0, 10);
-
-        if (minDate && !maxDate) {
-            return rowDate >= minDate;
-        }
-        if (!minDate && maxDate) {
-            return rowDate <= maxDate;
-        }
-        if (minDate && maxDate) {
-            return rowDate >= minDate && rowDate <= maxDate;
-        }
-
-        return true;
-    });
-
     $('#filter-production-orders').on('click', function () {
         var min = document.getElementById('min-date');
         var max = document.getElementById('max-date');
         max.setCustomValidity(min.value && max.value && min.value > max.value
             ? 'Data końcowa nie może być wcześniejsza niż początkowa.' : '');
         if (!min.reportValidity() || !max.reportValidity()) return;
-        appliedFormingFilter = {
-            min: min.value,
-            max: max.value,
-            includeUndated: document.getElementById('include-undated').checked
-        };
-        productionTable.draw();
+        var url = new URL(window.location.href);
+        url.searchParams.set('min_date', min.value);
+        url.searchParams.set('max_date', max.value);
+        url.searchParams.set('include_undated', document.getElementById('include-undated').checked ? '1' : '0');
+        url.searchParams.set('tab', 'production-orders');
+        if (this.disabled) return;
+        $(this).prop('disabled', true).attr('aria-busy', 'true');
+        var table = $('#table_production_orders').attr('aria-busy', 'true');
+        var row = $('<tr class="production-loading-row"><td><div class="production-loading-content" role="status"><span class="production-loading-gear" aria-hidden="true">&#9881;</span><span>Ładowanie danych…</span></div></td></tr>');
+        row.find('td').attr('colspan', productionTable.columns().count());
+        var viewport = table.closest('.dataTables_scrollBody');
+        row.find('.production-loading-content').css('width', viewport.width() || table.parent().width());
+        table.find('tbody').prepend(row);
+        viewport.scrollTop(0);
+        // Allow the loading indicator to paint before the full page navigation.
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () { window.location.assign(url.toString()); });
+        });
     });
-
-    productionTable.draw();
+    window.addEventListener('pageshow', function () {
+        $('#filter-production-orders').prop('disabled', false).removeAttr('aria-busy');
+        $('#table_production_orders').removeAttr('aria-busy').find('.production-loading-row').remove();
+    });
+    if (new URLSearchParams(window.location.search).get('tab') === 'production-orders') {
+        $('#tab-production-orders').tab('show');
+        productionTable.columns.adjust();
+    }
 
 });
 </script>
