@@ -3801,7 +3801,24 @@ def forming():
     """
     query2 = query_db("SELECT produkt_id, nazwa, manual_forming FROM produkty WHERE item_status='active' order by nazwa desc")
     nowe = query_db(query1)
+    # Fetch order IDs for the displayed forming positions in one query.
+    mes_po_ids = {}
+    if nowe:
+        product_ids = list({item['id'] for item in nowe})
+        cursor = mysql.new_cursor(dictionary=True)
+        try:
+            cursor.execute(
+                "SELECT DISTINCT produkt_id, TRIM(mes_po_id) AS mes_po_id "
+                "FROM lista_formowania_sn WHERE produkt_id IN ("
+                + ','.join(['%s'] * len(product_ids)) + ") "
+                "AND mes_po_id IS NOT NULL AND TRIM(mes_po_id) <> ''",
+                product_ids)
+            for row in cursor.fetchall():
+                mes_po_ids.setdefault(row['produkt_id'], set()).add(row['mes_po_id'])
+        finally:
+            cursor.close()
     for i in nowe:
+        i['mes_po_ids'] = ', '.join(sorted(mes_po_ids.get(i['id'], [])))
         sn = generete_serials(i['id'])
         result = ['-'.join(item) for item in sn]
         result = " , ".join(result)

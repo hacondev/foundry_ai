@@ -286,6 +286,7 @@
                   <tr>
                     <th>Id</th>
                     <th>Nazwa produktu</th>
+                    <th>UniqueID</th>
                     <th>Formowanie</th>
                     <th>Próba</th>
                     <th>N/S</th>
@@ -298,6 +299,7 @@
                   <tr {% if item.repeated == '1' %} class="table-danger" {% endif %} {% if item.komentarz_flag == 1 %} class="table-info" {% endif %}>
                     <td>{{ item.id }}</td>
                     <td><a href="/form_details_admin_view/{{ item.id }}">{{ item.nazwa_produktu }}</a></td>
+                    <td>{{ item.mes_po_ids or '—' }}</td>
                     <td>
                       {% if item.manual_forming == '0' %}
                       Foromowanie mechaniczne
