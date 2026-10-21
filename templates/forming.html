@@ -821,18 +821,25 @@
 
           <!-- Drugi blok: Filtr daty -->
           <div class="col-md-6">
-              <div class="card mb-3" style="height: 175px;">
+              <div class="card mb-3" style="min-height: 175px;">
                   <div class="card-header">Filtr daty formowania</div>
                   <div class="card-body">
                       <div class="row">
-                          <div class="col-md-6">
-                              <label>Data form. od:</label>
-                              <input type="date" id="min-date" class="form-control" value="2026-09-25">
+                          <div class="col-md-5">
+                              <label for="min-date">Data form. od:</label>
+                              <input type="date" id="min-date" class="form-control">
                           </div>
-                          <div class="col-md-6">
-                              <label>Data form. do:</label>
-                              <input type="date" id="max-date" class="form-control" value="2026-09-28">
+                          <div class="col-md-5">
+                              <label for="max-date">Data form. do:</label>
+                              <input type="date" id="max-date" class="form-control">
                           </div>
+                          <div class="col-md-2 d-flex align-items-end">
+                              <button type="button" id="filter-production-orders" class="btn btn-primary">Filtruj</button>
+                          </div>
+                      </div>
+                      <div class="form-check mt-2">
+                          <input type="checkbox" id="include-undated" class="form-check-input">
+                          <label for="include-undated" class="form-check-label">Wyświetl bez daty formowania</label>
                       </div>
                   </div>
               
@@ -1176,6 +1183,17 @@
 <script>
 $(document).ready(function () {
 
+    var today = new Date();
+    function formingDateWithOffset(days) {
+        var date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        date.setDate(date.getDate() + days);
+        return date.getFullYear() + '-' +
+            String(date.getMonth() + 1).padStart(2, '0') + '-' +
+            String(date.getDate()).padStart(2, '0');
+    }
+    $('#min-date').val(formingDateWithOffset(-7));
+    $('#max-date').val(formingDateWithOffset(21));
+
     $('#table_id').DataTable({
         order: [[0, 'desc']],
         pageLength: 50
@@ -1211,23 +1229,28 @@ $(document).ready(function () {
         }
     });
 
-    // NIESTANDARDOWY FILTR ZAKRESU DAT (D. form.)
+    var appliedFormingFilter = {
+        min: $('#min-date').val(),
+        max: $('#max-date').val(),
+        includeUndated: false
+    };
+    // Use the last applied settings, not the values currently being edited.
     $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
         if (settings.nTable.id !== 'table_production_orders') {
             return true;
         }
 
         var columnIndex = 17; // Kolumna data_form
-        var minDate = $('#min-date').val(); 
-        var maxDate = $('#max-date').val(); 
-        var rowDateStr = data[columnIndex]; 
+        var minDate = appliedFormingFilter.min;
+        var maxDate = appliedFormingFilter.max;
+        var rowDateStr = String(data[columnIndex] || '').trim();
+
+        if (!rowDateStr || /^(None|null|—|0000-00-00)/i.test(rowDateStr)) {
+            return appliedFormingFilter.includeUndated;
+        }
 
         if (!minDate && !maxDate) {
             return true;
-        }
-
-        if (!rowDateStr || rowDateStr.trim() === "") {
-            return false; 
         }
 
         var rowDate = rowDateStr.substring(0, 10);
@@ -1245,10 +1268,21 @@ $(document).ready(function () {
         return true;
     });
 
-    // Odświeżanie tabeli po zmianie daty
-    $('#min-date, #max-date').on('change', function () {
+    $('#filter-production-orders').on('click', function () {
+        var min = document.getElementById('min-date');
+        var max = document.getElementById('max-date');
+        max.setCustomValidity(min.value && max.value && min.value > max.value
+            ? 'Data końcowa nie może być wcześniejsza niż początkowa.' : '');
+        if (!min.reportValidity() || !max.reportValidity()) return;
+        appliedFormingFilter = {
+            min: min.value,
+            max: max.value,
+            includeUndated: document.getElementById('include-undated').checked
+        };
         productionTable.draw();
     });
+
+    productionTable.draw();
 
 });
 </script>
