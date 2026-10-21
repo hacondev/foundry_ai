@@ -8340,16 +8340,17 @@ def edit_item_grinding(id):
         return redirect(url_for('grinding'))
 
 # PRZENIESIENIE DO BUFORA POJEDYŃCZEGO ASETU
-@app.route("/remove_from_forming_list_by_office/<id>", methods=['POST', 'GET'])
-def remove_from_forming_list_by_office(id):
+@app.route("/remove_from_forming_list/<id>", methods=['POST', 'GET'])
+def remove_from_forming_list(id):
     if not g.user:
         flash(f'Login required.')
         return redirect(url_for('login'))
     else:
         remove_item_from_forming_list(id)
         remove_item_from_sn_list(id)
-        history(id, 'canceled', session['user'])
-        return redirect(url_for('forming'))
+        history(id, 'canceled from cores', session['user'])
+    
+    return redirect(url_for('forming'))
 
 # PRZENIESIENIE DO BUFORA POJEDYŃCZEGO ASETU
 @app.route("/remove_from_forming_list_on_all_stages", methods=['POST', 'GET'])
