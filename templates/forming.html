@@ -15,6 +15,25 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css">
 
   <style>
+  #table_production_orders .production-loading-row td { padding: 0; }
+  #table_production_orders .production-loading-content {
+      position: sticky;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 52px;
+  }
+  .production-loading-gear {
+      display: inline-block;
+      font-size: 28px;
+      animation: production-loading-spin 1.2s linear infinite;
+  }
+  @keyframes production-loading-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+      .production-loading-gear { animation: none; }
+  }
   #table_production_orders tfoot input {
       width: 100%;
       min-width: 80px;
@@ -850,13 +869,16 @@
                   <div class="card-header">Filtr daty formowania</div>
                   <div class="card-body">
                       <div class="row">
-                          <div class="col-md-6">
-                              <label>Data form. od:</label>
-                              <input type="date" id="min-date" class="form-control">
+                          <div class="col-md-5">
+                              <label for="min-date">Data form. od:</label>
+                              <input type="date" id="min-date" class="form-control" value="{{ min_forming_date }}" required>
                           </div>
-                          <div class="col-md-6">
-                              <label>Data form. do:</label>
-                              <input type="date" id="max-date" class="form-control">
+                          <div class="col-md-5">
+                              <label for="max-date">Data form. do:</label>
+                              <input type="date" id="max-date" class="form-control" value="{{ max_forming_date }}" required>
+                          </div>
+                          <div class="col-md-2 d-flex align-items-end">
+                              <button type="button" id="filter-production-orders" class="btn btn-primary">Filtruj</button>
                           </div>
                       </div>
                   </div>
@@ -954,36 +976,36 @@
                       <td>{{ item["nr_seq"] }}</td>
                       <!-- <td>{{ item["tyg_wysyłki"] }}</td>
                       <td>{{ item["tyg_wypr"] }}</td>-->
-                      <!-- <td>{{ (item["data_dokakt"] | string)[:10] if item["data_dokakt"] else "" }}</td> -->
-                      <td>{{ (item["data_dostawy"] | string)[:10] if item["data_dostawy"] else "" }}</td>
+                      <!-- <td>{{ (item["data_dokakt"] | string)[:10] if item["data_dokakt"] else "—" }}</td> -->
+                      <td>{{ (item["data_dostawy"] | string)[:10] if item["data_dostawy"] else "—" }}</td>
                       <td>
                           {% if item.has_shipment_history %}
-                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status shipment">{{ (item["data_wysylki"] | string)[:10] if item["data_wysylki"] else "" }}</span>
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status shipment">{{ (item["data_wysylki"] | string)[:10] if item["data_wysylki"] else "—" }}</span>
                           {% else %}
-                              {{ (item["data_wysylki"] | string)[:10] if item["data_wysylki"] else "" }}
+                              {{ (item["data_wysylki"] | string)[:10] if item["data_wysylki"] else "—" }}
                           {% endif %}
                       </td>
                       <td>
                           {% if item.has_qa_history %}
-                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status qa_ok lub qa_nok">{{ (item["data_prod"] | string)[:10] if item["data_prod"] else "" }}</span>
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status qa_ok lub qa_nok">{{ (item["data_prod"] | string)[:10] if item["data_prod"] else "—" }}</span>
                           {% else %}
-                              {{ (item["data_prod"] | string)[:10] if item["data_prod"] else "" }}
+                              {{ (item["data_prod"] | string)[:10] if item["data_prod"] else "—" }}
                           {% endif %}
                       </td>
-                      <!-- <td>{{ (item["data_mal"] | string)[:10] if item["data_mal"] else "" }}</td>
-                      <td>{{ (item["data_obr"] | string)[:10] if item["data_obr"] else "" }}</td> -->
+                      <!-- <td>{{ (item["data_mal"] | string)[:10] if item["data_mal"] else "—" }}</td>
+                      <td>{{ (item["data_obr"] | string)[:10] if item["data_obr"] else "—" }}</td> -->
                       <td>
                           {% if item.has_grinding_history %}
-                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status grinding lub grinding-repaired">{{ (item["data_szlif"] | string)[:10] if item["data_szlif"] else "" }}</span>
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status grinding lub grinding-repaired">{{ (item["data_szlif"] | string)[:10] if item["data_szlif"] else "—" }}</span>
                           {% else %}
-                              {{ (item["data_szlif"] | string)[:10] if item["data_szlif"] else "" }}
+                              {{ (item["data_szlif"] | string)[:10] if item["data_szlif"] else "—" }}
                           {% endif %}
                       </td>
                       <td>
                           {% if item.has_knockout_history %}
-                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status knockout">{{ (item["data_wybij"] | string)[:10] if item["data_wybij"] else "" }}</span>
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status knockout">{{ (item["data_wybij"] | string)[:10] if item["data_wybij"] else "—" }}</span>
                           {% else %}
-                              {{ (item["data_wybij"] | string)[:10] if item["data_wybij"] else "" }}
+                              {{ (item["data_wybij"] | string)[:10] if item["data_wybij"] else "—" }}
                           {% endif %}
                       </td>
                       <td>
@@ -995,9 +1017,9 @@
                       </td>
                       <td>
                           {% if item.has_formed_history %}
-                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status formed">{{ (item["data_form"] | string)[:10] if item["data_form"] else "" }}</span>
+                              <span class="production-order-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status formed">{{ (item["data_form"] | string)[:10] if item["data_form"] else "—" }}</span>
                           {% else %}
-                              {{ (item["data_form"] | string)[:10] if item["data_form"] else "" }}
+                              {{ (item["data_form"] | string)[:10] if item["data_form"] else "—" }}
                           {% endif %}
                       </td>
 
@@ -1040,10 +1062,16 @@
                                           <input type="hidden" name="index_odlew" value="{{ item['index_odlew'] }}">
                                           <input type="hidden" name="nazwa_odlew" value="{{ item['nazwa_odlew'] }}">
                                           <input type="hidden" name="item_index" value="{{ item['item_index'] }}">
+                                          <input type="hidden" name="quantity_po" value="{{ item['ilosc'] }}">
 
-                                          <div class="form-group">
+                                          <!-- <div class="form-group">
                                               <label for="quantity_po"> Ilość sztuk</label>
                                               <input type="number" class="form-control" name="quantity_po" id="quantity_po" value="{{ item['ilosc'] | int }}" required>
+                                          </div> -->
+
+                                          <div class="form-group">
+                                              <label for="quantity_po_display"> Ilość sztuk</label>
+                                              <input type="text" class="form-control" name="quantity_po_display" id="quantity_po_display" value="{{ item['ilosc'] | int }}" readonly>
                                           </div>
 
                                       </div>
@@ -1217,18 +1245,6 @@
 <script>
 $(document).ready(function () {
 
-    // Default range relative to today's local calendar date.
-    var today = new Date();
-    function dateWithOffset(days) {
-        var date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        date.setDate(date.getDate() + days);
-        return date.getFullYear() + '-' +
-            String(date.getMonth() + 1).padStart(2, '0') + '-' +
-            String(date.getDate()).padStart(2, '0');
-    }
-    $('#min-date').val(dateWithOffset(-7));
-    $('#max-date').val(dateWithOffset(21));
-
     $('#table_id').DataTable({
         order: [[0, 'desc']],
         pageLength: 50
@@ -1241,10 +1257,10 @@ $(document).ready(function () {
 
     // Inicjalizacja Production orders
     var productionTable = $('#table_production_orders').DataTable({
-        pageLength: 50,
+        pageLength: 100,
         lengthMenu: [
-            [10, 25, 50, 100, -1],
-            [10, 25, 50, 100, "All"]
+            [100, 200, 300, 500, -1],
+            [100, 200, 300, 500, "All"]
         ],
         order: [],
         scrollX: true,
@@ -1260,10 +1276,25 @@ $(document).ready(function () {
     $('<button type="button" class="btn btn-outline-light btn-sm mr-2" aria-label="Przewiń tabelę maksymalnie w lewo" title="Przewiń maksymalnie w lewo">&larr;</button>')
         .on('click', function () { scrollProductionOrders(false); })
         .appendTo(scrollButtons);
-    $('<button type="button" class="btn btn-outline-light btn-sm" aria-label="Przewiń tabelę maksymalnie w prawo" title="Przewiń maksymalnie w prawo">&rarr;</button>')
+    $('<button type="button" class="btn btn-outline-light btn-sm mr-2" aria-label="Przewiń tabelę maksymalnie w prawo" title="Przewiń maksymalnie w prawo">&rarr;</button>')
         .on('click', function () { scrollProductionOrders(true); })
         .appendTo(scrollButtons);
+    $('<button type="button" class="btn btn-outline-light btn-sm mr-2" aria-label="Przewiń na samą górę strony" title="Przewiń na samą górę">&uarr;</button>')
+        .on('click', function () { scrollProductionPage(false); })
+        .appendTo(scrollButtons);
+    $('<button type="button" class="btn btn-outline-light btn-sm" aria-label="Przewiń na sam dół strony" title="Przewiń na sam dół">&darr;</button>')
+        .on('click', function () { scrollProductionPage(true); })
+        .appendTo(scrollButtons);
     $('#production-orders-scroll-controls').append(scrollButtons);
+
+    function scrollProductionPage(toBottom) {
+        var page = document.scrollingElement || document.documentElement;
+        window.scrollTo({
+            top: toBottom ? page.scrollHeight - page.clientHeight : 0,
+            left: window.scrollX,
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+        });
+    }
 
     function scrollProductionOrders(toRight) {
         var scrollBody = productionWrapper.find('.dataTables_scrollBody').get(0);
@@ -1286,46 +1317,37 @@ $(document).ready(function () {
         }
     });
 
-    // NIESTANDARDOWY FILTR ZAKRESU DAT (D. form.)
-    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-        if (settings.nTable.id !== 'table_production_orders') {
-            return true;
-        }
-
-        var columnIndex = productionTable.column('data_form:name').index();
-        var minDate = $('#min-date').val(); 
-        var maxDate = $('#max-date').val(); 
-        var rowDateStr = data[columnIndex]; 
-
-        if (!minDate && !maxDate) {
-            return true;
-        }
-
-        if (!rowDateStr || rowDateStr.trim() === "") {
-            return false; 
-        }
-
-        var rowDate = rowDateStr.substring(0, 10);
-
-        if (minDate && !maxDate) {
-            return rowDate >= minDate;
-        }
-        if (!minDate && maxDate) {
-            return rowDate <= maxDate;
-        }
-        if (minDate && maxDate) {
-            return rowDate >= minDate && rowDate <= maxDate;
-        }
-
-        return true;
+    $('#filter-production-orders').on('click', function () {
+        var min = document.getElementById('min-date');
+        var max = document.getElementById('max-date');
+        max.setCustomValidity(min.value && max.value && min.value > max.value
+            ? 'Data końcowa nie może być wcześniejsza niż początkowa.' : '');
+        if (!min.reportValidity() || !max.reportValidity()) return;
+        var url = new URL(window.location.href);
+        url.searchParams.set('min_date', min.value);
+        url.searchParams.set('max_date', max.value);
+        url.searchParams.set('tab', 'production-orders');
+        if (this.disabled) return;
+        $(this).prop('disabled', true).attr('aria-busy', 'true');
+        var table = $('#table_production_orders').attr('aria-busy', 'true');
+        var row = $('<tr class="production-loading-row"><td colspan="25"><div class="production-loading-content" role="status"><span class="production-loading-gear" aria-hidden="true">&#9881;</span><span>Ładowanie danych…</span></div></td></tr>');
+        var viewport = table.closest('.dataTables_scrollBody');
+        row.find('.production-loading-content').css('width', viewport.width() || table.parent().width());
+        table.find('tbody').prepend(row);
+        viewport.scrollTop(0);
+        // Paint the loading indicator before navigating to the filtered results.
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () { window.location.assign(url.toString()); });
+        });
     });
-
-    // Odświeżanie tabeli po zmianie daty
-    $('#min-date, #max-date').on('change', function () {
-        productionTable.draw();
+    window.addEventListener('pageshow', function () {
+        $('#filter-production-orders').prop('disabled', false).removeAttr('aria-busy');
+        $('#table_production_orders').removeAttr('aria-busy').find('.production-loading-row').remove();
     });
-
-    productionTable.draw();
+    if (new URLSearchParams(window.location.search).get('tab') === 'production-orders') {
+        $('#tab-production-orders').tab('show');
+        productionTable.columns.adjust();
+    }
 
 });
 </script>

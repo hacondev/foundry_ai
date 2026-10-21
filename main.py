@@ -3730,6 +3730,17 @@ def logout_office():
 @login_required(mode='biuro')
 @ip_required('192.168.1.0/24', '192.168.170.0/24', '192.168.130.0/24')
 def forming():
+    today = datetime.date.today()
+    try:
+        min_date = datetime.date.fromisoformat(request.args.get(
+            'min_date', (today - timedelta(days=7)).isoformat()))
+        max_date = datetime.date.fromisoformat(request.args.get(
+            'max_date', (today + timedelta(days=21)).isoformat()))
+        if min_date > max_date:
+            raise ValueError('Reversed date range')
+        end_date = max_date + timedelta(days=1)
+    except (ValueError, OverflowError):
+        abort(400, description='Nieprawidłowy zakres dat formowania.')
     query1="""
         SELECT
             tab1.*, tab2.*,
@@ -3828,14 +3839,25 @@ def forming():
                                   AND sn.serial_position = tab1.serial_position
         ORDER BY tab1.data_prod DESC, tab1.id
     """
-    production_orders = query_db(sql)        
+    # Preserve serial pairing: apply the date range after the ranking CTEs.
+    sql = sql.replace('ORDER BY tab1.data_prod DESC, tab1.id',
+                      'WHERE (tab1.data_form IS NULL OR '
+                      '(tab1.data_form >= %s AND tab1.data_form < %s)) '
+                      'ORDER BY tab1.data_prod DESC, tab1.id')
+    cursor = mysql.new_cursor(dictionary=True)
+    try:
+        cursor.execute(sql, (min_date.isoformat(), end_date.isoformat()))
+        production_orders = cursor.fetchall()
+    finally:
+        cursor.close()
     #production_orders = query_db("SELECT tab1.*, tab2.*, tab3.prefix, tab3.sn FROM open_orders_sap tab1 JOIN sap_mes_relation tab2 ON tab1.item_index = tab2.item_index RIGHT JOIN lista_formowania_sn tab3 ON tab3.mes_po_id = tab1.unique_id ORDER BY tab1.data_prod DESC;")
     update_time = query_db("SELECT MAX(updated_at) AS updated_at FROM open_orders_sap")
     try:
         update_time=update_time[0]['updated_at']
     except IndexError:
         update_time =  '1970-01-01 00:00:00'
-    return render_template("forming.html", items=nowe, products=query2, repeated=repeated, production_orders=production_orders, update_time=update_time)
+    return render_template("forming.html", items=nowe, products=query2, repeated=repeated, production_orders=production_orders, update_time=update_time,
+                           min_forming_date=min_date.isoformat(), max_forming_date=max_date.isoformat())
 
 @app.route("/display_po_item_details/<id>", methods=['GET'])
 def display_po_item_details(id):
