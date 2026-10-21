@@ -536,7 +536,7 @@
                               </button>
                             </div>
                             <div class="modal-body">
-                              <form action="/remove_from_forming_list_by_office/{{ item.id }}" method="POST">
+                              <form action="/remove_from_forming_list/{{ item.id }}" method="POST">
                                 <h5>Czy chcesz usunąć produkt: <b>{{ item.nazwa_produktu }}</b> z listy formowania?</h5>
                                 <br>
                                 <div class="modal-footer">
@@ -865,7 +865,7 @@
 
           <!-- Drugi blok: Filtr daty -->
           <div class="col-md-6">
-              <div class="card mb-3" style="height: 175px;">
+              <div class="card mb-3" style="min-height: 175px;">
                   <div class="card-header">Filtr daty formowania</div>
                   <div class="card-body">
                       <div class="row">
@@ -880,6 +880,10 @@
                           <div class="col-md-2 d-flex align-items-end">
                               <button type="button" id="filter-production-orders" class="btn btn-primary">Filtruj</button>
                           </div>
+                      </div>
+                      <div class="form-check mt-2">
+                          <input type="checkbox" class="form-check-input" id="include-undated"{% if include_undated %} checked{% endif %}>
+                          <label class="form-check-label" for="include-undated">Uwzględnij rekordy bez daty formowania</label>
                       </div>
                   </div>
               
@@ -1062,12 +1066,7 @@
                                           <input type="hidden" name="index_odlew" value="{{ item['index_odlew'] }}">
                                           <input type="hidden" name="nazwa_odlew" value="{{ item['nazwa_odlew'] }}">
                                           <input type="hidden" name="item_index" value="{{ item['item_index'] }}">
-                                          <input type="hidden" name="quantity_po" value="{{ item['ilosc'] }}">
-
-                                          <!-- <div class="form-group">
-                                              <label for="quantity_po"> Ilość sztuk</label>
-                                              <input type="number" class="form-control" name="quantity_po" id="quantity_po" value="{{ item['ilosc'] | int }}" required>
-                                          </div> -->
+                                          <input type="hidden" name="quantity_po" value="{{ item['ilosc'] | int }}">
 
                                           <div class="form-group">
                                               <label for="quantity_po_display"> Ilość sztuk</label>
@@ -1326,6 +1325,7 @@ $(document).ready(function () {
         var url = new URL(window.location.href);
         url.searchParams.set('min_date', min.value);
         url.searchParams.set('max_date', max.value);
+        url.searchParams.set('include_undated', document.getElementById('include-undated').checked ? '1' : '0');
         url.searchParams.set('tab', 'production-orders');
         if (this.disabled) return;
         $(this).prop('disabled', true).attr('aria-busy', 'true');

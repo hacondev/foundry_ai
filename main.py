@@ -3731,6 +3731,7 @@ def logout_office():
 @ip_required('192.168.1.0/24', '192.168.170.0/24', '192.168.130.0/24')
 def forming():
     today = datetime.date.today()
+    include_undated = request.args.get('include_undated') == '1'
     try:
         min_date = datetime.date.fromisoformat(request.args.get(
             'min_date', (today - timedelta(days=7)).isoformat()))
@@ -3840,10 +3841,11 @@ def forming():
         ORDER BY tab1.data_prod DESC, tab1.id
     """
     # Preserve serial pairing: apply the date range after the ranking CTEs.
+    date_condition = '(tab1.data_form >= %s AND tab1.data_form < %s)'
+    if include_undated:
+        date_condition = '(tab1.data_form IS NULL OR ' + date_condition + ')'
     sql = sql.replace('ORDER BY tab1.data_prod DESC, tab1.id',
-                      'WHERE (tab1.data_form IS NULL OR '
-                      '(tab1.data_form >= %s AND tab1.data_form < %s)) '
-                      'ORDER BY tab1.data_prod DESC, tab1.id')
+                      'WHERE ' + date_condition + ' ORDER BY tab1.data_prod DESC, tab1.id')
     cursor = mysql.new_cursor(dictionary=True)
     try:
         cursor.execute(sql, (min_date.isoformat(), end_date.isoformat()))
@@ -3857,7 +3859,8 @@ def forming():
     except IndexError:
         update_time =  '1970-01-01 00:00:00'
     return render_template("forming.html", items=nowe, products=query2, repeated=repeated, production_orders=production_orders, update_time=update_time,
-                           min_forming_date=min_date.isoformat(), max_forming_date=max_date.isoformat())
+                           min_forming_date=min_date.isoformat(), max_forming_date=max_date.isoformat(),
+                           include_undated=include_undated)
 
 @app.route("/display_po_item_details/<id>", methods=['GET'])
 def display_po_item_details(id):
@@ -8370,9 +8373,10 @@ def remove_from_forming_list(id):
     else:
         remove_item_from_forming_list(id)
         remove_item_from_sn_list(id)
-        history(id, 'canceled from cores', session['user'])
+        history(id, 'canceled by office', session['user'])
     
     return redirect(url_for('forming'))
+
 
 # PRZENIESIENIE DO BUFORA POJEDYŃCZEGO ASETU
 @app.route("/remove_from_forming_list_on_all_stages", methods=['POST', 'GET'])
