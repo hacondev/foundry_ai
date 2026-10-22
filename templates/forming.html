@@ -940,7 +940,7 @@
                       <th>Nr seq.</th>
                       <!-- <th>Tyg wysyłki</th>
                       <th>Tyg wypr</th> -->
-                      <th>Data dokakt</th>
+                      <!-- <th>Data dokakt</th> -->
                       <th>Data dostawy</th>
                       <th>Data wysyłki</th>
                       <th>D. prod.</th>
@@ -955,8 +955,8 @@
                   </tr>
 
                   <tr class="filters">
-                      {% for i in range(25) %}
-                          <th{% if 16 <= i <= 23 %} class="production-date-column"{% endif %}>
+                      {% for i in range(24) %}
+                          <th{% if 16 <= i <= 22 %} class="production-date-column"{% endif %}>
                               <input type="text" placeholder="Filtruj">
                           </th>
                       {% endfor %}
@@ -994,7 +994,7 @@
                       <td>{{ production_value(item["nr_seq"]) }}</td>
                       <!-- <td>{{ production_value(item["tyg_wysyłki"]) }}</td>
                       <td>{{ production_value(item["tyg_wypr"]) }}</td> -->
-                      <td>{{ production_value(item["data_dokakt"], date=true) }}</td>
+                      <!-- <td>{{ production_value(item["data_dokakt"], date=true) }}</td> -->
                       <td>{{ production_value(item["data_dostawy"], date=true) }}</td>
                       <td>
                           {% if item.has_shipment_history and item.data_wysylki %}
@@ -1277,7 +1277,7 @@ $(document).ready(function () {
         scrollX: true,
         orderCellsTop: true,
         columnDefs: [
-            { targets: [16, 17, 18, 19, 20, 21, 22, 23], className: 'production-date-column', width: '10ch' }
+            { targets: [16, 17, 18, 19, 20, 21, 22], className: 'production-date-column', width: '10ch' }
         ]
     });
 

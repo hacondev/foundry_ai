@@ -14,21 +14,21 @@ import ipaddress
 ####################################### Konfiguracja ##################################################
 #######################################################################################################
 
-# app = Flask(__name__)
-# app.config['MYSQL_HOST'] = '192.168.1.47'
-# app.config['MYSQL_PORT'] = '3307'
-# app.config['MYSQL_USER'] = 'plc'
-# app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
-# app.config['MYSQL_DATABASE'] = 'tower_test'
-# app.secret_key = 'password74320'
-
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = '192.168.1.107'
-app.config['MYSQL_PORT'] = '3306'
+app.config['MYSQL_HOST'] = '192.168.1.47'
+app.config['MYSQL_PORT'] = '3307'
 app.config['MYSQL_USER'] = 'plc'
 app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
-app.config['MYSQL_DATABASE'] = 'tower'
+app.config['MYSQL_DATABASE'] = 'tower_test'
 app.secret_key = 'password74320'
+
+# app = Flask(__name__)
+# app.config['MYSQL_HOST'] = '192.168.1.107'
+# app.config['MYSQL_PORT'] = '3306'
+# app.config['MYSQL_USER'] = 'plc'
+# app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
+# app.config['MYSQL_DATABASE'] = 'tower'
+# app.secret_key = 'password74320'
 
 # Upload pliku
 UPLOAD_FOLDER = 'uploads'
@@ -3612,7 +3612,7 @@ def save_open_orders_mes_to_mysql(from_date, to_date):
         EXEC dbo.OpenOrdersMES
             @FromDate = ?,
             @ToDate = ?,
-            @UserID = NULL
+            @LinePerUnit = 1;
     """, from_date, to_date)
 
     while cur.description is None:

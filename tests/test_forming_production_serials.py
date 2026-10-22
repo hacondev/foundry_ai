@@ -71,7 +71,7 @@ class ProductionSerialTests(unittest.TestCase):
                 if tag in ('th','td'): self.rows[-1]+=1
                 self.ids.extend(value for key,value in attrs if key=='id')
         parser=Parser(); parser.feed(html)
-        self.assertEqual(parser.rows,[26,26,26,26,26])
+        self.assertEqual(parser.rows,[25,25,25,25,25])
         self.assertEqual(len(parser.ids),len(set(parser.ids)))
         self.assertIn('X-101',html)
         self.assertIn('X-102',html)
