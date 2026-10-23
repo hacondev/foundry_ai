@@ -8647,6 +8647,13 @@ def move_to_buffer2():
         return redirect(url_for('forming'))  
 
 # DODAWANIE DO LISTY FORMOWANIA LINIA AUTOMATYCZNA - PANEL ADMINA 
+def sprawdz_liczbe_wykonan(liczba_wykonan, limit, nazwa_funkcji):
+    if liczba_wykonan > limit:
+        flash(f"Nieprawidłowe wywołanie {nazwa_funkcji}()")
+        return False
+    return True
+
+
 @app.route("/add_to_forming_list", methods=['POST'])
 def add_to_forming_list():
      if not g.user:
@@ -8718,6 +8725,8 @@ def add_to_forming_list():
              return redirect(url_for('id_model_error'))
 
          for n in range(q):
+             if not sprawdz_liczbe_wykonan(n + 1, q, "add_to_forming_list"):
+                 return redirect(url_for('forming'))
              add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
              produkt_id = str(get_produkt_id('new')['id'])
              formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -8805,6 +8814,8 @@ def add_to_forming_list_from_production_orders():
             id=64
 
             for n in range(ilosc_form):
+                if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                    return redirect(url_for('forming'))
                 add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
                 produkt_id = str(get_produkt_id('new')['id'])
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -8878,6 +8889,8 @@ def add_to_forming_list_from_production_orders():
             id=67
 
             for n in range(ilosc_form):
+                if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                    return redirect(url_for('forming'))
                 add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
                 produkt_id = str(get_produkt_id('new')['id'])
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -8958,6 +8971,8 @@ def add_to_forming_list_from_production_orders():
             id=64
 
             for n in range(ilosc_form):
+                if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                    return redirect(url_for('forming'))
                 add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
                 produkt_id = str(get_produkt_id('new')['id'])
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -9031,6 +9046,8 @@ def add_to_forming_list_from_production_orders():
             id=65
 
             for n in range(ilosc_form):
+                if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                    return redirect(url_for('forming'))
                 add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
                 produkt_id = str(get_produkt_id('new')['id'])
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -9111,6 +9128,8 @@ def add_to_forming_list_from_production_orders():
             id=66
 
             for n in range(ilosc_form):
+                if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                    return redirect(url_for('forming'))
                 add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
                 produkt_id = str(get_produkt_id('new')['id'])
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -9183,6 +9202,8 @@ def add_to_forming_list_from_production_orders():
 
             id=68
             for n in range(ilosc_form):
+                if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                    return redirect(url_for('forming'))
                 add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
                 produkt_id = str(get_produkt_id('new')['id'])
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -9262,6 +9283,8 @@ def add_to_forming_list_from_production_orders():
             id=64
 
             for n in range(ilosc_form):
+                if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                    return redirect(url_for('forming'))
                 add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
                 produkt_id = str(get_produkt_id('new')['id'])
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -9335,6 +9358,8 @@ def add_to_forming_list_from_production_orders():
             id=67
 
             for n in range(ilosc_form):
+                if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                    return redirect(url_for('forming'))
                 add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
                 produkt_id = str(get_produkt_id('new')['id'])
                 formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
@@ -9427,6 +9452,8 @@ def add_to_forming_list_from_production_orders():
 
 
         for n in range(ilosc_form):
+            if not sprawdz_liczbe_wykonan(n + 1, ilosc_form, "add_to_forming_list_production_orders"):
+                return redirect(url_for('forming'))
             add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
             produkt_id = str(get_produkt_id('new')['id'])
             formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
