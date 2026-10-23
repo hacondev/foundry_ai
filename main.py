@@ -8741,7 +8741,7 @@ def add_to_forming_list_from_production_orders():
             # Dodanie produktu id=64 i id=67
             # ------------------------------------------
             unique_id_po = request.form['unique_id']
-            quantity = 1
+            quantity = int(request.form['quantity_po'])
 
             query = "SELECT * FROM produkty WHERE produkt_id=64"
             produkt_data = query_db(query)
@@ -8763,6 +8763,8 @@ def add_to_forming_list_from_production_orders():
                 id_model4 = 'NULL'
             sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+            ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+            ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
             czas_studzenia = str(produkt_data[0]['czas_studzenia'])
             skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -8802,12 +8804,13 @@ def add_to_forming_list_from_production_orders():
 
             id=64
 
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
-            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
-            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-            history(produkt_id, 'new', user)
+            for n in range(ilosc_form):
+                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+                produkt_id = str(get_produkt_id('new')['id'])
+                formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+                nadaj_nr_seryjny(id)
+                add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+                history(produkt_id, 'new', user)
 
             # ------------------------------------------
             # Dodanie id=67
@@ -8833,6 +8836,8 @@ def add_to_forming_list_from_production_orders():
                 id_model4 = 'NULL'
             sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+            ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+            ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
             czas_studzenia = str(produkt_data[0]['czas_studzenia'])
             skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -8872,12 +8877,13 @@ def add_to_forming_list_from_production_orders():
 
             id=67
 
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
-            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
-            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-            history(produkt_id, 'new', user)
+            for n in range(ilosc_form):
+                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+                produkt_id = str(get_produkt_id('new')['id'])
+                formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+                nadaj_nr_seryjny(id)
+                add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+                history(produkt_id, 'new', user)
 
             return redirect(url_for('forming'))
 
@@ -8887,7 +8893,7 @@ def add_to_forming_list_from_production_orders():
             # ------------------------------------------
             print("705638 -> produkty: 64 i 65")
             unique_id_po = request.form['unique_id']
-            quantity = 1
+            quantity = int(request.form['quantity_po'])
 
             query = "SELECT * FROM produkty WHERE produkt_id=64"
             produkt_data = query_db(query)
@@ -8909,6 +8915,8 @@ def add_to_forming_list_from_production_orders():
                 id_model4 = 'NULL'
             sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+            ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+            ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
             czas_studzenia = str(produkt_data[0]['czas_studzenia'])
             skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -8949,12 +8957,13 @@ def add_to_forming_list_from_production_orders():
 
             id=64
 
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
-            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
-            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-            history(produkt_id, 'new', user)
+            for n in range(ilosc_form):
+                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+                produkt_id = str(get_produkt_id('new')['id'])
+                formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+                nadaj_nr_seryjny(id)
+                add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+                history(produkt_id, 'new', user)
 
             # ------------------------------------------
             # Dodanie produktu id=65
@@ -8979,6 +8988,8 @@ def add_to_forming_list_from_production_orders():
                 id_model4 = 'NULL'
             sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+            ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+            ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
             czas_studzenia = str(produkt_data[0]['czas_studzenia'])
             skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -9019,12 +9030,13 @@ def add_to_forming_list_from_production_orders():
 
             id=65
 
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
-            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
-            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-            history(produkt_id, 'new', user)
+            for n in range(ilosc_form):
+                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+                produkt_id = str(get_produkt_id('new')['id'])
+                formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+                nadaj_nr_seryjny(id)
+                add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+                history(produkt_id, 'new', user)
 
             return redirect(url_for('forming'))
 
@@ -9034,7 +9046,7 @@ def add_to_forming_list_from_production_orders():
             # Dodanie produktu id=66 i id=68
             # ------------------------------------------
             unique_id_po = request.form['unique_id']
-            quantity = 1
+            quantity = int(request.form['quantity_po'])
 
             query = "SELECT * FROM produkty WHERE produkt_id=66"
             produkt_data = query_db(query)
@@ -9056,6 +9068,8 @@ def add_to_forming_list_from_production_orders():
                 id_model4 = 'NULL'
             sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+            ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+            ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
             czas_studzenia = str(produkt_data[0]['czas_studzenia'])
             skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -9096,12 +9110,13 @@ def add_to_forming_list_from_production_orders():
 
             id=66
 
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
-            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
-            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-            history(produkt_id, 'new', user)
+            for n in range(ilosc_form):
+                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+                produkt_id = str(get_produkt_id('new')['id'])
+                formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+                nadaj_nr_seryjny(id)
+                add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+                history(produkt_id, 'new', user)
 
             # ------------------------------------------
             # Dodanie produktu id=68
@@ -9126,6 +9141,8 @@ def add_to_forming_list_from_production_orders():
                 id_model4 = 'NULL'
             sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+            ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+            ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
             czas_studzenia = str(produkt_data[0]['czas_studzenia'])
             skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -9165,12 +9182,13 @@ def add_to_forming_list_from_production_orders():
                 return redirect(url_for('id_model_error'))
 
             id=68
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
-            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
-            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-            history(produkt_id, 'new', user)
+            for n in range(ilosc_form):
+                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+                produkt_id = str(get_produkt_id('new')['id'])
+                formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+                nadaj_nr_seryjny(id)
+                add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+                history(produkt_id, 'new', user)
 
             return redirect(url_for('forming'))
 
@@ -9179,7 +9197,7 @@ def add_to_forming_list_from_production_orders():
             # Dodanie produktu id=64 i id=67
             # ------------------------------------------
             unique_id_po = request.form['unique_id']
-            quantity = 1
+            quantity = int(request.form['quantity_po'])
 
             query = "SELECT * FROM produkty WHERE produkt_id=64"
             produkt_data = query_db(query)
@@ -9201,6 +9219,8 @@ def add_to_forming_list_from_production_orders():
                 id_model4 = 'NULL'
             sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+            ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+            ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
             czas_studzenia = str(produkt_data[0]['czas_studzenia'])
             skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -9241,12 +9261,13 @@ def add_to_forming_list_from_production_orders():
 
             id=64
 
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
-            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
-            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-            history(produkt_id, 'new', user)
+            for n in range(ilosc_form):
+                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+                produkt_id = str(get_produkt_id('new')['id'])
+                formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+                nadaj_nr_seryjny(id)
+                add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+                history(produkt_id, 'new', user)
 
             # ------------------------------------------
             # Dodanie produktu id=67
@@ -9271,6 +9292,8 @@ def add_to_forming_list_from_production_orders():
                 id_model4 = 'NULL'
             sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+            ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+            ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
             czas_studzenia = str(produkt_data[0]['czas_studzenia'])
             skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -9311,12 +9334,13 @@ def add_to_forming_list_from_production_orders():
 
             id=67
 
-            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-            produkt_id = str(get_produkt_id('new')['id'])
-            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-            nadaj_nr_seryjny(id)
-            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-            history(produkt_id, 'new', user)
+            for n in range(ilosc_form):
+                add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+                produkt_id = str(get_produkt_id('new')['id'])
+                formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+                nadaj_nr_seryjny(id)
+                add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+                history(produkt_id, 'new', user)
 
             return redirect(url_for('forming'))
 
@@ -9329,7 +9353,7 @@ def add_to_forming_list_from_production_orders():
                 unique_id_po = request.form['unique_id']
                 nazwa = request.form['nazwa_odlew']
                 id = int(request.form['index_odlew'])
-                quantity = 1
+                quantity = int(request.form['quantity_po'])
 
                 print('Uniqe id:', unique_id_po)
                 print('Nazwa:', nazwa)
@@ -9361,6 +9385,8 @@ def add_to_forming_list_from_production_orders():
             id_model4 = 'NULL'
         sztuk_na_model = str(produkt_data[0]['sztuk'])
 
+        ilosc_form_do_zasypania = int(quantity) / int(sztuk_na_model)
+        ilosc_form = int(ilosc_form_do_zasypania) if ilosc_form_do_zasypania.is_integer() else int(ilosc_form_do_zasypania) + 1
 
         czas_studzenia = str(produkt_data[0]['czas_studzenia'])
         skrzynia1 = str(produkt_data[0]['skrzynia1'])
@@ -9400,12 +9426,13 @@ def add_to_forming_list_from_production_orders():
             return redirect(url_for('id_model_error'))
 
 
-        add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
-        produkt_id = str(get_produkt_id('new')['id'])
-        formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
-        nadaj_nr_seryjny(id)
-        add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
-        history(produkt_id, 'new', user)
+        for n in range(ilosc_form):
+            add_item_to_forming_list(str(id), id_model1, id_model2, id_model3, id_model4, sztuk_na_model, skrzynia1, skrzynia2, skrzynia3, skrzynia4, nazwa_produktu, prefix, dni_do_wybicia, czas_studzenia, item_status, komentarz, user, trail)
+            produkt_id = str(get_produkt_id('new')['id'])
+            formy_do_zasypania(produkt_id, id, query_model_names, prefix, session["user"])
+            nadaj_nr_seryjny(id)
+            add_sn_based_on_forms_production_orders(produkt_id, unique_id_po)
+            history(produkt_id, 'new', user)
 
         return redirect(url_for('forming'))
 
