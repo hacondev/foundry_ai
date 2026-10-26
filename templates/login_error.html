@@ -43,42 +43,42 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link active" href="/forming">
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} active{% endif %}" href="/forming"{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Skrzynie do zasypania
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/cores">
+              <a class="nav-link{% if request.path.rstrip('/') == '/cores' or request.path.startswith('/cores/') %} active{% endif %}" href="/cores"{% if request.path.rstrip('/') == '/cores' or request.path.startswith('/cores/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Skrzynie zasypane
               </a>
             <li class="nav-item">
-              <a class="nav-link" href="/foundry">
+              <a class="nav-link{% if request.path.rstrip('/') == '/foundry' or request.path.startswith('/foundry/') %} active{% endif %}" href="/foundry"{% if request.path.rstrip('/') == '/foundry' or request.path.startswith('/foundry/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy do zalania
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/cooling">
+              <a class="nav-link{% if request.path.rstrip('/') == '/cooling' or request.path.startswith('/cooling/') %} active{% endif %}" href="/cooling"{% if request.path.rstrip('/') == '/cooling' or request.path.startswith('/cooling/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy zalane
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/knockout">
+              <a class="nav-link{% if request.path.rstrip('/') == '/knockout' or request.path.startswith('/knockout/') %} active{% endif %}" href="/knockout"{% if request.path.rstrip('/') == '/knockout' or request.path.startswith('/knockout/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy do wybicia
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/grinding">
+              <a class="nav-link{% if request.path.rstrip('/') == '/grinding' or request.path.startswith('/grinding/') %} active{% endif %}" href="/grinding"{% if request.path.rstrip('/') == '/grinding' or request.path.startswith('/grinding/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy wybite
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/products">
+              <a class="nav-link{% if request.path.rstrip('/') == '/products' or request.path.startswith('/products/') or request.path.startswith('/product_details/') or request.path.startswith('/product_details_operator/') or request.path.startswith('/product_details_operator_man/') or request.path.startswith('/product_fp_materials/') %} active{% endif %}" href="/products"{% if request.path.rstrip('/') == '/products' or request.path.startswith('/products/') or request.path.startswith('/product_details/') or request.path.startswith('/product_details_operator/') or request.path.startswith('/product_details_operator_man/') or request.path.startswith('/product_fp_materials/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Produkty
               </a>

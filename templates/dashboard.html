@@ -72,30 +72,30 @@
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link active" href="\logout" onClick="window.location.reload()" style="color: white;">
+              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: white;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
                 Log out 
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link active sidebar-section" href="/forming" style="color: rgb(197, 180, 180);">
+              <a class="nav-link sidebar-section" href="/forming" style="color: rgb(197, 180, 180);">
                 CORE
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link active" href="#" onClick="window.location.reload()" style="color: white;">
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} active{% endif %}" href="#" onClick="window.location.reload()" style="color: white;"{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 Production orders
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link active" href="/casting_report" style="color: white;">
+              <a class="nav-link{% if request.path.rstrip('/') == '/casting_report' or request.path.startswith('/casting_report/') %} active{% endif %}" href="/casting_report" style="color: white;"{% if request.path.rstrip('/') == '/casting_report' or request.path.startswith('/casting_report/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 Casting report
               </a>
             </li>
            <li class="nav-item" >
-              <a class="nav-link active" href="/qa_report/Liebherr" style="color: white;">
+              <a class="nav-link{% if request.path.rstrip('/') == '/qa_report/Liebherr' or request.path.startswith('/qa_report/Liebherr/') %} active{% endif %}" href="/qa_report/Liebherr" style="color: white;"{% if request.path.rstrip('/') == '/qa_report/Liebherr' or request.path.startswith('/qa_report/Liebherr/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 QA inspection Liebherr
               </a>
@@ -125,19 +125,19 @@
               </a>
             </li-->
             <li class="nav-item" >
-              <a class="nav-link active" href="/qa_report/Mecalac France" style="color: white;">
+              <a class="nav-link{% if request.path.rstrip('/') == '/qa_report/Mecalac France' or request.path.startswith('/qa_report/Mecalac France/') %} active{% endif %}" href="/qa_report/Mecalac France" style="color: white;"{% if request.path.rstrip('/') == '/qa_report/Mecalac France' or request.path.startswith('/qa_report/Mecalac France/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 QA inspection Mecalac France
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link active" href="/qa_report/Mitsubishi Spain" style="color: white;">
+              <a class="nav-link{% if request.path.rstrip('/') == '/qa_report/Mitsubishi Spain' or request.path.startswith('/qa_report/Mitsubishi Spain/') %} active{% endif %}" href="/qa_report/Mitsubishi Spain" style="color: white;"{% if request.path.rstrip('/') == '/qa_report/Mitsubishi Spain' or request.path.startswith('/qa_report/Mitsubishi Spain/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 QA inspection Mitsubishi Spain
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link active" href="/qa_report/Mitsubishi Finland" style="color: white;">
+              <a class="nav-link{% if request.path.rstrip('/') == '/qa_report/Mitsubishi Finland' or request.path.startswith('/qa_report/Mitsubishi Finland/') %} active{% endif %}" href="/qa_report/Mitsubishi Finland" style="color: white;"{% if request.path.rstrip('/') == '/qa_report/Mitsubishi Finland' or request.path.startswith('/qa_report/Mitsubishi Finland/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 QA inspection Mitsubishi Finland
               </a>

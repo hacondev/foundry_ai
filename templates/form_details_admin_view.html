@@ -43,7 +43,7 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link" href="/forming">
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} active{% endif %}" href="/forming"{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Zlecenia produkcyjne
               </a>

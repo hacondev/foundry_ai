@@ -55,19 +55,19 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link active" href="/grinding">
+              <a class="nav-link{% if request.path.rstrip('/') == '/grinding' or request.path.startswith('/grinding/') %} active{% endif %}" href="/grinding"{% if request.path.rstrip('/') == '/grinding' or request.path.startswith('/grinding/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Odlewy do obróbki
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="/grinding_done">
+              <a class="nav-link{% if request.path.rstrip('/') == '/grinding_done' or request.path.startswith('/grinding_done/') %} active{% endif %}" href="/grinding_done"{% if request.path.rstrip('/') == '/grinding_done' or request.path.startswith('/grinding_done/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Odlewy obrobione
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="/grinding_rework">
+              <a class="nav-link{% if request.path.rstrip('/') == '/grinding_rework' or request.path.startswith('/grinding_rework/') %} active{% endif %}" href="/grinding_rework"{% if request.path.rstrip('/') == '/grinding_rework' or request.path.startswith('/grinding_rework/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Poprawki po obróbce
               </a>

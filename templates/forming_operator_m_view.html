@@ -55,19 +55,19 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link active" href="/forming_operator_m_view">
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming_operator_m_view' or request.path.startswith('/forming_operator_m_view/') %} active{% endif %}" href="/forming_operator_m_view"{% if request.path.rstrip('/') == '/forming_operator_m_view' or request.path.startswith('/forming_operator_m_view/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Lista formowania
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link " href="/forming_operator_m_view4">
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming_operator_m_view4' or request.path.startswith('/forming_operator_m_view4/') %} active{% endif %}" href="/forming_operator_m_view4"{% if request.path.rstrip('/') == '/forming_operator_m_view4' or request.path.startswith('/forming_operator_m_view4/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy zasypane
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/forming_operator_m_view2">
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming_operator_m_view2' or request.path.startswith('/forming_operator_m_view2/') %} active{% endif %}" href="/forming_operator_m_view2"{% if request.path.rstrip('/') == '/forming_operator_m_view2' or request.path.startswith('/forming_operator_m_view2/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy zmontowane
               </a>

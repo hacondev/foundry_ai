@@ -107,7 +107,7 @@
               <span class="sidebar-section">Produkcja</span>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="#" onClick="window.location.reload()" aria-current="page">
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} active{% endif %}" href="#" onClick="window.location.reload()"{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                   class="feather feather-compass">
@@ -118,7 +118,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/products">
+              <a class="nav-link{% if request.path.rstrip('/') == '/products' or request.path.startswith('/products/') or request.path.startswith('/product_details/') or request.path.startswith('/product_details_operator/') or request.path.startswith('/product_details_operator_man/') or request.path.startswith('/product_fp_materials/') %} active{% endif %}" href="/products"{% if request.path.rstrip('/') == '/products' or request.path.startswith('/products/') or request.path.startswith('/product_details/') or request.path.startswith('/product_details_operator/') or request.path.startswith('/product_details_operator_man/') or request.path.startswith('/product_fp_materials/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                   class="feather feather-compass">
@@ -129,7 +129,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/mafi">
+              <a class="nav-link{% if request.path.rstrip('/') == '/mafi' or request.path.startswith('/mafi/') or request.path.startswith('/edit_mafi/') %} active{% endif %}" href="/mafi"{% if request.path.rstrip('/') == '/mafi' or request.path.startswith('/mafi/') or request.path.startswith('/edit_mafi/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                   class="feather feather-compass">
@@ -140,7 +140,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/foundry_report">
+              <a class="nav-link{% if request.path.rstrip('/') == '/foundry_report' or request.path.startswith('/foundry_report/') %} active{% endif %}" href="/foundry_report"{% if request.path.rstrip('/') == '/foundry_report' or request.path.startswith('/foundry_report/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                   class="feather feather-compass">
@@ -151,7 +151,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/foundry_production_status">
+              <a class="nav-link{% if request.path.rstrip('/') == '/foundry_production_status' or request.path.startswith('/foundry_production_status/') %} active{% endif %}" href="/foundry_production_status"{% if request.path.rstrip('/') == '/foundry_production_status' or request.path.startswith('/foundry_production_status/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                   class="feather feather-compass">

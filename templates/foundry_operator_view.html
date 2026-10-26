@@ -43,19 +43,19 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link active" href="/foundry_operator_view">
+              <a class="nav-link{% if request.path.rstrip('/') == '/foundry_operator_view' or request.path.startswith('/foundry_operator_view/') or request.path.startswith('/form_details_foundry_operator/') %} active{% endif %}" href="/foundry_operator_view"{% if request.path.rstrip('/') == '/foundry_operator_view' or request.path.startswith('/foundry_operator_view/') or request.path.startswith('/form_details_foundry_operator/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Odlewnia
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/foundry_operator_view2">
+              <a class="nav-link{% if request.path.rstrip('/') == '/foundry_operator_view2' or request.path.startswith('/foundry_operator_view2/') %} active{% endif %}" href="/foundry_operator_view2"{% if request.path.rstrip('/') == '/foundry_operator_view2' or request.path.startswith('/foundry_operator_view2/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy zalane
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/foundry_operator_view3">
+              <a class="nav-link{% if request.path.rstrip('/') == '/foundry_operator_view3' or request.path.startswith('/foundry_operator_view3/') %} active{% endif %}" href="/foundry_operator_view3"{% if request.path.rstrip('/') == '/foundry_operator_view3' or request.path.startswith('/foundry_operator_view3/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy w trakcie chłodzenia
               </a>

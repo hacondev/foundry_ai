@@ -42,13 +42,13 @@
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="sidebar-sticky pt-3">
           <li class="nav-item">
-            <a class="nav-link active" href="/knockout_operator_view">
+            <a class="nav-link{% if request.path.rstrip('/') == '/knockout_operator_view' or request.path.startswith('/knockout_operator_view/') or request.path.startswith('/form_details_kn_operator/') %} active{% endif %}" href="/knockout_operator_view"{% if request.path.rstrip('/') == '/knockout_operator_view' or request.path.startswith('/knockout_operator_view/') or request.path.startswith('/form_details_kn_operator/') %} aria-current="page"{% endif %}>
               <span data-feather="arrow-right"></span>
               Formy do wybicia
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="/knockout_operator_view2">
+            <a class="nav-link{% if request.path.rstrip('/') == '/knockout_operator_view2' or request.path.startswith('/knockout_operator_view2/') %} active{% endif %}" href="/knockout_operator_view2"{% if request.path.rstrip('/') == '/knockout_operator_view2' or request.path.startswith('/knockout_operator_view2/') %} aria-current="page"{% endif %}>
               <span data-feather="arrow-right"></span>
               Formy wybite
             </a>

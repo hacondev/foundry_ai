@@ -60,7 +60,7 @@
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link" href="\grinding_sheefts" style="color: rgb(197, 180, 180);">
+              <a class="nav-link{% if request.path.rstrip('/') == '/grinding_sheefts' or request.path.startswith('/grinding_sheefts/') or request.path.startswith('/edit_akord/') %} active{% endif %}" href="\grinding_sheefts" style="color: rgb(197, 180, 180);"{% if request.path.rstrip('/') == '/grinding_sheefts' or request.path.startswith('/grinding_sheefts/') or request.path.startswith('/edit_akord/') %} aria-current="page"{% endif %}>
                 Szlifiernia
               </a>
             </li>

@@ -38,13 +38,13 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link active" href="/rfid_tags">
+              <a class="nav-link{% if request.path.rstrip('/') == '/rfid_tags' or request.path.startswith('/rfid_tags/') %} active{% endif %}" href="/rfid_tags"{% if request.path.rstrip('/') == '/rfid_tags' or request.path.startswith('/rfid_tags/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Odczyt tagów RFID
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/tag_frames_search">
+              <a class="nav-link{% if request.path.rstrip('/') == '/tag_frames_search' or request.path.startswith('/tag_frames_search/') %} active{% endif %}" href="/tag_frames_search"{% if request.path.rstrip('/') == '/tag_frames_search' or request.path.startswith('/tag_frames_search/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Edycja tagów RFID
               </a>

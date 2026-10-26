@@ -55,15 +55,15 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link " href="/cores_operator_view">
+              <a class="nav-link{% if request.path.rstrip('/') == '/cores_operator_view' or request.path.startswith('/cores_operator_view/') %} active{% endif %}" href="/cores_operator_view"{% if request.path.rstrip('/') == '/cores_operator_view' or request.path.startswith('/cores_operator_view/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Lista formowania (rdzeniarnia)
               </a>
-              <a class="nav-link active" href="/cores_operator_view2">
+              <a class="nav-link{% if request.path.rstrip('/') == '/cores_operator_view2' or request.path.startswith('/cores_operator_view2/') %} active{% endif %}" href="/cores_operator_view2"{% if request.path.rstrip('/') == '/cores_operator_view2' or request.path.startswith('/cores_operator_view2/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy gotowe
               </a>
-              <a class="nav-link " href="/cores_operator_view3">
+              <a class="nav-link{% if request.path.rstrip('/') == '/cores_operator_view3' or request.path.startswith('/cores_operator_view3/') %} active{% endif %}" href="/cores_operator_view3"{% if request.path.rstrip('/') == '/cores_operator_view3' or request.path.startswith('/cores_operator_view3/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Lista formowania (formiernia)
               </a>

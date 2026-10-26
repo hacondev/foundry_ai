@@ -60,7 +60,7 @@
                 <span data-feather="arrow-right"></span>
                 Formownaie ręczne (odlewnia)
               </a-->
-              <a class="nav-link " href="/forming_operator_m_view4">
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming_operator_m_view4' or request.path.startswith('/forming_operator_m_view4/') %} active{% endif %}" href="/forming_operator_m_view4"{% if request.path.rstrip('/') == '/forming_operator_m_view4' or request.path.startswith('/forming_operator_m_view4/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formy zasypane (Formowaie ręczne)
               </a>

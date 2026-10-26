@@ -30,16 +30,16 @@
             <a class="nav-link sidebar-section" style="color: rgb(197, 180, 180);">INTERFACE</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="/logout" style="color: white;">Log out</a>
+            <a class="nav-link" href="/logout" style="color: white;">Log out</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" style="color: rgb(197, 180, 180);">QUALITY ASSURANCE</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="/quality" style="color: white;">Kontrola jakości</a>
+            <a class="nav-link{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') %} active{% endif %}" href="/quality" style="color: white;"{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') %} aria-current="page"{% endif %}>Kontrola jakości</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="/claims" style="color: white;">Reklamacje</a>
+            <a class="nav-link{% if request.path.rstrip('/') == '/claims' or request.path.startswith('/claims/') or request.path.startswith('/edit_claim/') %} active{% endif %}" href="/claims" style="color: white;"{% if request.path.rstrip('/') == '/claims' or request.path.startswith('/claims/') or request.path.startswith('/edit_claim/') %} aria-current="page"{% endif %}>Reklamacje</a>
           </li>
         </ul>
       </div>
