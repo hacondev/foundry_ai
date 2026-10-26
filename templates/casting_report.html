@@ -70,13 +70,19 @@
             <li class="nav-item" >
               <a class="nav-link{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/claims' or request.path.startswith('/edit_claim/') or request.path.rstrip('/') == '/shipment' or request.path.rstrip('/') == '/search_shipment' or request.path.startswith('/edit_shipment/') %} active{% endif %}" href="/quality" style="color: white;"{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/claims' or request.path.startswith('/edit_claim/') or request.path.rstrip('/') == '/shipment' or request.path.rstrip('/') == '/search_shipment' or request.path.startswith('/edit_shipment/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-                Home
+                Kontrola jakości
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link{% if request.path.rstrip('/') == '/casting_report' or request.path.startswith('/casting_report/') %} active{% endif %}" href="/casting_report" style="color: white;"{% if request.path.rstrip('/') == '/casting_report' or request.path.startswith('/casting_report/') %} aria-current="page"{% endif %}>
+              <a class="nav-link{% if request.path.rstrip('/') == '/casting_report' or request.path.startswith('/casting_report/') or request.path.rstrip('/') in ('/defects_sn', '/defects_to_dispaly') %} active{% endif %}" href="/casting_report" style="color: white;"{% if request.path.rstrip('/') == '/casting_report' or request.path.startswith('/casting_report/') or request.path.rstrip('/') in ('/defects_sn', '/defects_to_dispaly') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 Casting report
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link{% if request.path.rstrip('/') in ('/casting_report_tmp', '/casting_report_tmp_items_to_dispaly', '/seearch_by_sn_cs_temp', '/defects_to_dispaly_cs_tmp') %} active{% endif %}" href="/casting_report_tmp"{% if request.path.rstrip('/') in ('/casting_report_tmp', '/casting_report_tmp_items_to_dispaly', '/seearch_by_sn_cs_temp', '/defects_to_dispaly_cs_tmp') %} aria-current="page"{% endif %}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+                Casting report TMP
               </a>
             </li>
            <!--li class="nav-item" >

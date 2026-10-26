@@ -63,34 +63,24 @@
             <li class="nav-item" >
               <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: white;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
-                Log out 
+                Wyloguj
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
-                QUALITY ASSURANCE
+              <a class="nav-link sidebar-section" href="#" style="color: rgb(197, 180, 180);">
+                CORE
               </a>
             </li>
             <li class="nav-item" >
-              <a class="nav-link{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/claims' or request.path.startswith('/edit_claim/') %} active{% endif %}" href="#" onClick="window.location.reload()" style="color: white;"{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/claims' or request.path.startswith('/edit_claim/') %} aria-current="page"{% endif %}>
+              <a class="nav-link{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') in ('/quality2', '/qa_sn_search') or request.path.startswith('/qa_sn_search_po/') or request.path.rstrip('/') == '/claims' or request.path.startswith('/edit_claim/') %} active{% endif %}" href="#" onClick="window.location.reload()" style="color: white;"{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') in ('/quality2', '/qa_sn_search') or request.path.startswith('/qa_sn_search_po/') or request.path.rstrip('/') == '/claims' or request.path.startswith('/edit_claim/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 Home
-              </a>
-            </li>
-            <li class="nav-item" >
-              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
-                SHIPMENTS
               </a>
             </li>
             <li class="nav-item" >
               <a class="nav-link{% if request.path.rstrip('/') == '/shipment' or request.path.startswith('/shipment/') or request.path.startswith('/edit_shipment/') or request.path.rstrip('/') == '/search_shipment' %} active{% endif %}" href="/shipment" style="color: white;"{% if request.path.rstrip('/') == '/shipment' or request.path.startswith('/shipment/') or request.path.startswith('/edit_shipment/') or request.path.rstrip('/') == '/search_shipment' %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-compass"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 Shipments
-              </a>
-            </li>
-            <li class="nav-item" >
-              <a class="nav-link" href="#" style="color: rgb(197, 180, 180);">
-                GRINDING
               </a>
             </li>
             <li class="nav-item" >
@@ -127,9 +117,10 @@
           </div>
         </div>
 
-        <div class="row">
+
+                <div class="row">
           <div class="col-xl-3 col-md-6">
-             <a href="/qa_report/Liebherr" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">QA inspection Liebherr</a>
+             <a href="/qa_report/Liebherr" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true">QA inspection <br> Liebherr</a>
           </div>
           <div class="col-xl-3 col-md-6">
               <a href="/qa_report/Mecalac France" class="btn btn-secondary btn-lg btn-block" role="button" aria-pressed="true">QA inspection Mecalac France</a>
@@ -146,16 +137,29 @@
 
         <div class="row">
           <div class="col-3">
-             <a href="/casting_report" class="btn btn-danger btn-lg btn-block" role="button" aria-pressed="true">
-              Casting report</a>
+             <a href="/casting_report_tmp" class="btn btn-warning btn-lg btn-block" role="button" aria-pressed="true">Casting report (fast)</a>
+          </div>
+          <div class="col-3">
+             <a href="/casting_report" class="btn btn-outline-warning btn-lg btn-block" role="button" aria-pressed="true">Casting report (slow)</a>
           </div>
           <div class="col-3">
              <a href="/qa_report/Still" class="btn btn-dark btn-lg btn-block" role="button" aria-pressed="true">QA Still Inspection</a>
           </div>
-          <!--div class="col-3">
-             <a href="/defects" class="btn btn-danger btn-lg btn-block" role="button" aria-pressed="true">Braki</a>
-          </div-->
+          <div class="col-3">
+             <a href="/claims" class="btn btn-danger btn-lg btn-block" role="button" aria-pressed="true">Reklamacje</a>
+          </div>
       </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="col-3">
+            <a href="/qa_report/Kion Polska" class="btn btn-success btn-lg btn-block" role="button" aria-pressed="true">QA Kion Polska</a>
+        </div>
+      </div>
+
+
+
         <br>
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
           <h1 class="h2">Historia odlewu</h1>
