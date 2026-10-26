@@ -36,7 +36,7 @@
             <a class="nav-link" style="color: rgb(197, 180, 180);">QUALITY ASSURANCE</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') %} active{% endif %}" href="/quality" style="color: white;"{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') %} aria-current="page"{% endif %}>Kontrola jakości</a>
+            <a class="nav-link{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/shipment' or request.path.rstrip('/') == '/search_shipment' or request.path.startswith('/edit_shipment/') %} active{% endif %}" href="/quality" style="color: white;"{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/shipment' or request.path.rstrip('/') == '/search_shipment' or request.path.startswith('/edit_shipment/') %} aria-current="page"{% endif %}>Kontrola jakości</a>
           </li>
           <li class="nav-item">
             <a class="nav-link{% if request.path.rstrip('/') == '/claims' or request.path.startswith('/claims/') or request.path.startswith('/edit_claim/') %} active{% endif %}" href="/claims" style="color: white;"{% if request.path.rstrip('/') == '/claims' or request.path.startswith('/claims/') or request.path.startswith('/edit_claim/') %} aria-current="page"{% endif %}>Reklamacje</a>

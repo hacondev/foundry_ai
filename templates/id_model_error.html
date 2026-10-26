@@ -43,7 +43,7 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} active{% endif %}" href="/forming"{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') %} aria-current="page"{% endif %}>
+              <a class="nav-link{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') or request.path.rstrip('/') == '/dashboard' %} active{% endif %}" href="/forming"{% if request.path.rstrip('/') == '/forming' or request.path.startswith('/forming/') or request.path.startswith('/form_details_admin_view/') or request.path.startswith('/display_po_item_details/') or request.path.rstrip('/') == '/dashboard' %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Formiernia
               </a>
@@ -84,7 +84,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link{% if request.path.rstrip('/') == '/products' or request.path.startswith('/products/') or request.path.startswith('/product_details/') or request.path.startswith('/product_details_operator/') or request.path.startswith('/product_details_operator_man/') or request.path.startswith('/product_fp_materials/') %} active{% endif %}" href="/products"{% if request.path.rstrip('/') == '/products' or request.path.startswith('/products/') or request.path.startswith('/product_details/') or request.path.startswith('/product_details_operator/') or request.path.startswith('/product_details_operator_man/') or request.path.startswith('/product_fp_materials/') %} aria-current="page"{% endif %}>
+              <a class="nav-link{% if request.path.rstrip('/') == '/products' or request.path.startswith('/products/') or request.path.startswith('/product_details/') or request.path.startswith('/product_details_operator/') or request.path.startswith('/product_details_operator_man/') or request.path.startswith('/product_fp_materials/') or request.path.rstrip('/') == '/patterns' %} active{% endif %}" href="/products"{% if request.path.rstrip('/') == '/products' or request.path.startswith('/products/') or request.path.startswith('/product_details/') or request.path.startswith('/product_details_operator/') or request.path.startswith('/product_details_operator_man/') or request.path.startswith('/product_fp_materials/') or request.path.rstrip('/') == '/patterns' %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Produkty
               </a>

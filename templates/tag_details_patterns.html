@@ -39,7 +39,7 @@
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link{% if request.path.rstrip('/') == '/rfid_tags' or request.path.startswith('/rfid_tags/') %} active{% endif %}" href="/rfid_tags"{% if request.path.rstrip('/') == '/rfid_tags' or request.path.startswith('/rfid_tags/') %} aria-current="page"{% endif %}>
+              <a class="nav-link{% if request.path.rstrip('/') == '/rfid_tags' or request.path.startswith('/rfid_tags/') or request.path.startswith('/rfid/') or request.path.rstrip('/') == '/tag_frame' or request.path.startswith('/tag_add_frame/') or request.path.startswith('/tag_add_pattern/') %} active{% endif %}" href="/rfid_tags"{% if request.path.rstrip('/') == '/rfid_tags' or request.path.startswith('/rfid_tags/') or request.path.startswith('/rfid/') or request.path.rstrip('/') == '/tag_frame' or request.path.startswith('/tag_add_frame/') or request.path.startswith('/tag_add_pattern/') %} aria-current="page"{% endif %}>
                 <span data-feather="arrow-right"></span>
                 Odczyt tagów RFID
               </a>
