@@ -48,7 +48,7 @@
             </a>
           </li-->
           <li class="nav-item">
-            <a class="nav-link{% if request.path.rstrip('/') == '/foundry_operator_view2' or request.path.startswith('/foundry_operator_view2/') %} active{% endif %}" href="/foundry_operator_view2"{% if request.path.rstrip('/') == '/foundry_operator_view2' or request.path.startswith('/foundry_operator_view2/') %} aria-current="page"{% endif %}>
+            <a class="nav-link{% if request.path.rstrip('/') == '/foundry_operator_view2' or request.path.startswith('/foundry_operator_view2/') or request.path.startswith('/form_details_foundry_operator/') %} active{% endif %}" href="/foundry_operator_view2"{% if request.path.rstrip('/') == '/foundry_operator_view2' or request.path.startswith('/foundry_operator_view2/') or request.path.startswith('/form_details_foundry_operator/') %} aria-current="page"{% endif %}>
               <span data-feather="arrow-right"></span>
               Formy zalane
             </a>
