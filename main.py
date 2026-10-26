@@ -6652,7 +6652,7 @@ def del_fp_material(id):
     else:     
         mat_to_del = str(request.form['mat_to_del'])
         mat_to_del = mat_to_del.replace("'", "")
-        query = "DELETE FROM materialy_ogniotrwale_produkty WHERE id=" + str(mat_to_del)
+        query = "DELETE FROM materialy_ogniotrwale_produkty WHERE id=" + str(int(mat_to_del)) + " AND produkt_id=" + str(int(id))
         query_update(query)
         return redirect(url_for("product_details", id=id))
 
