@@ -30,16 +30,19 @@
             <a class="nav-link sidebar-section" style="color: rgb(197, 180, 180);">INTERFACE</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/logout" style="color: white;">Log out</a>
+            <a class="nav-link" href="/logout" style="color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out" aria-hidden="true"><path d="M9 21H4V3h5"/><path d="M14 7l5 5-5 5M8 12h11"/></svg>Log out</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" style="color: rgb(197, 180, 180);">QUALITY ASSURANCE</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/shipment' or request.path.rstrip('/') == '/search_shipment' or request.path.startswith('/edit_shipment/') %} active{% endif %}" href="/quality" style="color: white;"{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/shipment' or request.path.rstrip('/') == '/search_shipment' or request.path.startswith('/edit_shipment/') %} aria-current="page"{% endif %}>Kontrola jakości</a>
+            <a class="nav-link{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/shipment' or request.path.rstrip('/') == '/search_shipment' or request.path.startswith('/edit_shipment/') %} active{% endif %}" href="/quality" style="color: white;"{% if request.path.rstrip('/') == '/quality' or request.path.startswith('/quality/') or request.path.rstrip('/') == '/shipment' or request.path.rstrip('/') == '/search_shipment' or request.path.startswith('/edit_shipment/') %} aria-current="page"{% endif %}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square" aria-hidden="true"><path d="M9 11l3 3L22 4M21 12v8H3V2h13"/></svg>Kontrola jakości</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path.rstrip('/') == '/claims' or request.path.startswith('/claims/') or request.path.startswith('/edit_claim/') %} active{% endif %}" href="/claims" style="color: white;"{% if request.path.rstrip('/') == '/claims' or request.path.startswith('/claims/') or request.path.startswith('/edit_claim/') %} aria-current="page"{% endif %}>Reklamacje</a>
+            <a class="nav-link{% if request.path.rstrip('/') == '/claims' or request.path.startswith('/claims/') or request.path.startswith('/edit_claim/') %} active{% endif %}" href="/claims" style="color: white;"{% if request.path.rstrip('/') == '/claims' or request.path.startswith('/claims/') or request.path.startswith('/edit_claim/') %} aria-current="page"{% endif %}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-circle" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>Reklamacje</a>
           </li>
         </ul>
       </div>
