@@ -1053,7 +1053,7 @@
                           {% endif %}
                       </td>
                       <td>
-                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#item_{{ loop.index }}">
+                          <button type="button" class="btn btn-primary"{% if item.assigned_sn is not none %} disabled title="Ten rekord ma już przypisany numer seryjny"{% else %} data-toggle="modal" data-target="#item_{{ loop.index }}"{% endif %}>
                               Dodaj
                           </button>
 
