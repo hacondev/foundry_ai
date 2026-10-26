@@ -1,0 +1,57 @@
+/* Shared top bar: keep the existing layout, controls and responsive rules. */
+.navbar.navbar-dark.sticky-top {
+  background-color: #1e293b !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, .16), inset 0 -1px 0 #334155 !important;
+  color: #e2e8f0;
+}
+
+.navbar.navbar-dark.sticky-top .navbar-brand {
+  background-color: #1e293b;
+  box-shadow: inset -1px 0 0 #334155;
+  color: #cbd5e1;
+}
+
+.navbar.navbar-dark.sticky-top .navbar-brand b,
+.navbar.navbar-dark.sticky-top .navbar-brand strong {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.navbar.navbar-dark.sticky-top .nav-link { color: #cbd5e1; }
+.navbar.navbar-dark.sticky-top .nav-link:hover,
+.navbar.navbar-dark.sticky-top .nav-link.active { color: #fff; }
+
+.navbar.navbar-dark.sticky-top .navbar-toggler {
+  border-color: #64748b;
+  border-radius: 6px;
+  color: #e2e8f0;
+}
+
+.navbar.navbar-dark.sticky-top .navbar-toggler:hover { background-color: #334155; }
+.navbar.navbar-dark.sticky-top .btn { border-radius: 6px; }
+.navbar.navbar-dark.sticky-top .btn-outline-light {
+  border-color: #64748b;
+  color: #e2e8f0;
+}
+.navbar.navbar-dark.sticky-top .btn-outline-light:hover {
+  border-color: #93c5fd;
+  background-color: #1e3a5f;
+  color: #fff;
+}
+.navbar.navbar-dark.sticky-top .btn-outline-light:disabled {
+  border-color: #475569;
+  background-color: transparent;
+  color: #94a3b8;
+}
+
+.navbar.navbar-dark.sticky-top .form-control-dark {
+  background-color: #334155;
+  color: #f8fafc;
+}
+.navbar.navbar-dark.sticky-top .form-control-dark::placeholder { color: #cbd5e1; }
+.navbar.navbar-dark.sticky-top a:focus-visible,
+.navbar.navbar-dark.sticky-top button:focus-visible,
+.navbar.navbar-dark.sticky-top input:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: -2px;
+}
