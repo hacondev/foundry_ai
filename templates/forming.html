@@ -888,6 +888,10 @@
                           <input type="checkbox" id="include-undated" class="form-check-input"{% if include_undated %} checked{% endif %}>
                           <label for="include-undated" class="form-check-label">Wyświetl bez daty formowania</label>
                       </div>
+                      <div class="form-check mt-2">
+                          <input type="checkbox" id="show-all-records" class="form-check-input"{% if show_all_records %} checked{% endif %}>
+                          <label for="show-all-records" class="form-check-label">Wyświetl wszystkie rekordy</label>
+                      </div>
                   </div>
               
               </div>
@@ -1324,6 +1328,7 @@ $(document).ready(function () {
         url.searchParams.set('min_date', min.value);
         url.searchParams.set('max_date', max.value);
         url.searchParams.set('include_undated', document.getElementById('include-undated').checked ? '1' : '0');
+        url.searchParams.set('show_all_records', document.getElementById('show-all-records').checked ? '1' : '0');
         url.searchParams.set('tab', 'production-orders');
         if (this.disabled) return;
         $(this).prop('disabled', true).attr('aria-busy', 'true');
