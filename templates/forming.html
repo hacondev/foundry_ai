@@ -22,8 +22,6 @@
       margin: 0 auto;
       padding: 3px 0;
       border-radius: 3px;
-      background-color: #d4edda;
-      color: #155724;
       text-align: center;
   }
   #table_production_orders_wrapper .production-date-column {
@@ -974,14 +972,14 @@
                       <td>{{ production_value(item["data_dostawy"], date=true) }}</td>
                       <td>
                           {% if item.has_shipment_history and item.data_wysylki %}
-                              <span class="production-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status shipment">{{ production_value(item["data_wysylki"], date=true) }}</span>
+                              <span class="production-formed-date bg-success text-white" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status shipment">{{ production_value(item["data_wysylki"], date=true) }}</span>
                           {% else %}
                               {{ production_value(item["data_wysylki"], date=true) }}
                           {% endif %}
                       </td>
                       <td>
                           {% if item.has_qa_history and item.data_prod %}
-                              <span class="production-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status qa_ok lub qa_nok">{{ production_value(item["data_prod"], date=true) }}</span>
+                              <span class="production-formed-date bg-success text-white" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status qa_ok lub qa_nok">{{ production_value(item["data_prod"], date=true) }}</span>
                           {% else %}
                               {{ production_value(item["data_prod"], date=true) }}
                           {% endif %}
@@ -990,28 +988,28 @@
                       <td>{{ production_value(item["data_obr"], date=true) }}</td> -->
                       <td>
                           {% if item.has_grinding_history and item.data_szlif %}
-                              <span class="production-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status grinding lub grinding-repaired">{{ production_value(item["data_szlif"], date=true) }}</span>
+                              <span class="production-formed-date bg-success text-white" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status grinding lub grinding-repaired">{{ production_value(item["data_szlif"], date=true) }}</span>
                           {% else %}
                               {{ production_value(item["data_szlif"], date=true) }}
                           {% endif %}
                       </td>
                       <td>
                           {% if item.has_knockout_history and item.data_wybij %}
-                              <span class="production-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status knockout">{{ production_value(item["data_wybij"], date=true) }}</span>
+                              <span class="production-formed-date bg-success text-white" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status knockout">{{ production_value(item["data_wybij"], date=true) }}</span>
                           {% else %}
                               {{ production_value(item["data_wybij"], date=true) }}
                           {% endif %}
                       </td>
                       <td>
                           {% if item.data_zalania %}
-                              <span class="production-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status casted">{{ production_value(item.data_zalania, date=true) }}</span>
+                              <span class="production-formed-date bg-success text-white" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status casted">{{ production_value(item.data_zalania, date=true) }}</span>
                           {% else %}
                               --
                           {% endif %}
                       </td>
                       <td>
                           {% if item.has_formed_history and item.data_form %}
-                              <span class="production-formed-date" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status formed">{{ production_value(item["data_form"], date=true) }}</span>
+                              <span class="production-formed-date bg-success text-white" title="Odlew {{ item.assigned_prefix }}-{{ item.assigned_sn }} ma w historii status formed">{{ production_value(item["data_form"], date=true) }}</span>
                           {% else %}
                               {{ production_value(item["data_form"], date=true) }}
                           {% endif %}
