@@ -10322,9 +10322,7 @@ def mark_as_assembled_operator_m_form(id):
         flash(f'Login required.')
         return redirect(url_for('login'))
     else:
-        # komentarz_rdzen = str(request.form['komentarz_rdzen'])
-        # komentarz_rdzen = komentarz_rdzen.replace("'", "")
-        komentarz_rdzen = '-'
+        komentarz_rdzen = request.form.get('komentarz_rdzen', '').replace("'", "").strip() or '-'
         frame1 = 'NULL'
         frame2 = str(request.form['frame2'])
         frame2 = frame2.replace("'", "")

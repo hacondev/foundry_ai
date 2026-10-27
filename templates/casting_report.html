@@ -359,7 +359,7 @@
                 <th>Assambled on</th>
                 <th>Assambled at</th>
                 <th>Assambled by</th>
-                <th>Comment assembly</th>
+                <th>Comment assambling</th>
                 <th>Defect assembly (form)</th>
                 <th>Flooded on</th>
                 <th>Flooded at</th>
@@ -431,7 +431,7 @@
                 <td>{{ item.assambled_on[0:10] }}</td>
                 <td>{{ item.assambled_on[11:19] }}</td>
                 <td>{{ item.assambled_by }}</td>
-                <td>{{ item.assambled_comment }}</td>
+                <td>{{ item.assambled_comment or '-' }}</td>
                 <td>{{ item.defekty_rdzeniarnia }}</td>
                 <td>{{ item.flooded_on[0:10] }}</td>
                 <td>{{ item.flooded_on[11:19] }}</td>

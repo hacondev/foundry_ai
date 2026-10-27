@@ -361,7 +361,7 @@
                 <th>Assambled on</th>
                 <th>Assambled at</th>
                 <th>Assambled by</th>
-                <th>Comment assembly</th>
+                <th>Comment assambling</th>
                 <th>Defect assembly (form)</th>
                 <th>Flooded on</th>
                 <th>Flooded at</th>
@@ -440,7 +440,7 @@
                 <td>{{ assambled.split(' ')[1] }}</td>
 
                 <td>{{ item.assambled_by }}</td>
-                <td> {% if item.assambled_comment  == None %} - {% elif item.assambled_comment == '' %} - {% else %} {{ item.assambled_comment }} {% endif %} </td>
+                <td>{{ item.assambled_comment or '-' }}</td>
                 <td>{{ item.defekty_rdzeniarnia }}</td>
 
                 {% set flooded = item.flooded_on|string %}
