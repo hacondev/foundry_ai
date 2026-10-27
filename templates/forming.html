@@ -1017,7 +1017,12 @@
 
                       <td>
                           {% if item.assigned_sn is not none %}
-                              {% if item.assigned_prefix %}{{ item.assigned_prefix }}-{% endif %}{{ item.assigned_sn }}
+                              {% if item.assigned_prefix and item.assigned_prefix|trim and item.assigned_sn|string|trim %}
+                                  {% set serial = item.assigned_prefix|trim ~ '-' ~ item.assigned_sn|string|trim %}
+                                  <a href="{{ url_for('quality', sn=serial) }}" target="_blank" rel="noopener noreferrer" title="Otwórz historię produktu">{{ serial }}</a>
+                              {% else %}
+                                  {% if item.assigned_prefix %}{{ item.assigned_prefix }}-{% endif %}{{ item.assigned_sn }}
+                              {% endif %}
                           {% else %}
                               --
                           {% endif %}

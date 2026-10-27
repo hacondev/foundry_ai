@@ -5116,14 +5116,15 @@ def grinding_sn():
 @app.route("/qa_sn_search", methods=['POST', 'GET'])
 def qa_sn_search():
 
-    serial = request.form.get('sn')   
+    serial = (request.form.get('sn') if request.method == 'POST' else request.args.get('sn')) or ''
     serial = serial.upper()
-    prefix, numer = serial.split("-")
-    numer = int(numer)
 
     if not is_valid_serial_number(serial):
         flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-        return redirect(request.referrer)
+        return redirect(request.referrer or url_for('quality'))
+
+    prefix, numer = serial.split("-")
+    numer = int(numer)
 
     if cast_removed_by_the_operator(prefix, numer):
         flash(f"Odlew S/N: {prefix}-{numer} został usunięty z formy na etapie skręcania form.")
@@ -6942,6 +6943,8 @@ def quality():
         flash(f'Login required.')
         return redirect(url_for('login'))
     else:
+        if request.args.get('sn'):
+            return qa_sn_search()
         data = {
             "nazwa" : '-',
             "system_id" : '-',
