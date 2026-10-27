@@ -36,9 +36,12 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
-    <ul class="navbar-nav px-3">
-      <li class="nav-item text-nowrap">
-        <!--a class="nav-link active" href="/logout">Sign out</a-->
+    <ul class="navbar-nav ml-auto px-3">
+      <li class="nav-item text-nowrap py-1">
+        <a class="btn btn-outline-light btn-sm" href="/logout" role="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out" aria-hidden="true"><path d="M9 21H4V3h5"/><path d="M14 7l5 5-5 5M8 12h11"/></svg>
+          Wyloguj
+        </a>
       </li>
     </ul>
   </nav>
@@ -48,17 +51,6 @@
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
           <ul class="nav flex-column">
-            <li class="nav-item" >
-              <a class="nav-link sidebar-section" href="#" style="color: rgb(197, 180, 180);">
-                INTERFACE
-              </a>
-            </li>
-            <li class="nav-item" >
-              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: rgb(197, 180, 180);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out" aria-hidden="true"><path d="M9 21H4V3h5"/><path d="M14 7l5 5-5 5M8 12h11"/></svg>
-                Wyloguj 
-              </a>
-            </li>
             <li class="nav-item" >
               <a class="nav-link{% if request.path.rstrip('/') == '/grinding_sheefts' or request.path.startswith('/grinding_sheefts/') or request.path.startswith('/edit_akord/') %} active{% endif %}" href="\grinding_sheefts" style="color: rgb(197, 180, 180);"{% if request.path.rstrip('/') == '/grinding_sheefts' or request.path.startswith('/grinding_sheefts/') or request.path.startswith('/edit_akord/') %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>

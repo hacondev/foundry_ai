@@ -36,12 +36,12 @@
 <body>
 
   <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Logged as: <span class="badge badge-primary">{{ session['user'] }}</span> </a>
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Zalogowany jako: <span class="badge badge-primary">{{ session['user'] }}</span> </a>
     <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
       data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <ul class="navbar-nav ml-auto px-3">
+    <ul class="navbar-nav flex-row align-items-center ml-auto px-3">
       <li class="nav-item text-nowrap py-1">
         <div class="d-inline-flex" role="group" aria-label="Przewijanie tabeli i strony">
           <button type="button" class="btn btn-outline-light btn-sm mr-2" id="casting-scroll-left" aria-label="Przewiń tabelę maksymalnie w lewo" title="Tabela maksymalnie w lewo">&larr;</button>
@@ -49,6 +49,12 @@
           <button type="button" class="btn btn-outline-light btn-sm mr-2" id="casting-scroll-top" aria-label="Przewiń stronę na samą górę" title="Strona na samą górę">&uarr;</button>
           <button type="button" class="btn btn-outline-light btn-sm" id="casting-scroll-bottom" aria-label="Przewiń stronę na sam dół" title="Strona na sam dół">&darr;</button>
         </div>
+      </li>
+      <li class="nav-item text-nowrap py-1 ml-3">
+        <a class="btn btn-outline-light btn-sm" href="/logout" role="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out" aria-hidden="true"><path d="M9 21H4V3h5"/><path d="M14 7l5 5-5 5M8 12h11"/></svg>
+          Wyloguj
+        </a>
       </li>
     </ul>
   </nav>
@@ -58,17 +64,6 @@
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="sidebar-sticky pt-3" style="background-color: #343a40;">
           <ul class="nav flex-column">
-            <li class="nav-item" >
-              <a class="nav-link sidebar-section" href="#" style="color: rgb(197, 180, 180);">
-                INTERFACE
-              </a>
-            </li>
-            <li class="nav-item" >
-              <a class="nav-link" href="\logout" onClick="window.location.reload()" style="color: white;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out" aria-hidden="true"><path d="M9 21H4V3h5"/><path d="M14 7l5 5-5 5M8 12h11"/></svg>
-                Log out 
-              </a>
-            </li>
             <li class="nav-item" >
               <a class="nav-link sidebar-section" href="/forming" style="color: rgb(197, 180, 180);">
                 CORE

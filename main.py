@@ -4889,8 +4889,6 @@ def edit_claim(serial):
         except (IndexError, KeyError):
             flash(f"Błąd podczas pobierania ID reklamacji dla numeru seryjnego: {serial}")
             return redirect(request.referrer)
-        
-        print(claim)
 
         attachments = query_db("SELECT * FROM attachements_claims WHERE prefix='" + prefix + "' AND sn=" + str(sn))
         return render_template("edit_claim.html", serial=serial, product=product, customer=customer, attachments=attachments, claim=claim)
