@@ -2889,7 +2889,9 @@ def generete_serials(id):
             if value is not None:
                 result.append(value)
     
-    marker = next(x for x in result if not isinstance(x, (int, float)))
+    marker = next((x for x in result if not isinstance(x, (int, float))), None)
+    if marker is None:
+        return []
     numbers = sorted({str(x) for x in result if isinstance(x, (int, float))})
     serials = [[marker, num] for num in numbers]
     for i in serials:
