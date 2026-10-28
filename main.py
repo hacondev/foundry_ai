@@ -3785,19 +3785,6 @@ def logout_office():
 @login_required(mode='biuro')
 @ip_required('192.168.1.0/24', '192.168.170.0/24', '192.168.130.0/24')
 def forming():
-    today = datetime.date.today()
-    include_undated = request.args.get('include_undated') == '1'
-    show_all_records = request.args.get('show_all_records') == '1'
-    try:
-        min_value = request.args.get('min_date', (today - timedelta(days=7)).isoformat())
-        max_value = request.args.get('max_date', (today + timedelta(days=21)).isoformat())
-        min_date = datetime.date.fromisoformat(min_value) if min_value else None
-        max_date = datetime.date.fromisoformat(max_value) if max_value else None
-        if min_date and max_date and min_date > max_date:
-            raise ValueError('Reversed range')
-        end_date = max_date + timedelta(days=1) if max_date else None
-    except (ValueError, OverflowError):
-        abort(400, description='Nieprawidłowy zakres dat formowania.')
     query1="""
         SELECT
             *
@@ -3845,6 +3832,23 @@ def forming():
 
     date_minus, date_plus = get_shifted_dates(7, 30)
     # sql = f"SELECT DISTINCT tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew FROM open_orders_sap tab1 JOIN sap_mes_relation tab2 ON tab1.item_index = tab2.item_index WHERE data_prod BETWEEN '{date_minus}' AND '{date_plus}' ORDER BY tab1.data_prod DESC"
+    return render_template("forming.html", items=nowe, products=query2, repeated=repeated,
+                           **get_production_orders_context())
+
+def get_production_orders_context():
+    today = datetime.date.today()
+    include_undated = request.args.get('include_undated') == '1'
+    show_all_records = request.args.get('show_all_records') == '1'
+    try:
+        min_value = request.args.get('min_date', (today - timedelta(days=7)).isoformat())
+        max_value = request.args.get('max_date', (today + timedelta(days=21)).isoformat())
+        min_date = datetime.date.fromisoformat(min_value) if min_value else None
+        max_date = datetime.date.fromisoformat(max_value) if max_value else None
+        if min_date and max_date and min_date > max_date:
+            raise ValueError('Reversed range')
+        end_date = max_date + timedelta(days=1) if max_date else None
+    except (ValueError, OverflowError):
+        abort(400, description='Nieprawidłowy zakres dat formowania.')
     # Rank before date filtering so each order row keeps the same serial.
     sql = f"SELECT tab1.id AS production_order_id, tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew, sn.id AS assigned_serial_id, sn.prefix AS assigned_prefix, sn.sn AS assigned_sn, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'formed' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_formed_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'knockout' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_knockout_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('grinding', 'grinding-repaired') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_grinding_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('qa_ok', 'qa_nok') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_qa_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'shipment' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_shipment_history, (SELECT MAX(history.czas) FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'casted' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS data_zalania FROM (SELECT orders.*, ROW_NUMBER() OVER (PARTITION BY unique_id ORDER BY id) AS serial_position FROM open_orders_sap orders) tab1 LEFT JOIN (SELECT relation.*, ROW_NUMBER() OVER (PARTITION BY item_index ORDER BY index_odlew, nazwa_odlew) AS relation_position FROM sap_mes_relation relation) tab2 ON tab1.item_index = tab2.item_index AND tab2.relation_position = 1 LEFT JOIN (SELECT serials.*, ROW_NUMBER() OVER (PARTITION BY mes_po_id ORDER BY id) AS serial_position FROM lista_formowania_sn serials WHERE serials.sn IS NOT NULL) sn ON sn.mes_po_id = tab1.unique_id AND sn.serial_position = tab1.serial_position ORDER BY tab1.data_prod DESC"
     if not show_all_records:
@@ -3866,16 +3870,21 @@ def forming():
         production_orders = cursor.fetchall()
     finally:
         cursor.close()
-    #production_orders = query_db("SELECT tab1.*, tab2.*, tab3.prefix, tab3.sn FROM open_orders_sap tab1 JOIN sap_mes_relation tab2 ON tab1.item_index = tab2.item_index RIGHT JOIN lista_formowania_sn tab3 ON tab3.mes_po_id = tab1.unique_id ORDER BY tab1.data_prod DESC;")
     update_time = query_db("SELECT MAX(updated_at) AS updated_at FROM open_orders_sap")
     try:
         update_time=update_time[0]['updated_at']
     except IndexError:
         update_time =  '1970-01-01 00:00:00'
-    return render_template("forming.html", items=nowe, products=query2, repeated=repeated, production_orders=production_orders, update_time=update_time,
+    return dict(production_orders=production_orders, update_time=update_time,
                            min_forming_date=min_date.isoformat() if min_date else '',
                            max_forming_date=max_date.isoformat() if max_date else '',
                            include_undated=include_undated, show_all_records=show_all_records)
+
+@app.route("/production_orders", methods=['GET'])
+@login_required()
+def production_orders():
+    return render_template("production_orders.html", **get_production_orders_context())
+
 
 @app.route("/display_po_item_details/<id>", methods=['GET'])
 def display_po_item_details(id):

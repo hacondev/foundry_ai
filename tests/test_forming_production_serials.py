@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class ProductionSerialTests(unittest.TestCase):
     def test_order_expands_to_one_row_per_assigned_serial(self):
         tree = ast.parse((ROOT / 'main.py').read_text(encoding='utf-8'))
-        forming = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'forming')
+        forming = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'get_production_orders_context')
         assignment = next(n for n in forming.body if isinstance(n, ast.Assign)
                           and any(isinstance(t, ast.Name) and t.id == 'sql' for t in n.targets))
         sql = ''.join(part.value for part in assignment.value.values)

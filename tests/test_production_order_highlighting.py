@@ -13,7 +13,7 @@ class ProductionOrderHighlightingTests(unittest.TestCase):
         """Execute only query construction, including the current date filters."""
         source = Path(__file__).resolve().parents[1].joinpath('main.py').read_text(encoding='utf-8')
         forming = next(n for n in ast.parse(source).body
-                       if isinstance(n, ast.FunctionDef) and n.name == 'forming')
+                       if isinstance(n, ast.FunctionDef) and n.name == 'get_production_orders_context')
         start = next(index for index, node in enumerate(forming.body)
                      if isinstance(node, ast.Assign)
                      and any(isinstance(t, ast.Name) and t.id == 'sql' for t in node.targets))
