@@ -73,8 +73,16 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <!--input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"-->
-    <ul class="navbar-nav ml-auto px-3">
+    <ul class="navbar-nav flex-row align-items-center ml-auto px-3">
       <li class="nav-item text-nowrap py-1">
+        <div class="d-inline-flex" role="group" aria-label="Przewijanie tabeli i strony">
+          <button type="button" class="btn btn-outline-light btn-sm mr-2" id="forming-scroll-left" aria-label="Przewiń tabelę maksymalnie w lewo" title="Tabela maksymalnie w lewo">&larr;</button>
+          <button type="button" class="btn btn-outline-light btn-sm mr-2" id="forming-scroll-right" aria-label="Przewiń tabelę maksymalnie w prawo" title="Tabela maksymalnie w prawo">&rarr;</button>
+          <button type="button" class="btn btn-outline-light btn-sm mr-2" id="forming-scroll-top" aria-label="Przewiń stronę na samą górę" title="Strona na samą górę">&uarr;</button>
+          <button type="button" class="btn btn-outline-light btn-sm" id="forming-scroll-bottom" aria-label="Przewiń stronę na sam dół" title="Strona na sam dół">&darr;</button>
+        </div>
+      </li>
+      <li class="nav-item text-nowrap py-1 ml-3">
         <a class="btn btn-outline-light btn-sm" href="/logout" role="button">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out" aria-hidden="true"><path d="M9 21H4V3h5"/><path d="M14 7l5 5-5 5M8 12h11"/></svg>
           Wyloguj
@@ -130,19 +138,20 @@
 
         <div class="row">
           <!-- Pierwszy blok: Aktualizacja -->
-          <div class="col-md-6" >
-              <div class="card mb-3" style="height: 175px;" >
+          <div class="col-md-6 d-flex mb-3">
+              <div class="card w-100" style="min-height: 175px;">
                   <div class="card-header">Aktualizacja danych</div>
                   <div class="card-body">
                       <p>Ostatnia aktualizacja danych: <strong>{{ update_time }}</strong></p>
+                      <a href="{{ url_for('update_production_orders') }}" class="btn btn-info">Aktualizuj</a>
 
                   </div>
               </div>
           </div>
 
           <!-- Drugi blok: Filtr daty -->
-          <div class="col-md-6">
-              <div class="card mb-3" style="min-height: 175px;">
+          <div class="col-md-6 d-flex mb-3">
+              <div class="card w-100" style="min-height: 175px;">
                   <div class="card-header">Filtr daty formowania</div>
                   <div class="card-body">
                       <div class="row">
@@ -158,13 +167,15 @@
                               <button type="button" id="filter-production-orders" class="btn btn-primary">Filtruj</button>
                           </div>
                       </div>
-                      <div class="form-check mt-2">
-                          <input type="checkbox" id="include-undated" class="form-check-input"{% if include_undated %} checked{% endif %}>
-                          <label for="include-undated" class="form-check-label">Wyświetl bez daty formowania</label>
-                      </div>
-                      <div class="form-check mt-2">
-                          <input type="checkbox" id="show-all-records" class="form-check-input"{% if show_all_records %} checked{% endif %}>
-                          <label for="show-all-records" class="form-check-label">Wyświetl wszystkie rekordy</label>
+                      <div class="d-flex flex-wrap mt-2">
+                          <div class="form-check mr-4">
+                              <input type="checkbox" id="show-all-records" class="form-check-input"{% if show_all_records %} checked{% endif %}>
+                              <label for="show-all-records" class="form-check-label">Wyświetl wszystkie rekordy</label>
+                          </div>
+                          <div class="form-check">
+                              <input type="checkbox" id="include-undated" class="form-check-input"{% if include_undated %} checked{% endif %}>
+                              <label for="include-undated" class="form-check-label">Wyświetl bez daty formowania</label>
+                          </div>
                       </div>
                   </div>
               
