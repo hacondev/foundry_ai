@@ -32,9 +32,12 @@ class ProductionSerialTests(unittest.TestCase):
                     (2,'198-30387-127','SK',7693,10),
                     (3,'198-30387-127','SK',7694,11),
                     (4,'198-30387-127','SK',7695,11),
-                    (5,'OTHER','SK',7696,12);
+                    (5,'OTHER','SK',7696,12),
+                    (6,'198-30387-127','SK',7697,13);
             ''')
+            db.execute("ALTER TABLE lista_formowania_sn ADD COLUMN canceled INTEGER DEFAULT 0")
             db.row_factory = sqlite3.Row
+            db.execute("UPDATE lista_formowania_sn SET canceled = 1 WHERE sn = 7697")
             rows = db.execute(sql).fetchall()
         self.assertEqual(len(rows), 4)
         self.assertEqual({r['assigned_sn'] for r in rows}, {7692, 7693, 7694, 7695})
@@ -66,6 +69,7 @@ class ProductionSerialTests(unittest.TestCase):
                     (10,'casted','X',101,'2026-10-21 13:00:00'),
                     (10,'casted','OTHER',102,'2026-10-22 14:00:00');
             ''')
+            db.execute("ALTER TABLE lista_formowania_sn ADD COLUMN canceled INTEGER DEFAULT 0")
             db.row_factory = sqlite3.Row
             rows = db.execute(sql).fetchall()
         self.assertEqual(len(rows), 3)

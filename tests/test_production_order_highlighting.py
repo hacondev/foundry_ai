@@ -54,6 +54,7 @@ class ProductionOrderHighlightingTests(unittest.TestCase):
                     (3,'casted','Y',2,'2026-11-04 12:00:00'),
                     (3,'casted','OTHER',1,'2026-11-05 13:00:00');
             ''')
+            db.execute("ALTER TABLE lista_formowania_sn ADD COLUMN canceled INTEGER DEFAULT 0")
             db.row_factory = sqlite3.Row
             rows = {row['production_order_id']: dict(row) for row in db.execute(query, params)}
             db.executescript('''
