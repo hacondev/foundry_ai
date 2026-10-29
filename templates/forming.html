@@ -218,7 +218,7 @@
           <!-- TAB 1 -->
           <div class="tab-pane fade show active pt-3" id="forming-list" role="tabpanel" aria-labelledby="tab-forming-list">
 
-          <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#add_to_forming">
+          <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#add_to_forming" >
             Dodaj do listy formowania
           </button>
 
@@ -233,7 +233,7 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <form action="/add_to_forming_list" method="POST">
+              <form action="/add_to_forming_list_new" method="POST" class="prevent-double-submit">
                 <div class="modal-body">
                   <!-- <div class="form-group">
                     <label for="nazwa">Wybierz produkt</label>
@@ -543,7 +543,7 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <form action="/add_to_forming_list_outline" method="POST">
+              <form action="/add_to_forming_list_from_outline_new" method="POST" class="prevent-double-submit">
                 <div class="modal-body">
                   <!--div class="form-group">
                     <label for="stage">Etap produkcji</label>
@@ -1034,7 +1034,7 @@
                               <div class="modal-dialog">
                                   <div class="modal-content">
 
-                                      <form method="POST" action="/add_to_forming_list_from_production_orders">
+                                      <form method="POST" action="/add_to_forming_list_from_production_orders_new" class="prevent-double-submit">
 
                                       <div class="modal-header">
                                           <h5 class="modal-title">
@@ -1158,7 +1158,7 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <form action="/add_to_forming_list_again" method="POST">
+              <form action="/add_to_forming_list_again_new" method="POST" class="prevent-double-submit">
                 <div class="modal-body">
                   <div class="form-group">
                     <label for="nazwa_again">Wybierz produkt</label>
@@ -1326,6 +1326,34 @@ $(document).ready(function () {
     }
 
 });
+</script>
+<script>
+    // Blokada ponownego wysłania formularza kliknięciem lub Enterem.
+    document.querySelectorAll('form.prevent-double-submit').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            if (this.dataset.submitted === 'true') {
+                e.preventDefault();
+                return;
+            }
+
+            this.dataset.submitted = 'true';
+            this.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function(button) {
+                button.disabled = true;
+                if (button.tagName === 'BUTTON') {
+                    button.textContent = 'Dodawanie…';
+                } else {
+                    button.value = 'Dodawanie…';
+                }
+            });
+        });
+    });
+
+    // Odblokowanie formularzy przy powrocie z pamięci przeglądarki.
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
 </script>
 
 

@@ -11,6 +11,34 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ProductionSerialTests(unittest.TestCase):
+    def test_four_castings_from_two_forms_are_visible_for_one_order(self):
+        tree = ast.parse((ROOT / 'main.py').read_text(encoding='utf-8'))
+        function = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+                        and n.name == 'get_production_orders_context')
+        assignment = next(n for n in function.body if isinstance(n, ast.Assign)
+                          and any(isinstance(t, ast.Name) and t.id == 'sql' for t in n.targets))
+        sql = ''.join(part.value for part in assignment.value.values)
+        with sqlite3.connect(':memory:') as db:
+            for alias, table in [('tab1', 'open_orders_sap'), ('tab2', 'sap_mes_relation')]:
+                fields = sorted(set(re.findall(alias + r'\.(\w+)', sql)) - {'serial_position'})
+                db.execute('CREATE TABLE ' + table + '(' + ','.join(f + ' TEXT' for f in fields) + ')')
+            db.executescript('''
+                CREATE TABLE lista_formowania_sn(id INTEGER, mes_po_id TEXT, prefix TEXT, sn INTEGER, produkt_id INTEGER);
+                CREATE TABLE lista_formowania_historia_v2(produkt_id INTEGER, production_stage TEXT, prefix TEXT, sn INTEGER, czas TEXT);
+                INSERT INTO open_orders_sap(unique_id,item_index) VALUES ('198-30387-127','P');
+                INSERT INTO sap_mes_relation(item_index) VALUES ('P'),('P');
+                INSERT INTO lista_formowania_sn VALUES
+                    (1,'198-30387-127','SK',7692,10),
+                    (2,'198-30387-127','SK',7693,10),
+                    (3,'198-30387-127','SK',7694,11),
+                    (4,'198-30387-127','SK',7695,11),
+                    (5,'OTHER','SK',7696,12);
+            ''')
+            db.row_factory = sqlite3.Row
+            rows = db.execute(sql).fetchall()
+        self.assertEqual(len(rows), 4)
+        self.assertEqual({r['assigned_sn'] for r in rows}, {7692, 7693, 7694, 7695})
+
     def test_order_expands_to_one_row_per_assigned_serial(self):
         tree = ast.parse((ROOT / 'main.py').read_text(encoding='utf-8'))
         forming = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'get_production_orders_context')
@@ -19,7 +47,7 @@ class ProductionSerialTests(unittest.TestCase):
         sql = ''.join(part.value for part in assignment.value.values)
         with sqlite3.connect(':memory:') as db:
             for alias, table in [('tab1', 'open_orders_sap'), ('tab2', 'sap_mes_relation')]:
-                fields = sorted(set(re.findall(alias + r'\.(\w+)', sql)))
+                fields = sorted(set(re.findall(alias + r'\.(\w+)', sql)) - {'serial_position'})
                 db.execute('CREATE TABLE ' + table + '(' + ','.join(f + ' TEXT' for f in fields) + ')')
             db.executescript('''
                 CREATE TABLE lista_formowania_sn(id INTEGER, mes_po_id TEXT, prefix TEXT, sn INTEGER, produkt_id INTEGER);
@@ -63,7 +91,9 @@ class ProductionSerialTests(unittest.TestCase):
         end = source.index('</table>', start)
         items = [defaultdict(lambda: None, unique_id='A', assigned_prefix='X', assigned_sn=n)
                  for n in (101, 102, None)]
-        html = Environment().from_string(source[start:end] + '</table>').render(production_orders=items)
+        html = Environment().from_string(source[start:end] + '</table>').render(
+            production_orders=items,
+            url_for=lambda endpoint, **params: '/quality?sn=' + params['sn'])
         class Parser(HTMLParser):
             def __init__(self): super().__init__(); self.rows=[]; self.ids=[]
             def handle_starttag(self, tag, attrs):

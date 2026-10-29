@@ -1,5 +1,6 @@
 from flask import Flask, redirect, url_for, render_template, jsonify, request, g, session, flash, send_from_directory, abort, render_template_string
 from flask_mysql_connector import MySQL
+from mysql.connector import connect
 import datetime, json, os, hashlib, re
 from datetime import timedelta
 import pandas as pd
@@ -14,21 +15,21 @@ import ipaddress
 ####################################### Konfiguracja ##################################################
 #######################################################################################################
 
-# app = Flask(__name__)
-# app.config['MYSQL_HOST'] = '192.168.1.47'
-# app.config['MYSQL_PORT'] = '3307'
-# app.config['MYSQL_USER'] = 'plc'
-# app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
-# app.config['MYSQL_DATABASE'] = 'tower_test'
-# app.secret_key = 'password74320'
-
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = '192.168.1.107'
-app.config['MYSQL_PORT'] = '3306'
+app.config['MYSQL_HOST'] = '192.168.1.47'
+app.config['MYSQL_PORT'] = '3307'
 app.config['MYSQL_USER'] = 'plc'
 app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
-app.config['MYSQL_DATABASE'] = 'tower'
+app.config['MYSQL_DATABASE'] = 'tower_test'
 app.secret_key = 'password74320'
+
+# app = Flask(__name__)
+# app.config['MYSQL_HOST'] = '192.168.1.107'
+# app.config['MYSQL_PORT'] = '3306'
+# app.config['MYSQL_USER'] = 'plc'
+# app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
+# app.config['MYSQL_DATABASE'] = 'tower'
+# app.secret_key = 'password74320'
 
 # Upload pliku
 UPLOAD_FOLDER = 'uploads'
@@ -3852,7 +3853,7 @@ def get_production_orders_context():
     except (ValueError, OverflowError):
         abort(400, description='Nieprawidłowy zakres dat formowania.')
     # Rank before date filtering so each order row keeps the same serial.
-    sql = f"SELECT tab1.id AS production_order_id, tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew, sn.id AS assigned_serial_id, sn.prefix AS assigned_prefix, sn.sn AS assigned_sn, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'formed' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_formed_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'knockout' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_knockout_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('grinding', 'grinding-repaired') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_grinding_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('qa_ok', 'qa_nok') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_qa_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'shipment' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_shipment_history, (SELECT MAX(history.czas) FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'casted' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS data_zalania FROM (SELECT orders.*, ROW_NUMBER() OVER (PARTITION BY unique_id ORDER BY id) AS serial_position FROM open_orders_sap orders) tab1 LEFT JOIN (SELECT relation.*, ROW_NUMBER() OVER (PARTITION BY item_index ORDER BY index_odlew, nazwa_odlew) AS relation_position FROM sap_mes_relation relation) tab2 ON tab1.item_index = tab2.item_index AND tab2.relation_position = 1 LEFT JOIN (SELECT serials.*, ROW_NUMBER() OVER (PARTITION BY mes_po_id ORDER BY id) AS serial_position FROM lista_formowania_sn serials WHERE serials.sn IS NOT NULL) sn ON sn.mes_po_id = tab1.unique_id AND sn.serial_position = tab1.serial_position ORDER BY tab1.data_prod DESC"
+    sql = f"SELECT tab1.id AS production_order_id, tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew, sn.id AS assigned_serial_id, sn.prefix AS assigned_prefix, sn.sn AS assigned_sn, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'formed' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_formed_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'knockout' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_knockout_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('grinding', 'grinding-repaired') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_grinding_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('qa_ok', 'qa_nok') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_qa_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'shipment' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_shipment_history, (SELECT MAX(history.czas) FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'casted' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS data_zalania FROM (SELECT orders.*, ROW_NUMBER() OVER (PARTITION BY unique_id ORDER BY id) AS serial_position FROM open_orders_sap orders) tab1 LEFT JOIN (SELECT relation.*, ROW_NUMBER() OVER (PARTITION BY item_index ORDER BY index_odlew, nazwa_odlew) AS relation_position FROM sap_mes_relation relation) tab2 ON tab1.item_index = tab2.item_index AND tab2.relation_position = 1 LEFT JOIN (SELECT serials.*, ROW_NUMBER() OVER (PARTITION BY mes_po_id ORDER BY id) AS serial_position FROM lista_formowania_sn serials WHERE serials.sn IS NOT NULL) sn ON sn.mes_po_id = tab1.unique_id AND (sn.serial_position = tab1.serial_position OR (sn.serial_position > tab1.serial_position AND tab1.serial_position = (SELECT COUNT(*) FROM open_orders_sap matching WHERE matching.unique_id = tab1.unique_id))) ORDER BY tab1.data_prod DESC"
     if not show_all_records:
         sql = sql.replace("SELECT tab1.id AS production_order_id, ", "SELECT DISTINCT ", 1)
     date_conditions, date_params = [], []
@@ -8751,6 +8752,285 @@ def add_to_forming_list():
              history(produkt_id, 'new', user)
          return redirect(url_for('forming'))
 
+def zablokuj_prefix_new(cursor, prefix):
+    """Blokadę zwalnia commit/rollback wywołującego."""
+    cursor.execute("""
+        INSERT INTO forming_serial_locks (prefix) VALUES (%s)
+        ON DUPLICATE KEY UPDATE prefix = VALUES(prefix)
+    """, (prefix,))
+    cursor.execute("""
+        SELECT prefix FROM forming_serial_locks
+        WHERE prefix = %s FOR UPDATE
+    """, (prefix,))
+    cursor.fetchall()
+
+
+def nadaj_nr_seryjny_new(cursor, prefix, ilosc):
+    """Oblicz numery w transakcji wywołującego."""
+    zablokuj_prefix_new(cursor, prefix)
+    cursor.execute("""
+        SELECT COALESCE(MAX(sn), 0) AS ostatni
+        FROM lista_formowania_sn WHERE prefix = %s
+    """, (prefix,))
+    pierwszy = int(cursor.fetchone()["ostatni"]) + 1
+    return list(range(pierwszy, pierwszy + ilosc))
+
+
+def zapisz_formy_new(cursor, produkt, ilosc_form, komentarz, trail, operator,
+                     mes_po_id=None, pierwszy_sn=None, alias=None,
+                     item_status="new", repeated=False):
+    """Zapisz formy i numery w transakcji zarzadzanej przez widok."""
+    prefix = produkt["prefix"]
+    sztuk = int(produkt["sztuk"] or 0)
+    if not prefix or str(prefix).strip() in ("", "XX", "None"):
+        raise ValueError("Produkt nie ma poprawnego prefixu.")
+    if not 1 <= sztuk <= 8:
+        raise ValueError("Liczba sztuk na model musi wynosić od 1 do 8.")
+
+    modele_id = [produkt[f"id_model{i}"] for i in range(1, 5)]
+    cursor.execute("""
+        SELECT id, nazwa FROM tag_modele
+        WHERE id IN (%s, %s, %s, %s) ORDER BY id
+    """, tuple(modele_id))
+    modele = cursor.fetchall()
+    przypisane_id = {model_id for model_id in modele_id if model_id is not None}
+    if not modele or len(modele) != len(przypisane_id):
+        raise ValueError("Sprawdź modele przypisane do produktu.")
+
+    if repeated:
+        # Operator wpisze numery powtarzanych odlewów podczas formowania.
+        zablokuj_prefix_new(cursor, prefix)
+        numery = None
+    elif pierwszy_sn is None:
+        numery = nadaj_nr_seryjny_new(cursor, prefix, ilosc_form * sztuk)
+    else:
+        zablokuj_prefix_new(cursor, prefix)
+        numery = list(range(pierwszy_sn, pierwszy_sn + ilosc_form * sztuk))
+        cursor.execute("SELECT id FROM lista_formowania_v2 WHERE alias = %s", (alias,))
+        if cursor.fetchall():
+            raise ValueError("Forma z tym aliasem została już dodana.")
+        cursor.execute("""
+            SELECT sn FROM lista_formowania_sn
+            WHERE prefix = %s AND sn BETWEEN %s AND %s
+        """, (prefix, numery[0], numery[-1]))
+        if cursor.fetchall():
+            raise ValueError("Co najmniej jeden numer seryjny jest już użyty.")
+    for i in range(ilosc_form):
+        numery_formy = [] if repeated else numery[i * sztuk:(i + 1) * sztuk]
+        cursor.execute("""
+            INSERT INTO lista_formowania_v2 SET
+                id_produktu = %s,
+                id_model1 = %s, id_model2 = %s,
+                id_model3 = %s, id_model4 = %s,
+                sztuk_na_model = %s,
+                skrzynia_1 = %s, skrzynia_2 = %s,
+                skrzynia_3 = %s, skrzynia_4 = %s,
+                ilosc_sztuk = 1, nazwa_produktu = %s, prefix = %s,
+                dni_do_wybicia = %s, czas_studzenia = %s,
+                item_status = %s, komentarz = %s, komentarz_flag = %s,
+                dodane_przez = %s, zmodyfikowane_przez = %s, trail = %s,
+                repeated = %s, alias = %s
+        """, (
+            produkt["produkt_id"], *modele_id, sztuk,
+            produkt["skrzynia1"], produkt["skrzynia2"],
+            produkt["skrzynia3"], produkt["skrzynia4"],
+            produkt["nazwa"], prefix, produkt["dni_do_wybicia"],
+            produkt["czas_studzenia"], item_status, komentarz,
+            int(bool(komentarz.strip())), operator, operator, trail,
+            "1" if repeated else "0", alias,
+        ))
+        forma_id = cursor.lastrowid
+        pola_sn = numery_formy + [None] * (8 - len(numery_formy))
+        for model in modele:
+            cursor.execute("""
+                INSERT INTO lista_formowania_formy_v2 SET
+                    prod_id = %s, produkt_id = %s, model_id = %s,
+                    nazwa = %s, prefix = %s, operator = %s,
+                    czas_ostatniej_modyfiakcji = CURRENT_TIMESTAMP,
+                    model1_sn = %s, model2_sn = %s,
+                    model3_sn = %s, model4_sn = %s,
+                    model5_sn = %s, model6_sn = %s,
+                    model7_sn = %s, model8_sn = %s, alias = %s
+            """, (
+                produkt["produkt_id"], forma_id, model["id"],
+                model["nazwa"], prefix, operator, *pola_sn, alias,
+            ))
+        if repeated:
+            cursor.execute("""
+                UPDATE lista_formowania_formy_v2
+                SET status = 'repeated' WHERE produkt_id = %s
+            """, (forma_id,))
+
+        if not repeated:
+            cursor.executemany("""
+                INSERT INTO lista_formowania_sn (
+                    produkt_id, nazwa_produktu, alias,
+                    trail, prefix, czas_dodania, sn, mes_po_id
+                )
+                SELECT id, nazwa_produktu, alias,
+                       trail, prefix, data_dodania, %s, %s
+                FROM lista_formowania_v2 WHERE id = %s
+            """, [(sn, mes_po_id, forma_id) for sn in numery_formy])
+        cursor.execute("""
+            INSERT INTO lista_formowania_historia_v2 (
+                produkt_id, production_stage, operator
+            ) VALUES (%s, %s, %s)
+        """, (forma_id, item_status, operator))
+
+    if not repeated:
+        cursor.execute("""
+            UPDATE produkty
+            SET counter = GREATEST(COALESCE(counter, 0), %s)
+            WHERE produkt_id = %s
+        """, (numery[-1], produkt["produkt_id"]))
+
+
+@app.route("/add_to_forming_list_new", methods=["POST"])
+def add_to_forming_list_new(repeated=False):
+    if not getattr(g, "user", None):
+        return redirect(url_for("login"))
+
+    try:
+        ilosc_form = int(request.form.get("quantity", ""))
+        if ilosc_form < 1:
+            raise ValueError
+    except (TypeError, ValueError):
+        flash("Podaj dodatnią liczbę form.")
+        return redirect(url_for("forming"))
+
+    print('wywolanie add_to_forming_list_new')
+
+    nazwa = request.form.get("nazwa", "").strip()
+    komentarz = request.form.get("komentarz", "")
+    trail = "1" if request.form.get("trail") else "0"
+    operator = session["user"]
+    connection = None
+    cursor = None
+
+    try:
+        connection = connect(
+            host=app.config["MYSQL_HOST"],
+            port=int(app.config["MYSQL_PORT"]),
+            user=app.config["MYSQL_USER"],
+            password=app.config["MYSQL_PASSWORD"],
+            database=app.config["MYSQL_DATABASE"],
+            autocommit=False,
+        )
+        connection.start_transaction(isolation_level="READ COMMITTED")
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT * FROM produkty
+            WHERE nazwa = %s AND item_status = 'active'
+            FOR UPDATE
+        """, (nazwa,))
+        produkty = cursor.fetchall()
+        if len(produkty) != 1:
+            raise ValueError("Wybierz jeden aktywny produkt.")
+
+        zapisz_formy_new(
+            cursor, produkty[0], ilosc_form, komentarz, trail, operator,
+            repeated=repeated,
+        )
+        connection.commit()
+    except Exception as error:
+        if connection is not None:
+            connection.rollback()
+        if isinstance(error, ValueError):
+            flash(str(error))
+        else:
+            app.logger.exception("Błąd dodawania form")
+            flash("Nie udało się dodać form. Operacja została wycofana.")
+    else:
+        flash(f"Dodano {ilosc_form} form.")
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if connection is not None:
+            connection.close()
+
+    return redirect(url_for("forming"))
+
+@app.route("/add_to_forming_list_from_production_orders_new", methods=["POST"])
+def add_to_forming_list_from_production_orders_new():
+    if not getattr(g, "user", None):
+        return redirect(url_for("login"))
+
+    # Wyjatki SAP: jedno zlecenie obejmuje dwa produkty.
+    pary_produktow = {
+        "705651": (64, 67),
+        "705638": (64, 65),
+        "705639": (66, 68),
+        "705637": (64, 67),
+    }
+    try:
+        ilosc_odlewow = int(request.form.get("quantity_po", ""))
+        mes_po_id = request.form.get("unique_id", "").strip()
+        if ilosc_odlewow < 1 or not mes_po_id:
+            raise ValueError
+        produkty_id = pary_produktow.get(request.form.get("item_index"))
+        if produkty_id is None:
+            produkty_id = (int(request.form.get("index_odlew", "")),)
+    except (TypeError, ValueError):
+        flash("Podaj poprawny produkt, numer zlecenia i dodatnia liczbe odlewow.")
+        return redirect(url_for("forming"))
+
+    trail = "1" if request.form.get("trail") else "0"
+    operator = session["user"]
+    connection = None
+    cursor = None
+
+    try:
+        connection = connect(
+            host=app.config["MYSQL_HOST"],
+            port=int(app.config["MYSQL_PORT"]),
+            user=app.config["MYSQL_USER"],
+            password=app.config["MYSQL_PASSWORD"],
+            database=app.config["MYSQL_DATABASE"],
+            autocommit=False,
+        )
+        connection.start_transaction(isolation_level="READ COMMITTED")
+        cursor = connection.cursor(dictionary=True)
+        placeholders = ", ".join(["%s"] * len(produkty_id))
+        cursor.execute(f"""
+            SELECT * FROM produkty
+            WHERE produkt_id IN ({placeholders})
+            ORDER BY produkt_id FOR UPDATE
+        """, produkty_id)
+        produkty = cursor.fetchall()
+        if len(produkty) != len(produkty_id):
+            raise ValueError("Nie znaleziono wszystkich produktow zlecenia.")
+
+        dodane_formy = 0
+        for produkt in produkty:
+            sztuk = int(produkt["sztuk"] or 0)
+            if not 1 <= sztuk <= 8:
+                raise ValueError("Liczba sztuk na model musi wynosic od 1 do 8.")
+            # Pelne formy, zaokraglenie w gore jak w starym widoku.
+            ilosc_form = (ilosc_odlewow + sztuk - 1) // sztuk
+            zapisz_formy_new(
+                cursor, produkt, ilosc_form, "", trail, operator, mes_po_id
+            )
+            dodane_formy += ilosc_form
+
+        connection.commit()
+    except Exception as error:
+        if connection is not None:
+            connection.rollback()
+        if isinstance(error, ValueError):
+            flash(str(error))
+        else:
+            app.logger.exception("Blad dodawania form ze zlecenia produkcyjnego")
+            flash("Nie udalo sie dodac form. Operacja zostala wycofana.")
+    else:
+        flash(f"Dodano {dodane_formy} form ze zlecenia produkcyjnego.")
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if connection is not None:
+            connection.close()
+
+    return redirect(url_for("forming"))
+
 
 @app.route("/add_to_forming_list_from_production_orders", methods=['POST'])
 def add_to_forming_list_from_production_orders():
@@ -9479,6 +9759,71 @@ def add_to_forming_list_from_production_orders():
 
         return redirect(url_for('forming'))
 
+@app.route("/add_to_forming_list_from_outline_new", methods=["POST"])
+def add_to_forming_list_from_outline_new():
+    if not getattr(g, "user", None):
+        return redirect(url_for("login"))
+
+    try:
+        prefix, numer = request.form.get("sn", "").strip().rsplit("-", 1)
+        serial = int(numer)
+        if not prefix or serial < 1:
+            raise ValueError
+    except (TypeError, ValueError):
+        flash("Podaj numer w formacie PREFIX-123, z dodatnim numerem seryjnym.")
+        return redirect(url_for("forming"))
+
+    alias = f"{prefix}-{serial}"
+    trail = "1" if request.form.get("trail") else "0"
+    connection = None
+    cursor = None
+
+    try:
+        connection = connect(
+            host=app.config["MYSQL_HOST"],
+            port=int(app.config["MYSQL_PORT"]),
+            user=app.config["MYSQL_USER"],
+            password=app.config["MYSQL_PASSWORD"],
+            database=app.config["MYSQL_DATABASE"],
+            autocommit=False,
+        )
+        connection.start_transaction(isolation_level="READ COMMITTED")
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT * FROM produkty
+            WHERE nazwa = %s AND item_status = 'active'
+            FOR UPDATE
+        """, (request.form.get("product", "").strip(),))
+        produkty = cursor.fetchall()
+        if len(produkty) != 1:
+            raise ValueError("Wybierz jeden aktywny produkt.")
+        if produkty[0]["prefix"] != prefix:
+            raise ValueError("Prefix numeru nie odpowiada wybranemu produktowi.")
+
+        zapisz_formy_new(
+            cursor, produkty[0], 1, "", trail, session["user"],
+            pierwszy_sn=serial, alias=alias, item_status="formed",
+        )
+        connection.commit()
+    except Exception as error:
+        if connection is not None:
+            connection.rollback()
+        if isinstance(error, ValueError):
+            flash(str(error))
+        else:
+            app.logger.exception("Błąd dodawania formy z ręcznym numerem")
+            flash("Nie udało się dodać formy. Operacja została wycofana.")
+    else:
+        flash(f"Dodano formę {alias}.")
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if connection is not None:
+            connection.close()
+
+    return redirect(url_for("forming"))
+
+
 @app.route("/add_to_forming_list_outline", methods=['POST'])
 def add_to_forming_list_outline():        
     if not g.user:
@@ -9571,6 +9916,11 @@ def add_to_forming_list_outline():
 
     return redirect(url_for('forming'))  
     
+@app.route("/add_to_forming_list_again_new", methods=["POST"])
+def add_to_forming_list_again_new():
+    return add_to_forming_list_new(repeated=True)
+
+
 # @app.route("/add_to_forming_list_again", methods=['POST'])
 # def add_to_forming_list_again():
 #     if not g.user:
