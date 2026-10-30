@@ -201,12 +201,14 @@
                 Lista formowania (formiernia)
               </a>
             </li>
+            {# Ukryta zakładka: Formy poza kolejnością (rdzeniarnia).
             <li class="nav-item">
               <a class="nav-link" id="tab-second" data-toggle="tab" href="#second-tab" role="tab"
                 aria-controls="second-tab" aria-selected="false">
                 Formy poza kolejnością (rdzeniarnia)
               </a>
             </li>
+            #}
             <li class="nav-item">
     <a class="nav-link" id="tab-production-orders" data-toggle="tab" href="#production-orders" role="tab" aria-controls="production-orders" aria-selected="false">
         Production orders
@@ -529,6 +531,7 @@
             </div>
           </div>
 
+          {# Ukryta zawartość zakładki: Formy poza kolejnością (rdzeniarnia).
           <!-- TAB 2 -->
           <div class="tab-pane fade pt-3" id="second-tab" role="tabpanel" aria-labelledby="tab-second">
               <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_repeated">
@@ -571,7 +574,7 @@
                     <label for="sn">Numer seryjny</label>
                     <input type="text" class="form-control" id="sn" name="sn" required>
                     <small class="form-text text-muted">
-                      Wprowadzny numer seryjny zostanie zapisany jako alias np.: AB-123-2.
+                      Możesz podać numer seryjny istniejący już w MES. Numer zostanie zapisany jako alias, np. LT-123.
                     </small>
                   </div>
 
@@ -819,6 +822,7 @@
           </div>
 
 
+          #}
         <!-- TAB 3 -->
         <div class="tab-pane fade pt-3" id="production-orders" role="tabpanel" aria-labelledby="tab-production-orders">
 

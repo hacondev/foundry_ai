@@ -167,12 +167,13 @@ class TransactionTests(unittest.TestCase):
         self.assertEqual(history, (101, "formed", "operator"))
         operations = [sql for sql, _ in connection.calls]
         lock = next(i for i, sql in enumerate(operations) if "FROM forming_serial_locks" in sql)
-        collision = next(i for i, sql in enumerate(operations) if "sn BETWEEN" in sql)
-        self.assertLess(lock, collision)
+        insert = next(i for i, sql in enumerate(operations)
+                      if sql.startswith("INSERT INTO lista_formowania_v2"))
+        self.assertLess(lock, insert)
         self.assertEqual(operations.count("commit"), 1)
 
-    def test_outline_rejects_alias_or_any_number_in_range(self):
-        for conflict in ("WHERE alias =", "sn BETWEEN"):
+    def test_outline_rejects_duplicate_alias(self):
+        for conflict in ("WHERE alias =",):
             with self.subTest(conflict=conflict):
                 class ConflictConnection(Connection):
                     def fetchall(self):
@@ -187,6 +188,22 @@ class TransactionTests(unittest.TestCase):
                 self.assertNotIn("commit", operations)
                 self.assertFalse(any(sql.startswith("INSERT INTO lista_formowania_v2")
                                      for sql in operations))
+
+    def test_outline_accepts_serial_already_present_in_mes(self):
+        class ExistingSerialConnection(Connection):
+            def fetchall(self):
+                if "sn BETWEEN" in self.sql:
+                    return [dict(sn=120)]
+                return super().fetchall()
+
+        connection = ExistingSerialConnection()
+        self.run_view(connection, dict(product="Product", sn="AB-120"),
+                      "add_to_forming_list_from_outline_new")
+        operations = [sql for sql, _ in connection.calls]
+        self.assertIn("commit", operations)
+        self.assertNotIn("rollback", operations)
+        serials = [row for sql, rows in connection.calls if sql == "serials" for row in rows]
+        self.assertEqual(serials, [(120, None, 101), (121, None, 101)])
 
     def test_outline_wrong_prefix_rolls_back(self):
         connection = Connection()

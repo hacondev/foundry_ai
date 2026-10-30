@@ -8795,7 +8795,7 @@ def nadaj_nr_seryjny_new(cursor, prefix, ilosc):
 
 def zapisz_formy_new(cursor, produkt, ilosc_form, komentarz, trail, operator,
                      mes_po_id=None, pierwszy_sn=None, alias=None,
-                     item_status="new", repeated=False):
+                     item_status="new", repeated=False, allow_existing_serials=False):
     """Zapisz formy i numery w transakcji zarzadzanej przez widok."""
     prefix = produkt["prefix"]
     sztuk = int(produkt["sztuk"] or 0)
@@ -8826,12 +8826,13 @@ def zapisz_formy_new(cursor, produkt, ilosc_form, komentarz, trail, operator,
         cursor.execute("SELECT id FROM lista_formowania_v2 WHERE alias = %s", (alias,))
         if cursor.fetchall():
             raise ValueError("Forma z tym aliasem została już dodana.")
-        cursor.execute("""
-            SELECT sn FROM lista_formowania_sn
-            WHERE prefix = %s AND sn BETWEEN %s AND %s
-        """, (prefix, numery[0], numery[-1]))
-        if cursor.fetchall():
-            raise ValueError("Co najmniej jeden numer seryjny jest już użyty.")
+        if not allow_existing_serials:
+            cursor.execute("""
+                SELECT sn FROM lista_formowania_sn
+                WHERE prefix = %s AND sn BETWEEN %s AND %s
+            """, (prefix, numery[0], numery[-1]))
+            if cursor.fetchall():
+                raise ValueError("Co najmniej jeden numer seryjny jest już użyty.")
     for i in range(ilosc_form):
         numery_formy = [] if repeated else numery[i * sztuk:(i + 1) * sztuk]
         cursor.execute("""
@@ -9820,6 +9821,7 @@ def add_to_forming_list_from_outline_new():
         zapisz_formy_new(
             cursor, produkty[0], 1, "", trail, session["user"],
             pierwszy_sn=serial, alias=alias, item_status="formed",
+            allow_existing_serials=True,
         )
         connection.commit()
     except Exception as error:
