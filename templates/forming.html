@@ -177,6 +177,8 @@
                     <small class="form-text text-muted">N/S jest obowiązakowy</small>
                   </div>
 
+                  <p>Produkt zostanie trwale usunięty z MES. Numer seryjny nie będzie mógł zostać ponownie użyty.</p>
+
                   <br>
                 </div>
                 <div class="modal-footer">
@@ -508,6 +510,7 @@
                             <div class="modal-body">
                               <form action="/remove_from_forming_list_by_office/{{ item.id }}" method="POST">
                                 <h5>Czy chcesz usunąć produkt: <b>{{ item.nazwa_produktu }}</b> z listy formowania?</h5>
+                                <p>Produkt zostanie trwale usunięty z listy formowania. Numer seryjny bedzie mógł zostać ponownie użyty.</p>
                                 <br>
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrezygnuj</button>

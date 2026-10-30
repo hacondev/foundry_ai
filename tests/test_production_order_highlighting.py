@@ -4,10 +4,114 @@ from datetime import date
 from pathlib import Path
 import re
 import sqlite3
+from types import SimpleNamespace
 import unittest
 
 
 class ProductionOrderHighlightingTests(unittest.TestCase):
+    def test_deleting_shipment_after_removing_its_castings_clears_highlights(self):
+        query, params = self.forming_query()
+        with sqlite3.connect(':memory:') as db:
+            db.row_factory = sqlite3.Row
+            columns = sorted(set(re.findall(r'tab1\.(\w+)', query)) - {'serial_position'})
+            db.execute('CREATE TABLE open_orders_sap (' + ', '.join(
+                name + (' INTEGER' if name == 'id' else ' TEXT') for name in columns) + ')')
+            db.executescript('''
+                CREATE TABLE sap_mes_relation(item_index TEXT, index_odlew TEXT, nazwa_odlew TEXT);
+                CREATE TABLE lista_formowania_sn(id INTEGER, mes_po_id TEXT, produkt_id INTEGER, prefix TEXT, sn INTEGER, canceled INTEGER);
+                CREATE TABLE lista_formowania_historia_v2(id INTEGER PRIMARY KEY AUTOINCREMENT, produkt_id INTEGER, production_stage TEXT, prefix TEXT, sn INTEGER, czas TEXT);
+                CREATE TABLE shipments(id INTEGER, mode TEXT, status TEXT);
+                CREATE TABLE shipments_items(id INTEGER, ship_id INTEGER, form_id INTEGER, sn TEXT, status TEXT);
+                INSERT INTO shipments VALUES (7,'open','active');
+                INSERT INTO shipments_items VALUES (1,7,100,'KU-33','active'),(2,7,100,'KU-34','active');
+                INSERT INTO open_orders_sap(id, unique_id, data_wysylki)
+                    VALUES (1,'A','2026-11-01'),(2,'A','2026-11-01');
+                INSERT INTO lista_formowania_sn VALUES
+                    (1,'A',100,'KU',33,0),(2,'A',100,'KU',34,0);
+                INSERT INTO lista_formowania_historia_v2(produkt_id, production_stage, prefix, sn)
+                    VALUES (100,'shimpment','KU',33),(100,'shimpment','KU',34);
+            ''')
+            def flags():
+                return {r['assigned_sn']: r['has_shipment_history']
+                        for r in db.execute(query, params)}
+
+            def history_qa(form_id, sn, prefix, stage, operator):
+                db.execute('INSERT INTO lista_formowania_historia_v2 '
+                           '(produkt_id, sn, prefix, production_stage) VALUES (?,?,?,?)',
+                           (form_id, sn, prefix, stage))
+
+            scope = dict(g=SimpleNamespace(user=True), session={'user_id': 18, 'user': 'test'},
+                         request=SimpleNamespace(referrer='/shipment'),
+                         query_db=lambda sql: [dict(r) for r in db.execute(sql)],
+                         query_update=db.execute, history_qa=history_qa,
+                         history_shipment=lambda *args: None,
+                         flash=lambda message: None, redirect=lambda url: url)
+            source = ast.parse(Path(__file__).resolve().parents[1].joinpath(
+                'main.py').read_text(encoding='utf-8'))
+            functions = [n for n in source.body if isinstance(n, ast.FunctionDef)
+                         and n.name in ('del_item_shipment', 'remove_shipment')]
+            for node in functions:
+                node.decorator_list = []
+            exec(compile(ast.Module(body=functions, type_ignores=[]), 'main.py', 'exec'), scope)
+            self.assertEqual(flags(), {33: 1, 34: 1})
+            scope['remove_shipment']('7')
+            self.assertEqual(db.execute('SELECT status FROM shipments').fetchone()[0], 'active')
+            self.assertEqual(flags(), {33: 1, 34: 1})
+            scope['del_item_shipment']('1')
+            self.assertEqual(flags(), {33: 0, 34: 1})
+            scope['del_item_shipment']('2')
+            self.assertEqual(flags(), {33: 0, 34: 0})
+            scope['remove_shipment']('7')
+            self.assertEqual(db.execute('SELECT status FROM shipments').fetchone()[0], 'inactive')
+            self.assertEqual(flags(), {33: 0, 34: 0})
+
+    def test_shipping_highlight_accepts_both_status_spellings_for_matching_casting(self):
+        query, params = self.forming_query()
+        with sqlite3.connect(':memory:') as db:
+            columns = sorted(set(re.findall(r'tab1\.(\w+)', query)) - {'serial_position'})
+            db.execute('CREATE TABLE open_orders_sap (' + ', '.join(
+                name + (' INTEGER' if name == 'id' else ' TEXT') for name in columns) + ')')
+            db.executescript('''
+                CREATE TABLE sap_mes_relation(item_index TEXT, index_odlew TEXT, nazwa_odlew TEXT);
+                CREATE TABLE lista_formowania_sn(id INTEGER, mes_po_id TEXT, produkt_id INTEGER, prefix TEXT, sn INTEGER, canceled INTEGER);
+                CREATE TABLE lista_formowania_historia_v2(produkt_id INTEGER, production_stage TEXT, prefix TEXT, sn INTEGER, czas TEXT);
+                INSERT INTO open_orders_sap(id, unique_id, data_wysylki)
+                    VALUES (1,'A','2026-11-01'),(2,'A','2026-11-01'),
+                           (3,'A','2026-11-01'),(4,'A','2026-11-01'),(5,'A','2026-11-01');
+                INSERT INTO lista_formowania_sn VALUES
+                    (1,'A',100,'KU',33,0),(2,'A',100,'KU',34,0),
+                    (3,'A',100,'KU',35,0),(4,'A',100,'KU',36,0),(5,'A',200,'KU',37,0);
+                INSERT INTO lista_formowania_historia_v2 VALUES
+                    (100,'shimpment','KU',33,NULL),
+                    (100,'shipment','KU',34,NULL),
+                    (100,'shimpment','OTHER',35,NULL),
+                    (100,'shimpment-removed','KU',36,NULL),
+                    (999,'shimpment','KU',37,NULL);
+                ALTER TABLE lista_formowania_historia_v2 ADD COLUMN id INTEGER;
+                UPDATE lista_formowania_historia_v2 SET id = rowid;
+            ''')
+            db.row_factory = sqlite3.Row
+            rows = {r['assigned_sn']: r['has_shipment_history']
+                    for r in db.execute(query, params)}
+            self.assertEqual(rows, {33: 1, 34: 1, 35: 0, 36: 0, 37: 0})
+            # A newer removal clears only the matching casting, even with equal timestamps.
+            db.execute("INSERT INTO lista_formowania_historia_v2 VALUES (100,'shimpment-removed','KU',33,NULL,10)")
+            rows = {r['assigned_sn']: r['has_shipment_history']
+                    for r in db.execute(query, params)}
+            self.assertEqual(rows, {33: 0, 34: 1, 35: 0, 36: 0, 37: 0})
+            # Re-adding restores the highlight; unrelated later history has no effect.
+            db.executescript('''
+                INSERT INTO lista_formowania_historia_v2 VALUES
+                    (100,'shimpment','KU',33,NULL,11),
+                    (100,'shimpment-removed','OTHER',33,NULL,12),
+                    (999,'shimpment-removed','KU',33,NULL,13),
+                    (100,'qa_ok','KU',33,NULL,14),
+                    (100,'shipment-removed','KU',34,NULL,15);
+            ''')
+            rows = {r['assigned_sn']: r['has_shipment_history']
+                    for r in db.execute(query, params)}
+            self.assertEqual(rows, {33: 1, 34: 0, 35: 0, 36: 0, 37: 0})
+
     @staticmethod
     def forming_query(**options):
         """Execute only query construction, including the current date filters."""
@@ -53,6 +157,8 @@ class ProductionOrderHighlightingTests(unittest.TestCase):
                     (2,'casted',NULL,NULL,'2026-11-03 11:00:00'),
                     (3,'casted','Y',2,'2026-11-04 12:00:00'),
                     (3,'casted','OTHER',1,'2026-11-05 13:00:00');
+                ALTER TABLE lista_formowania_historia_v2 ADD COLUMN id INTEGER;
+                UPDATE lista_formowania_historia_v2 SET id = rowid;
             ''')
             db.execute("ALTER TABLE lista_formowania_sn ADD COLUMN canceled INTEGER DEFAULT 0")
             db.row_factory = sqlite3.Row

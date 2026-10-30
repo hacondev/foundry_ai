@@ -3853,7 +3853,7 @@ def get_production_orders_context():
     except (ValueError, OverflowError):
         abort(400, description='Nieprawidłowy zakres dat formowania.')
     # Rank before date filtering so each order row keeps the same serial.
-    sql = f"SELECT tab1.id AS production_order_id, tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew, sn.id AS assigned_serial_id, sn.prefix AS assigned_prefix, sn.sn AS assigned_sn, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'formed' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_formed_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'knockout' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_knockout_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('grinding', 'grinding-repaired') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_grinding_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('qa_ok', 'qa_nok') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_qa_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'shipment' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_shipment_history, (SELECT MAX(history.czas) FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'casted' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS data_zalania FROM (SELECT orders.*, ROW_NUMBER() OVER (PARTITION BY unique_id ORDER BY id) AS serial_position FROM open_orders_sap orders) tab1 LEFT JOIN (SELECT relation.*, ROW_NUMBER() OVER (PARTITION BY item_index ORDER BY index_odlew, nazwa_odlew) AS relation_position FROM sap_mes_relation relation) tab2 ON tab1.item_index = tab2.item_index AND tab2.relation_position = 1 LEFT JOIN (SELECT serials.*, ROW_NUMBER() OVER (PARTITION BY mes_po_id ORDER BY id) AS serial_position FROM lista_formowania_sn serials WHERE serials.sn IS NOT NULL AND COALESCE(serials.canceled, 0) <> 1) sn ON sn.mes_po_id = tab1.unique_id AND (sn.serial_position = tab1.serial_position OR (sn.serial_position > tab1.serial_position AND tab1.serial_position = (SELECT COUNT(*) FROM open_orders_sap matching WHERE matching.unique_id = tab1.unique_id))) ORDER BY tab1.data_prod DESC"
+    sql = f"SELECT tab1.id AS production_order_id, tab1.unique_id, tab1.nr_oferty, tab1.nr_dok, tab1.obj_type, tab1.nr_zam_klienta, tab1.kod_ph, tab1.ph, tab1.item_index, tab1.grupa_t, tab1.opis_nazwa, tab1.obca, tab1.ilosc, tab1.waga_jedn, tab1.waga_calk, tab1.nr_kat, tab1.nr_rys, tab1.nr_bud, tab1.nr_poz, tab1.nr_still, tab1.nr_seq, tab1.tyg_wysylki, tab1.tyg_wypr, tab1.data_dokakt, tab1.data_dostawy, tab1.data_wysylki, tab1.data_prod, tab1.data_mal, tab1.data_obr, tab1.data_szlif, tab1.data_wybij, tab1.data_form, tab1.updated_at, tab2.index_odlew, tab2.nazwa_odlew, sn.id AS assigned_serial_id, sn.prefix AS assigned_prefix, sn.sn AS assigned_sn, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'formed' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_formed_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'knockout' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_knockout_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('grinding', 'grinding-repaired') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_grinding_history, EXISTS (SELECT 1 FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('qa_ok', 'qa_nok') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS has_qa_history, COALESCE((SELECT history.production_stage IN ('shipment', 'shimpment') FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage IN ('shipment', 'shimpment', 'shimpment-removed', 'shipment-removed') AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix)) ORDER BY history.id DESC LIMIT 1), 0) AS has_shipment_history, (SELECT MAX(history.czas) FROM lista_formowania_historia_v2 history WHERE history.produkt_id = sn.produkt_id AND history.production_stage = 'casted' AND (history.sn IS NULL OR (history.sn = sn.sn AND history.prefix = sn.prefix))) AS data_zalania FROM (SELECT orders.*, ROW_NUMBER() OVER (PARTITION BY unique_id ORDER BY id) AS serial_position FROM open_orders_sap orders) tab1 LEFT JOIN (SELECT relation.*, ROW_NUMBER() OVER (PARTITION BY item_index ORDER BY index_odlew, nazwa_odlew) AS relation_position FROM sap_mes_relation relation) tab2 ON tab1.item_index = tab2.item_index AND tab2.relation_position = 1 LEFT JOIN (SELECT serials.*, ROW_NUMBER() OVER (PARTITION BY mes_po_id ORDER BY id) AS serial_position FROM lista_formowania_sn serials WHERE serials.sn IS NOT NULL AND COALESCE(serials.canceled, 0) <> 1) sn ON sn.mes_po_id = tab1.unique_id AND (sn.serial_position = tab1.serial_position OR (sn.serial_position > tab1.serial_position AND tab1.serial_position = (SELECT COUNT(*) FROM open_orders_sap matching WHERE matching.unique_id = tab1.unique_id))) ORDER BY tab1.data_prod DESC"
     if not show_all_records:
         sql = sql.replace("SELECT tab1.id AS production_order_id, ", "SELECT DISTINCT ", 1)
     date_conditions, date_params = [], []
@@ -6304,7 +6304,9 @@ def grinding_done():
         flash(f'Login required.')
         return redirect(url_for('login'))
     else:
-        items = query_db("SELECT * FROM `grinding` WHERE mode LIKE '0' OR mode LIKE '1' OR mode LIKE '2' Order by id DESC LIMIT 1000")
+        items = query_db("SELECT grinding.*, CASE WHEN form.trail = '1' THEN 1 ELSE 0 END AS current_trail FROM grinding LEFT JOIN lista_formowania_v2 form ON grinding.item_id = form.id WHERE mode IN ('0', '1', '2') ORDER BY grinding.id DESC LIMIT 1000")
+        for item in items:
+            item['trail'] = item.pop('current_trail')
         operators = query_db("SELECT DISTINCT operator FROM `grinding`")
         return render_template("grinding_done.html", items=items, operators=operators, now=datetime.datetime.now()) 
 
@@ -6314,7 +6316,9 @@ def grinding_rework():
         flash(f'Login required.')
         return redirect(url_for('login'))
     else:
-        items = query_db("SELECT * FROM `grinding` WHERE mode LIKE '3' OR mode LIKE '4' Order by id DESC LIMIT 1000")
+        items = query_db("SELECT grinding.*, CASE WHEN form.trail = '1' THEN 1 ELSE 0 END AS current_trail FROM grinding LEFT JOIN lista_formowania_v2 form ON grinding.item_id = form.id WHERE mode IN ('3', '4') ORDER BY grinding.id DESC LIMIT 1000")
+        for item in items:
+            item['trail'] = item.pop('current_trail')
         operators = query_db("SELECT DISTINCT operator FROM `grinding`")
         return render_template("grinding_rework.html", items=items, now=datetime.datetime.now(), operators=operators) 
 
@@ -7753,7 +7757,7 @@ def cores_operator_view():
                 tab1.produkt_id id,
                 MAX(tab1.nazwa_produktu) AS nazwa_produktu,
                 MAX(tab1.alias) AS alias,
-                MAX(tab1.trail) AS trail,
+                MAX(CASE WHEN tab2.trail = '1' THEN 1 ELSE 0 END) AS trail,
                 GROUP_CONCAT(CONCAT(tab1.prefix, '-', tab1.sn) ORDER BY tab1.sn SEPARATOR ', ') AS serial,
                 MAX(tab1.czas_dodania) AS czas_dodania
             FROM lista_formowania_sn tab1
@@ -7899,7 +7903,7 @@ def foundry_operator_view2():
                 tab2.dni_do_wybicia,
                 tab1.data_ostatniej_modyfikacji,
                 tab1.data_zalania,
-                MAX(tab3.trail) AS trail
+                MAX(tab1.trail) AS trail
             FROM lista_formowania_v2 AS tab1
             LEFT JOIN produkty AS tab2 
                 ON tab1.id_produktu = tab2.produkt_id
@@ -7949,8 +7953,7 @@ def foundry_operator_view2():
                 tab2.czas_studzenia,
                 tab2.dni_do_wybicia,
                 tab1.data_ostatniej_modyfikacji,
-                tab1.data_zalania,
-                MAX(tab3.trail) AS trail
+                MAX(tab1.trail) AS trail
             FROM lista_formowania_v2 AS tab1
             LEFT JOIN produkty AS tab2 
                 ON tab1.id_produktu = tab2.produkt_id
@@ -8059,7 +8062,24 @@ def knockout_operator_view():
     else:
         oblicz_czas_chlodzenia()         
         #mafi = query_db("SELECT id, id_mafi, id_form, czas, trail FROM mafi_load WHERE mafi_status LIKE 'load' OR mafi_status LIKE 'ready_to_knockout' group by id_mafi")
-        mafi = query_db("SELECT ml.* FROM mafi_load ml JOIN (SELECT id_mafi, MAX(czas) AS max_czas FROM mafi_load WHERE mafi_status IN ('load', 'ready_to_knockout') GROUP BY id_mafi) AS sub ON ml.id_mafi = sub.id_mafi AND ml.czas = sub.max_czas WHERE ml.mafi_status IN ('load', 'ready_to_knockout');")
+        mafi = query_db("""
+            SELECT ml.*,
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM mafi_load active_load
+                    JOIN lista_formowania_v2 form ON active_load.id_form = form.id
+                    WHERE active_load.id_mafi = ml.id_mafi
+                      AND active_load.mafi_status IN ('load', 'ready_to_knockout')
+                      AND form.trail = '1'
+                ) THEN '1' ELSE '0' END AS current_trail
+            FROM mafi_load ml
+            JOIN (
+                SELECT id_mafi, MAX(czas) AS max_czas FROM mafi_load
+                WHERE mafi_status IN ('load', 'ready_to_knockout') GROUP BY id_mafi
+            ) AS sub ON ml.id_mafi = sub.id_mafi AND ml.czas = sub.max_czas
+            WHERE ml.mafi_status IN ('load', 'ready_to_knockout')
+        """)
+        for item in mafi:
+            item['trail'] = item.pop('current_trail')
         forms_cooling = query_db("SELECT DISTINCT id_mafi FROM mafi_load WHERE mafi_status LIKE 'load'")
         forms_cooling_idx = []
         forms_ready_to_knockout = query_db("SELECT DISTINCT id_mafi FROM mafi_load WHERE mafi_status LIKE 'ready_to_knockout'")
@@ -8090,13 +8110,10 @@ def knockout_operator_view():
             query = "SELECT DISTINCT id_mafi, id_form FROM mafi_load WHERE mafi_status LIKE 'ready_to_knockout' AND id_mafi=" + str(i['id_mafi'])
             res = query_db(query)
             for k in res:
-                res2 = query_db('SELECT trail, alias FROM lista_formowania_v2 WHERE id=' + str(k['id_form']))
+                res2 = query_db('SELECT alias FROM lista_formowania_v2 WHERE id=' + str(k['id_form']))
                 
                 for z in res2:
                  
-                    if z['trail'] == '1':
-                        query_update("UPDATE mafi_load SET trail='1' WHERE id_mafi=" + str(k['id_mafi']) + " AND mafi_status='ready_to_knockout'")
-                        print("Updated mafi:", k['id_mafi'], " form:", k['id_form']," is trail")
                     if z['alias']:
                         query_update("UPDATE mafi_load SET alias='1' WHERE id_mafi=" + str(k['id_mafi']) + " AND mafi_status='ready_to_knockout'")
                         print("Updated mafi:", k['id_mafi'], " form:", k['id_form']," is outline / repeated")
