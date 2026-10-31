@@ -99,6 +99,92 @@ class QualityDuplicatesTest(unittest.TestCase):
             self.assertEqual(template, 'quality.html')
             self.assertEqual(html.count('<span class="badge badge-danger">Powtórka</span>'), expected)
 
+    def test_remove_repeat_disappears_from_warehouse_and_quality_preserving_original(self):
+        from warehouse import load_warehouse, WAREHOUSE_STATUSES
+        # Extend the isolated fixture for the real removal and warehouse queries.
+        for column, kind in [('item_status', 'TEXT'), ('id_produktu', 'INTEGER'),
+                             ('trail', 'TEXT'), ('repeated', 'TEXT')]:
+            self.db.execute(f'ALTER TABLE lista_formowania_v2 ADD COLUMN {column} {kind}')
+        self.db.execute("UPDATE lista_formowania_v2 SET item_status='formed', id_produktu=77, trail='0', repeated='0'")
+        self.db.execute("UPDATE lista_formowania_historia_v2 SET czas='2026-10-31 10:00:00'")
+        self.db.execute('ALTER TABLE lista_formowania_sn ADD COLUMN mes_po_id TEXT')
+        self.db.executescript('''
+            CREATE TABLE produkty(produkt_id INTEGER, customer TEXT, counter INTEGER);
+            INSERT INTO produkty VALUES(77, 'Customer', 1057);
+            CREATE TABLE lista_formowania_formy_v2(id INTEGER, produkt_id INTEGER, status TEXT);
+            INSERT INTO lista_formowania_formy_v2 VALUES(85363,38660,'active');
+            INSERT INTO lista_formowania_formy_v2 VALUES(86252,39041,'active');
+        ''')
+        self.db.create_function('CONCAT', -1, lambda *args: ''.join(map(str, args)))
+        self.db.commit()
+        db = self.db
+
+        class LocalConnection:
+            def start_transaction(self, **kwargs):
+                db.execute('BEGIN')
+
+            def cursor(self, **kwargs):
+                return self
+
+            def execute(self, sql, params):
+                self.result = db.execute(sql.replace('%s', '?').replace('FOR UPDATE', ''), params)
+
+            def fetchone(self):
+                row = self.result.fetchone()
+                return dict(row) if row else None
+
+            def fetchall(self):
+                return [dict(row) for row in self.result.fetchall()]
+
+            def commit(self):
+                db.commit()
+
+            def rollback(self):
+                db.rollback()
+
+            def close(self):
+                pass
+
+        connection = LocalConnection()
+
+        def original_snapshot():
+            return {table: [tuple(r) for r in db.execute(f'SELECT * FROM {table} WHERE {column}=38660 ORDER BY id')]
+                    for table, column in [('lista_formowania_v2', 'id'), ('lista_formowania_sn', 'produkt_id'),
+                                          ('lista_formowania_formy_v2', 'produkt_id'),
+                                          ('lista_formowania_historia_v2', 'produkt_id')]}
+
+        before = original_snapshot()
+        rows, _ = load_warehouse(connection, status='formed', search='AE-1040')
+        self.assertEqual({r['form_id'] for r in rows}, {38660, 39041})
+        self.app.config.update(MYSQL_HOST='unused', MYSQL_PORT=3306, MYSQL_USER='unused',
+                               MYSQL_PASSWORD='unused', MYSQL_DATABASE='unused')
+        scope = self.search.__globals__
+        scope.update(connect=lambda **kwargs: connection, session={'user': 'office'})
+        tree = ast.parse(Path('main.py').read_text(encoding='utf-8'))
+        node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'remove_outline_form')
+        node.decorator_list = []
+        exec(compile(ast.Module(body=[node], type_ignores=[]), 'main.py', 'exec'), scope)
+        self.app.add_url_rule('/forming', endpoint='forming', view_func=lambda: '')
+        with self.app.test_request_context('/remove_from_forming_list/39041', method='POST'):
+            self.assertEqual(scope['remove_outline_form'](39041).status_code, 302)
+        self.assertEqual(original_snapshot(), before)
+        self.assertEqual(db.execute('SELECT counter FROM produkty').fetchone()[0], 1057)
+        for status in WAREHOUSE_STATUSES:
+            rows, _ = load_warehouse(connection, status=status, search='AE-1040')
+            self.assertNotIn(39041, {r['form_id'] for r in rows})
+        rows, _ = load_warehouse(connection, status='formed', search='AE-1040')
+        self.assertEqual({r['form_id'] for r in rows}, {38660})
+        for serial in ('AE-1040', 'AE-1041'):
+            with self.app.test_request_context('/quality?sn=' + serial):
+                template, context = self.search()
+            self.assertEqual(template, 'quality.html')
+            self.assertEqual(context['data']['system_id'], 38660)
+            self.assertNotIn('items2', context)
+            self.assertTrue(all(r['produkt_id'] == 38660 for r in context['items']))
+        repeat_events = list(db.execute('SELECT production_stage FROM lista_formowania_historia_v2 WHERE produkt_id=39041'))
+        self.assertEqual(len(repeat_events), 4)  # Three existing events plus cancellation.
+        self.assertIn(('canceled by office',), [tuple(r) for r in repeat_events])
+
 
 if __name__ == '__main__':
     unittest.main()

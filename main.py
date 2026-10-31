@@ -16,21 +16,21 @@ import ipaddress
 ####################################### Konfiguracja ##################################################
 #######################################################################################################
 
-# app = Flask(__name__)
-# app.config['MYSQL_HOST'] = '192.168.1.47'
-# app.config['MYSQL_PORT'] = '3307'
-# app.config['MYSQL_USER'] = 'plc'
-# app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
-# app.config['MYSQL_DATABASE'] = 'tower_test'
-# app.secret_key = 'password74320'
-
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = '192.168.1.107'
-app.config['MYSQL_PORT'] = '3306'
+app.config['MYSQL_HOST'] = '192.168.1.47'
+app.config['MYSQL_PORT'] = '3307'
 app.config['MYSQL_USER'] = 'plc'
 app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
-app.config['MYSQL_DATABASE'] = 'tower'
+app.config['MYSQL_DATABASE'] = 'tower_test'
 app.secret_key = 'password74320'
+
+# app = Flask(__name__)
+# app.config['MYSQL_HOST'] = '192.168.1.107'
+# app.config['MYSQL_PORT'] = '3306'
+# app.config['MYSQL_USER'] = 'plc'
+# app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
+# app.config['MYSQL_DATABASE'] = 'tower'
+# app.secret_key = 'password74320'
 
 # Upload pliku
 UPLOAD_FOLDER = 'uploads'
@@ -3786,6 +3786,14 @@ def logout_office():
     return redirect(url_for('login'))
 
 @app.route("/forming", methods=['POST', 'GET'])
+def legacy_forming():
+    target = url_for('forming')
+    if request.query_string:
+        target += '?' + request.query_string.decode('utf-8', errors='replace')
+    return redirect(target, code=307)
+
+
+@app.route("/foundry_office", methods=['POST', 'GET'])
 @login_required(mode='biuro')
 @ip_required('192.168.1.0/24', '192.168.170.0/24', '192.168.130.0/24')
 def forming():
@@ -3893,6 +3901,7 @@ def production_orders():
 @app.get('/warehouse')
 @login_required()
 def warehouse():
+    warehouse_source = 'forming' if request.args.get('source') == 'forming' else ''
     status = request.args.get('status', 'formed')
     search = request.args.get('q', '').strip()[:100]
     if status not in WAREHOUSE_STATUSES:
@@ -3909,11 +3918,13 @@ def warehouse():
     finally:
         cursor.close()
     if not items and page > 1:
-        return redirect(url_for('warehouse', status=status, q=search))
+        return redirect(url_for('warehouse', status=status, q=search,
+                                **({'source': 'forming'} if warehouse_source else {})))
     return render_template('warehouse.html', items=items, total=total, page=page,
                            pages=max(1, (total + 99) // 100), first=(page - 1) * 100 + 1,
                            last=(page - 1) * 100 + len(items),
-                           status=status, search=search, statuses=WAREHOUSE_STATUSES)
+                           status=status, search=search, statuses=WAREHOUSE_STATUSES,
+                           warehouse_source=warehouse_source)
 
 
 @app.route("/display_po_item_details/<id>", methods=['GET'])
@@ -8403,6 +8414,60 @@ def edit_item_grinding(id):
         return redirect(url_for('grinding'))
 
 # PRZENIESIENIE DO BUFORA POJEDYŃCZEGO ASETU
+@app.route("/remove_from_forming_list/<int:id>", methods=['POST'])
+@login_required()
+def remove_outline_form(id):
+    connection = None
+    cursor = None
+    try:
+        connection = connect(
+            host=app.config['MYSQL_HOST'], port=int(app.config['MYSQL_PORT']),
+            user=app.config['MYSQL_USER'], password=app.config['MYSQL_PASSWORD'],
+            database=app.config['MYSQL_DATABASE'], autocommit=False,
+        )
+        connection.start_transaction(isolation_level='READ COMMITTED')
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute('SELECT id, alias, item_status FROM lista_formowania_v2 WHERE id = %s FOR UPDATE', (id,))
+        form = cursor.fetchone()
+        if not form:
+            raise ValueError('Forma nie istnieje lub została już usunięta.')
+        if not (form['alias'] or '').strip() or form['alias'].strip() == '-':
+            raise ValueError('Ta operacja dotyczy tylko form poza kolejnością.')
+        if form['item_status'] != 'formed':
+            raise ValueError('Forma przeszła do kolejnego etapu. Nie można jej usunąć z tej zakładki.')
+        cursor.execute('''
+            SELECT id FROM lista_formowania_historia_v2
+            WHERE produkt_id = %s AND production_stage NOT IN ('new', 'formed')
+            LIMIT 1
+        ''', (id,))
+        if cursor.fetchone():
+            raise ValueError('Forma ma historię kolejnych etapów. Nie można jej usunąć z tej zakładki.')
+        cursor.execute("UPDATE lista_formowania_formy_v2 SET status='canceled' WHERE produkt_id = %s", (id,))
+        cursor.execute("UPDATE lista_formowania_sn SET canceled='1' WHERE produkt_id = %s", (id,))
+        cursor.execute('''
+            INSERT INTO lista_formowania_historia_v2 (produkt_id, production_stage, operator)
+            VALUES (%s, 'canceled by office', %s)
+        ''', (id, session['user']))
+        cursor.execute('DELETE FROM lista_formowania_v2 WHERE id = %s', (id,))
+        connection.commit()
+    except Exception as error:
+        if connection is not None:
+            connection.rollback()
+        if isinstance(error, ValueError):
+            flash(str(error))
+        else:
+            app.logger.exception('Błąd usuwania formy poza kolejnością')
+            flash('Nie udało się usunąć formy. Operacja została wycofana.')
+    else:
+        flash(f'Usunięto formę {id} z listy form poza kolejnością.')
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if connection is not None:
+            connection.close()
+    return redirect(url_for('forming'))
+
+
 @app.route("/remove_from_forming_list_by_office/<id>", methods=['POST', 'GET'])
 def remove_from_forming_list_by_office(id):
     if not g.user:
@@ -9810,6 +9875,22 @@ def add_to_forming_list_from_outline_new():
             raise ValueError("Wybierz jeden aktywny produkt.")
         if produkty[0]["prefix"] != prefix:
             raise ValueError("Prefix numeru nie odpowiada wybranemu produktowi.")
+
+        cursor.execute("""
+            SELECT DISTINCT f.id, f.item_status
+            FROM lista_formowania_v2 f
+            JOIN lista_formowania_sn s ON s.produkt_id = f.id
+            WHERE s.prefix = %s AND s.sn = %s AND f.id_produktu = %s
+              AND COALESCE(s.canceled, '0') <> '1'
+              AND COALESCE(s.param1, '0') = '0'
+            FOR UPDATE
+        """, (prefix, serial, produkty[0]["produkt_id"]))
+        source_forms = cursor.fetchall()
+        if any(form["item_status"] == "new" for form in source_forms):
+            raise ValueError(
+                f"Nie można dodać powtórki {alias}: forma z podanym numerem "
+                "ma status new. Poczekaj na jej zaformowanie."
+            )
 
         zapisz_formy_new(
             cursor, produkty[0], 1, "", trail, session["user"],

@@ -9,8 +9,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
+  {% set from_forming = warehouse_source|default('') == 'forming' %}
+  {% set return_endpoint = 'forming' if from_forming else 'quality' %}
   <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="{{ url_for('quality') }}">Zalogowany jako: <span class="badge badge-primary">{{ session['user'] }}</span></a>
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="{{ url_for(return_endpoint) }}">Zalogowany jako: <span class="badge badge-primary">{{ session['user'] }}</span></a>
     <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Pokaż menu"><span class="navbar-toggler-icon"></span></button>
     <ul class="navbar-nav ml-auto px-3"><li class="nav-item py-1"><a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">Wyloguj</a></li></ul>
   </nav>
@@ -19,18 +21,19 @@
       <div class="sidebar-sticky pt-3" style="background-color:#343a40;">
         <ul class="nav flex-column">
           <li class="nav-item"><span class="nav-link sidebar-section" style="color:#c5b4b4;">CORE</span></li>
-          <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('quality') }}"><span data-feather="home" aria-hidden="true"></span> Home</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="{{ url_for(return_endpoint) }}"><span data-feather="home" aria-hidden="true"></span> Home</a></li>
           <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('production_orders') }}"><span data-feather="clipboard" aria-hidden="true"></span> Production Orders</a></li>
-          <li class="nav-item"><a class="nav-link text-white active" href="{{ url_for('warehouse') }}" aria-current="page"><span data-feather="archive" aria-hidden="true"></span> Magazyn</a></li>
+          <li class="nav-item"><a class="nav-link text-white active" href="{{ url_for('warehouse', source='forming') if from_forming else url_for('warehouse') }}" aria-current="page"><span data-feather="archive" aria-hidden="true"></span> Magazyn</a></li>
         </ul>
       </div>
     </nav>
     <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Magazyn</h1>
-        <div><span class="badge badge-secondary mr-2">{{ total }} odlewów</span><a class="btn btn-outline-primary" href="{{ url_for('quality') }}">Quality</a></div>
+        <div><span class="badge badge-secondary mr-2">{{ total }} odlewów</span><a class="btn btn-outline-primary" href="{{ url_for(return_endpoint) }}">{{ 'Powrót do formowania' if from_forming else 'Quality' }}</a></div>
       </div>
       <form class="mb-4" method="get" action="{{ url_for('warehouse') }}">
+        {% if from_forming %}<input type="hidden" name="source" value="forming">{% endif %}
         <div class="form-row align-items-end">
           <div class="form-group col-md-5">
             <label for="warehouse-status">Etap odlewu</label>
@@ -67,9 +70,9 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <span class="text-muted">{% if total %}Pozycje {{ first }}–{{ last }} z {{ total }}{% else %}0 pozycji{% endif %}</span>
         <nav aria-label="Strony magazynu"><ul class="pagination mb-0">
-          <li class="page-item{% if page <= 1 %} disabled{% endif %}"><a class="page-link" href="{{ url_for('warehouse', status=status, q=search, page=page-1) if page > 1 else '#' }}"{% if page <= 1 %} aria-disabled="true" tabindex="-1"{% endif %}>Poprzednia</a></li>
+          <li class="page-item{% if page <= 1 %} disabled{% endif %}"><a class="page-link" href="{{ url_for('warehouse', status=status, q=search, page=page-1, **({'source': 'forming'} if from_forming else {})) if page > 1 else '#' }}"{% if page <= 1 %} aria-disabled="true" tabindex="-1"{% endif %}>Poprzednia</a></li>
           <li class="page-item disabled"><span class="page-link">{{ page }} / {{ pages }}</span></li>
-          <li class="page-item{% if page >= pages %} disabled{% endif %}"><a class="page-link" href="{{ url_for('warehouse', status=status, q=search, page=page+1) if page < pages else '#' }}"{% if page >= pages %} aria-disabled="true" tabindex="-1"{% endif %}>Następna</a></li>
+          <li class="page-item{% if page >= pages %} disabled{% endif %}"><a class="page-link" href="{{ url_for('warehouse', status=status, q=search, page=page+1, **({'source': 'forming'} if from_forming else {})) if page < pages else '#' }}"{% if page >= pages %} aria-disabled="true" tabindex="-1"{% endif %}>Następna</a></li>
         </ul></nav>
       </div>
     </main>

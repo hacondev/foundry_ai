@@ -315,6 +315,7 @@ class WarehouseTests(unittest.TestCase):
         app.add_url_rule('/quality',view_func=scope['quality'])
         app.add_url_rule('/production_orders',endpoint='production_orders',view_func=lambda: '')
         app.add_url_rule('/logout',endpoint='logout',view_func=lambda: '')
+        app.add_url_rule('/foundry_office',endpoint='forming',view_func=lambda: '')
         client=app.test_client()
         class Links(HTMLParser):
             def __init__(self): super().__init__(); self.serials=[]; self.pages=[]
@@ -343,6 +344,46 @@ class WarehouseTests(unittest.TestCase):
         self.assertEqual(len(nok.serials),1)
         self.assertEqual(client.get('/warehouse?status=invalid').status_code,400)
         self.assertEqual(client.get('/warehouse?page=0').status_code,400)
+
+        # Entry context survives status/search submissions, both page links,
+        # and the redirect from an out-of-range page.
+        for source, endpoint, label in [('forming', '/foundry_office', 'Powrót do formowania'),
+                                         ('', '/quality', 'Quality')]:
+            entry = {'source': source} if source else {}
+            def assert_home(html):
+                self.assertIn(f'href="{endpoint}"><span data-feather="home" aria-hidden="true"></span> Home</a>', html)
+            for status in ('qa_ok', 'qa_nok'):
+                response = client.get('/warehouse', query_string=dict(entry, status=status, q='liebherr'))
+                html = response.get_data(as_text=True)
+                self.assertIn(f'href="{endpoint}">{label}</a>', html)
+                assert_home(html)
+                self.assertEqual('name="source" value="forming"' in html, bool(source))
+            first_response = client.get('/warehouse', query_string=dict(entry, status='qa_ok', q='liebherr'))
+            assert_home(first_response.get_data(as_text=True))
+            first_links = Links(); first_links.feed(first_response.get_data(as_text=True))
+            next_link = next(link for link in first_links.pages
+                             if parse_qs(urlsplit(link).query).get('page') == ['2'])
+            response = client.get(next_link)
+            html = response.get_data(as_text=True)
+            self.assertIn(f'href="{endpoint}">{label}</a>', html)
+            assert_home(html)
+            second_links = Links(); second_links.feed(html)
+            previous_link = next(link for link in second_links.pages
+                                 if parse_qs(urlsplit(link).query).get('page') == ['1'])
+            for link in (next_link, previous_link):
+                params = parse_qs(urlsplit(link).query)
+                expected = dict(status=['qa_ok'], q=['liebherr'], page=params['page'])
+                if source:
+                    expected['source'] = ['forming']
+                self.assertEqual(params, expected)
+            self.assertIn(f'href="{endpoint}">{label}</a>',
+                          client.get(previous_link).get_data(as_text=True))
+            assert_home(client.get(previous_link).get_data(as_text=True))
+            response = client.get('/warehouse', query_string=dict(entry, status='qa_ok',
+                                  q='liebherr', page=999), follow_redirects=True)
+            self.assertEqual(len(response.history), 1)
+            self.assertIn(f'href="{endpoint}">{label}</a>', response.get_data(as_text=True))
+            assert_home(response.get_data(as_text=True))
 
 
 if __name__ == '__main__': unittest.main()

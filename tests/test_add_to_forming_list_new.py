@@ -39,6 +39,8 @@ class Connection:
         self.calls.append(("serials", rows))
 
     def fetchall(self):
+        if "SELECT DISTINCT f.id, f.item_status" in self.sql:
+            return [dict(id=99, item_status="formed")]
         if "WHERE alias =" in self.sql or "sn BETWEEN" in self.sql:
             return []
         if "FROM produkty" in self.sql:
@@ -71,6 +73,7 @@ class Connection:
 
 class TransactionTests(unittest.TestCase):
     def run_view(self, connection, form=None, view="add_to_forming_list_new"):
+        messages = []
         namespace = dict(
             connect=lambda **kwargs: connection,
             app=SimpleNamespace(config=dict(MYSQL_HOST="test", MYSQL_PORT=3306,
@@ -79,11 +82,12 @@ class TransactionTests(unittest.TestCase):
             g=SimpleNamespace(user=True), session={"user": "operator"},
             request=SimpleNamespace(form=form if form is not None else
                                     {"quantity": "2", "nazwa": "Product"}),
-            flash=lambda message: None, url_for=lambda name: name,
+            flash=messages.append, url_for=lambda name: name,
             redirect=lambda target: target,
         )
         exec(compile(ast.Module(body=functions, type_ignores=[]), "<views>", "exec"), namespace)
         namespace[view]()
+        return messages
 
     def test_batch_commits_once_and_assigns_distinct_ranges(self):
         connection = Connection()
@@ -211,6 +215,107 @@ class TransactionTests(unittest.TestCase):
                       "add_to_forming_list_from_outline_new")
         self.assertTrue(any(sql == "rollback" for sql, _ in connection.calls))
         self.assertFalse(any(sql == "commit" for sql, _ in connection.calls))
+
+    def test_outline_blocks_source_in_new_by_entered_serial_before_any_form_insert(self):
+        class NewSource(Connection):
+            def fetchall(self):
+                if "SELECT DISTINCT f.id, f.item_status" in self.sql:
+                    return [dict(id=99, item_status="new")]
+                return super().fetchall()
+
+        connection = NewSource()
+        messages = self.run_view(connection, dict(product="Product", sn="AB-121"),
+                                 "add_to_forming_list_from_outline_new")
+        lookup = next((sql, params) for sql, params in connection.calls
+                      if "SELECT DISTINCT f.id, f.item_status" in sql)
+        self.assertEqual(lookup[1], ("AB", 121, 7))
+        self.assertIn("FOR UPDATE", lookup[0])
+        self.assertIn("s.sn = %s", lookup[0])
+        self.assertIn("status new", messages[0])
+        self.assertIn(("rollback", None), connection.calls)
+        self.assertNotIn(("commit", None), connection.calls)
+        self.assertFalse(any(sql.startswith(("INSERT INTO lista_formowania", "UPDATE produkty"))
+                             or sql == "serials" for sql, _ in connection.calls))
+
+    def test_outline_accepts_source_after_new_and_blocks_any_matching_new_form(self):
+        for statuses, allowed in [(["formed"], True), (["assembled"], True),
+                                  (["qa_ok"], True), (["shimpment"], True),
+                                  (["formed", "new"], False)]:
+            with self.subTest(statuses=statuses):
+                class Source(Connection):
+                    def fetchall(self):
+                        if "SELECT DISTINCT f.id, f.item_status" in self.sql:
+                            return [dict(id=90+i, item_status=status) for i, status in enumerate(statuses)]
+                        return super().fetchall()
+                connection = Source()
+                self.run_view(connection, dict(product="Product", sn="AB-120"),
+                              "add_to_forming_list_from_outline_new")
+                self.assertEqual(("commit", None) in connection.calls, allowed)
+                self.assertEqual(("rollback", None) in connection.calls, not allowed)
+
+    def test_outline_second_piece_is_blocked_in_new_then_allowed_in_formed(self):
+        # Two physical pieces in the source form; the entered serial is the second.
+        source = dict(id=99, item_status="new", prefix="AB", serials=(120, 121))
+
+        class SecondPieceSource(Connection):
+            def fetchall(self):
+                if "SELECT DISTINCT f.id, f.item_status" in self.sql:
+                    prefix, sn, product_id = self.calls[-1][1]
+                    if prefix == source["prefix"] and sn in source["serials"] and product_id == 7:
+                        return [dict(id=source["id"], item_status=source["item_status"])]
+                    return []
+                return super().fetchall()
+
+        blocked = SecondPieceSource()
+        messages = self.run_view(blocked, dict(product="Product", sn="AB-121"),
+                                 "add_to_forming_list_from_outline_new")
+        self.assertIn("status new", messages[0])
+        self.assertIn(("rollback", None), blocked.calls)
+        self.assertNotIn(("commit", None), blocked.calls)
+        self.assertFalse(any(sql.startswith("INSERT INTO lista_formowania") or sql == "serials"
+                             for sql, _ in blocked.calls))
+
+        # Simulate progressing the source form, without connecting to a database.
+        source["item_status"] = "formed"
+        allowed = SecondPieceSource()
+        self.run_view(allowed, dict(product="Product", sn="AB-121"),
+                      "add_to_forming_list_from_outline_new")
+        self.assertIn(("commit", None), allowed.calls)
+        self.assertNotIn(("rollback", None), allowed.calls)
+        form = next(params for sql, params in allowed.calls
+                    if sql.startswith("INSERT INTO lista_formowania_v2"))
+        self.assertEqual(form[-1], "AB-121")
+        self.assertEqual([params for sql, params in allowed.calls
+                          if sql == "serials"], [[(121, None, 101), (122, None, 101)]])
+        self.assertEqual([params for sql, params in allowed.calls
+                          if sql.startswith("INSERT INTO lista_formowania_historia_v2")],
+                         [(101, "formed", "operator")])
+        self.assertEqual(source, dict(id=99, item_status="formed", prefix="AB", serials=(120, 121)))
+
+    def test_outline_duplicate_writes_only_new_form_and_its_history(self):
+        connection = Connection()
+        self.run_view(connection, dict(product="Product", sn="AB-120"),
+                      "add_to_forming_list_from_outline_new")
+        calls = connection.calls
+        form = next(params for sql, params in calls
+                    if sql.startswith("INSERT INTO lista_formowania_v2"))
+        self.assertEqual(form[-1], "AB-120")
+        models = [params for sql, params in calls
+                  if sql.startswith("INSERT INTO lista_formowania_formy_v2")]
+        self.assertTrue(models)
+        self.assertTrue(all(params[1] == 101 and params[-1] == "AB-120" for params in models))
+        self.assertTrue(all(params[6:8] == (120, 121) for params in models))
+        histories = [params for sql, params in calls
+                     if sql.startswith("INSERT INTO lista_formowania_historia_v2")]
+        self.assertEqual(histories, [(101, "formed", "operator")])
+        self.assertEqual([rows for sql, rows in calls if sql == "serials"],
+                         [[(120, None, 101), (121, None, 101)]])
+        # No existing casting, serial or history row is updated or deleted.
+        mutations = [sql for sql, _ in calls if sql.startswith(("UPDATE ", "DELETE "))]
+        self.assertEqual(len(mutations), 1)
+        self.assertTrue(mutations[0].startswith("UPDATE produkty SET counter = GREATEST"))
+        counters = [params for sql, params in calls if sql.startswith("UPDATE produkty")]
+        self.assertEqual(counters, [(121, 7)])
 
     def test_outline_write_failure_rolls_back(self):
         connection = Connection(fail=True)
