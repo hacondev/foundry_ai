@@ -29,6 +29,7 @@
       .blink-text {
         animation: blink 1s infinite;
       }
+
   </style>
 
 </head>
@@ -72,6 +73,12 @@
               <a class="nav-link{% if request.path == '/production_orders' %} active{% endif %}" href="{{ url_for('production_orders') }}" style="color: white;"{% if request.path == '/production_orders' %} aria-current="page"{% endif %}>
                 <span data-feather="clipboard" aria-hidden="true"></span>
                 Production Orders
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('warehouse') }}" style="color: white;">
+                <span data-feather="archive" aria-hidden="true"></span>
+                Magazyn
               </a>
             </li>
             {% if g.user and g.user.username in ('WZ', 'WZb') %}
@@ -200,6 +207,10 @@
                     <p>Nazwa : <b>{{ data.nazwa }}</b></p>
                     <p>S/N : <b>{{ data.sn }}</b></p>
                     <p>System ID : <b>{{ data.system_id }}</b></p>
+                    {% set casting_alias = data.alias|default('', true)|trim %}
+                    {% if casting_alias and casting_alias != '-' %}
+                    <p><span class="badge badge-danger">Powtórka</span></p>
+                    {% endif %}
                   </div>
                 </div>
               </div>

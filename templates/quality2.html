@@ -187,6 +187,10 @@
                     <p>Nazwa : <b>{{ data.nazwa }}</b></p>
                     <p>S/N : <b>{{ data.sn }}</b></p>
                     <p>System ID : <b>{{ data.system_id }}</b></p>
+                    {% set casting_alias = data.alias|default('', true)|trim %}
+                    {% if casting_alias and casting_alias != '-' %}
+                    <p><span class="badge badge-danger">Powtórka</span></p>
+                    {% endif %}
                   </div>
                 </div>
               </div>
@@ -201,7 +205,10 @@
                     <p>Nazwa : <b>{{ data2.nazwa }}</b></p>
                     <p>S/N : <b>{{ data2.sn }}</b></p>
                     <p>System ID : <b>{{ data2.system_id }}</b></p>
-                    <p>Powtórka : <label class="blink-text" ><span class="badge badge-danger">Tak</span></label></p>
+                    {% set casting_alias = data2.alias|default('', true)|trim %}
+                    {% if casting_alias and casting_alias != '-' %}
+                    <p><span class="badge badge-danger">Powtórka</span></p>
+                    {% endif %}
                   </div>
                 </div>
               </div>
@@ -227,7 +234,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for item in items %}
+              {% for item in items|default([])|sort(attribute='id') %}
               <tr>
                 <!-- <td>{{ item.produkt_id }}</td>
                 <td>{{ item.nazwa_produktu }}</td> -->
@@ -346,7 +353,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for item in items2 %}
+              {% for item in items2|default([])|sort(attribute='id') %}
               <tr>
                 <!-- <td>{{ item.produkt_id }}</td>
                 <td>{{ item.nazwa_produktu }}</td> -->

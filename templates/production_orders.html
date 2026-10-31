@@ -113,6 +113,12 @@
                 Production Orders
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('warehouse') }}" style="color: white;">
+                <span data-feather="archive" aria-hidden="true"></span>
+                Magazyn
+              </a>
+            </li>
             <!--li class="nav-item" >
               <a class="nav-link{% if request.path.rstrip('/') == '/shipment' or request.path.startswith('/shipment/') or request.path.startswith('/edit_shipment/') or request.path.rstrip('/') == '/search_shipment' %} active{% endif %}" href="/shipment" style="color: white;"{% if request.path.rstrip('/') == '/shipment' or request.path.startswith('/shipment/') or request.path.startswith('/edit_shipment/') or request.path.rstrip('/') == '/search_shipment' %} aria-current="page"{% endif %}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="feather feather-truck" aria-hidden="true"><path d="M1 4h14v12H1zM15 9h4l3 4v3h-7"/><circle cx="5" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>

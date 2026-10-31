@@ -7,6 +7,7 @@ import pandas as pd
 import pyodbc
 import requests
 from user import users
+from warehouse import WAREHOUSE_STATUSES, load_warehouse
 import platform
 from functools import wraps
 import ipaddress
@@ -3889,6 +3890,32 @@ def production_orders():
     return render_template("production_orders.html", **get_production_orders_context())
 
 
+@app.get('/warehouse')
+@login_required()
+def warehouse():
+    status = request.args.get('status', 'formed')
+    search = request.args.get('q', '').strip()[:100]
+    if status not in WAREHOUSE_STATUSES:
+        abort(400, description='Nieprawidłowy etap magazynu.')
+    try:
+        page = int(request.args.get('page', '1'))
+        if page < 1 or page > 21474836:
+            raise ValueError
+    except ValueError:
+        abort(400, description='Nieprawidłowy numer strony magazynu.')
+    cursor = mysql.new_cursor(dictionary=True)
+    try:
+        items, total = load_warehouse(cursor, status=status, search=search, page=page)
+    finally:
+        cursor.close()
+    if not items and page > 1:
+        return redirect(url_for('warehouse', status=status, q=search))
+    return render_template('warehouse.html', items=items, total=total, page=page,
+                           pages=max(1, (total + 99) // 100), first=(page - 1) * 100 + 1,
+                           last=(page - 1) * 100 + len(items),
+                           status=status, search=search, statuses=WAREHOUSE_STATUSES)
+
+
 @app.route("/display_po_item_details/<id>", methods=['GET'])
 def display_po_item_details(id):
     sql = f"SELECT prefix, sn FROM lista_formowania_sn WHERE mes_po_id ='{id}'"
@@ -5124,9 +5151,10 @@ def grinding_sn():
 
 
 @app.route("/qa_sn_search", methods=['POST', 'GET'])
-def qa_sn_search():
+def qa_sn_search(serial=None):
 
-    serial = (request.form.get('sn') if request.method == 'POST' else request.args.get('sn')) or ''
+    if serial is None:
+        serial = (request.form.get('sn') if request.method == 'POST' else request.args.get('sn')) or ''
     serial = serial.upper()
 
     if not is_valid_serial_number(serial):
@@ -5136,36 +5164,31 @@ def qa_sn_search():
     prefix, numer = serial.split("-")
     numer = int(numer)
 
-    if cast_removed_by_the_operator(prefix, numer):
-        flash(f"Odlew S/N: {prefix}-{numer} został usunięty z formy na etapie skręcania form.")
-        return redirect(request.referrer)
-
-    if form_was_canceled(prefix, numer):
-        flash(f"Wprawdzony numer seryjny należy do formy która została usunięta przez biuro odlewni: {serial}. Szczegóły w tabeli: lista_formowania_historia_v2")
-        return redirect(request.referrer)
-
-    query = f"SELECT produkt_id FROM lista_formowania_sn WHERE prefix='{prefix}' AND sn='{numer}' AND param1='0' ORDER BY id DESC LIMIT 1"
-
-    print(query)
-    
-    id1 = None
-    id2 = None
-
-    try:
-        id1 = query_db(query)[0]['produkt_id']
-    except IndexError:
-        flash(f"Brak indexu: {serial}")
+    # Match physical forms by serial, keeping each form's history separate.
+    query = f"""
+        SELECT DISTINCT s.produkt_id, f.alias
+        FROM lista_formowania_sn s
+        JOIN lista_formowania_v2 f ON f.id = s.produkt_id
+        WHERE s.prefix='{prefix}' AND s.sn={numer}
+          AND COALESCE(s.param1, '0')='0'
+          AND COALESCE(s.canceled, '0')<>'1'
+        ORDER BY (f.alias IS NOT NULL AND f.alias <> '' AND f.alias <> '-'),
+                 s.produkt_id ASC
+    """
+    serial_rows = query_db(query)
+    if not serial_rows:
+        if cast_removed_by_the_operator(prefix, numer):
+            flash(f"Odlew S/N: {prefix}-{numer} został usunięty z formy na etapie skręcania form.")
+        elif form_was_canceled(prefix, numer):
+            flash(f"Numer seryjny należy do usuniętej formy: {serial}.")
+        else:
+            flash(f"Brak indexu: {serial}")
         return redirect(url_for('quality'))
 
-    try:
-        id2 = query_db(query)[1]['produkt_id']
-    except IndexError:
-        id2 == None
+    serial_row = serial_rows[0]
+    id1 = serial_row['produkt_id']
+    id2 = serial_rows[1]['produkt_id'] if len(serial_rows) > 1 else None
 
-    print('ID odlewów 1', id1)
-    print('ID odlewów 2', id2)
-              
-    
     if id1 and not id2:
         items=query_db("SELECT DISTINCT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, tab2.nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id LEFT JOIN lista_formowania_sn tab3 ON tab1.produkt_id = tab3.produkt_id WHERE tab3.param1 = '0' AND tab2.id=" + str(id1))
         items = filter_items_quality(items, prefix, numer)
@@ -5173,10 +5196,11 @@ def qa_sn_search():
         data = {
             "nazwa" : items[0]['nazwa_produktu'],
             "system_id" : items[0]['produkt_id'],
-            "sn" : serial
+            "sn" : serial,
+            "alias" : serial_row.get('alias')
         }
 
-        return render_template("quality.html", items=items, flasks=flasks, id=id, data=data)
+        return render_template("quality.html", items=items, flasks=flasks, id=id1, data=data)
 
     elif id1 and id2:
         items=query_db("SELECT DISTINCT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, tab2.nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id WHERE tab2.id=" + str(id1))
@@ -5185,7 +5209,8 @@ def qa_sn_search():
         data = {
             "nazwa" : items[0]['nazwa_produktu'],
             "system_id" : items[0]['produkt_id'],
-            "sn" : serial
+            "sn" : serial,
+            "alias" : serial_row.get('alias')
         }
 
         items2=query_db("SELECT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, tab2.nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id WHERE tab2.id=" + str(id2))
@@ -5194,47 +5219,15 @@ def qa_sn_search():
         data2 = {
             "nazwa" : items2[0]['nazwa_produktu'],
             "system_id" : items2[0]['produkt_id'],
-            "sn" : serial
+            "sn" : serial,
+            "alias" : serial_rows[1].get('alias')
         }
 
         return render_template("quality2.html", items=items, items2=items2, flasks=flasks, flasks2=flasks2, id=id1, id2=id2, data=data, data2=data2)
 
 @app.route("/qa_sn_search_po/<id>", methods=['GET'])
 def qa_sn_search_po(id):
-
-    serial = id.replace(" ", "")
-    if not is_valid_serial_number(serial):
-        flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-        return redirect(request.referrer)
-
-    prefix, numer = serial.split("-")
-    numer = int(numer)
-
-    # query = f"SELECT DISTINCT produkt_id FROM lista_formowania_formy_v2 WHERE prefix='{prefix}' AND {numer} IN (model1_sn, model2_sn, model3_sn, model4_sn, model5_sn, model6_sn, model7_sn, model8_sn)"
-    query = f"SELECT produkt_id FROM lista_formowania_sn WHERE prefix='{prefix}' AND sn='{numer}' AND param1='0' ORDER BY id DESC LIMIT 1"
-
-    try:
-        id = query_db(query)[0]['produkt_id']
-        try:
-            id2 = query_db(query)[1]['produkt_id']
-        except IndexError:
-            pass
-        
-    except IndexError:
-        flash(f"Brak indexu: {serial}")
-        return redirect(request.referrer)
-    
-  
-    items=query_db("SELECT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, tab2.nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id WHERE tab2.id=" + str(id))
-    items = filter_items_quality(items, prefix, numer)
-    flasks = adv_search_manscan(id)
-    data = {
-            "nazwa" : items[0]['nazwa_produktu'],
-            "system_id" : items[0]['produkt_id'],
-            "sn" : serial
-        }
-
-    return render_template("quality.html", items=items, flasks=flasks, id=id, data=data)
+    return qa_sn_search(serial=id.replace(" ", ""))
 
 ###############################################################################################
 
