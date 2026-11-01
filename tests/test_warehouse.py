@@ -343,6 +343,14 @@ class WarehouseTests(unittest.TestCase):
         nok=Links(); nok.feed(client.get('/warehouse?status=qa_nok').get_data(as_text=True))
         self.assertEqual(len(nok.serials),1)
         self.assertEqual(client.get('/warehouse?status=invalid').status_code,400)
+        for removed_status in ('formed', 'assembled', 'casted'):
+            self.assertEqual(client.get('/warehouse', query_string={'status': removed_status}).status_code,400)
+        default_response = client.get('/warehouse')
+        self.assertEqual(default_response.status_code,200)
+        default_html = default_response.get_data(as_text=True)
+        self.assertIn('value="cooling" selected', default_html)
+        for removed_status in ('formed', 'assembled', 'casted'):
+            self.assertNotIn(f'<option value="{removed_status}"', default_html)
         self.assertEqual(client.get('/warehouse?page=0').status_code,400)
 
         # Entry context survives status/search submissions, both page links,

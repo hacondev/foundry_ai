@@ -16,21 +16,21 @@ import ipaddress
 ####################################### Konfiguracja ##################################################
 #######################################################################################################
 
-# app = Flask(__name__)
-# app.config['MYSQL_HOST'] = '192.168.1.47'
-# app.config['MYSQL_PORT'] = '3307'
-# app.config['MYSQL_USER'] = 'plc'
-# app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
-# app.config['MYSQL_DATABASE'] = 'tower_test'
-# app.secret_key = 'password74320'
-
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = '192.168.1.107'
-app.config['MYSQL_PORT'] = '3306'
+app.config['MYSQL_HOST'] = '192.168.1.47'
+app.config['MYSQL_PORT'] = '3307'
 app.config['MYSQL_USER'] = 'plc'
 app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
-app.config['MYSQL_DATABASE'] = 'tower'
+app.config['MYSQL_DATABASE'] = 'tower_test'
 app.secret_key = 'password74320'
+
+# app = Flask(__name__)
+# app.config['MYSQL_HOST'] = '192.168.1.107'
+# app.config['MYSQL_PORT'] = '3306'
+# app.config['MYSQL_USER'] = 'plc'
+# app.config['MYSQL_PASSWORD'] = 'evJ2!5F6b@f'
+# app.config['MYSQL_DATABASE'] = 'tower'
+# app.secret_key = 'password74320'
 
 # Upload pliku
 UPLOAD_FOLDER = 'uploads'
@@ -185,9 +185,12 @@ def get_mssql_connection():
 
     return pyodbc.connect(connection_string)
 
-def query_db(query):
+def query_db(query, params=None):
     cur = mysql.new_cursor(dictionary=True)
-    cur.execute(query)
+    if params is None:
+        cur.execute(query)
+    else:
+        cur.execute(query, params)
     result = cur.fetchall()
     cur.close()
     return result
@@ -419,8 +422,9 @@ def history_qa(produkt_id, sn, prefix, production_stage, operator):
         prefix = 'XX'
     if len(sn) == 0:
         prefix = '0'
-    query = "INSERT INTO lista_formowania_historia_v2 (`produkt_id`, `sn`, `prefix`, `production_stage`, `operator`) VALUES ('" + str(produkt_id) + "'," + str(sn) + ",'" + prefix + "','" + production_stage + "','"  + operator + "')"
-    query_update(query)
+    query = """INSERT INTO lista_formowania_historia_v2
+        (produkt_id, sn, prefix, production_stage, operator) VALUES (%s, %s, %s, %s, %s)"""
+    query_update_null_in_sql(query, (produkt_id, sn, prefix, production_stage, operator))
     return True
 
 def check_formed_on(items):
@@ -3902,9 +3906,11 @@ def production_orders():
 @login_required()
 def warehouse():
     warehouse_source = 'forming' if request.args.get('source') == 'forming' else ''
-    status = request.args.get('status', 'formed')
+    statuses = {value: label for value, label in WAREHOUSE_STATUSES.items()
+                if value not in ('formed', 'assembled', 'casted')}
+    status = request.args.get('status', 'cooling')
     search = request.args.get('q', '').strip()[:100]
-    if status not in WAREHOUSE_STATUSES:
+    if status not in statuses:
         abort(400, description='Nieprawidłowy etap magazynu.')
     try:
         page = int(request.args.get('page', '1'))
@@ -3923,7 +3929,7 @@ def warehouse():
     return render_template('warehouse.html', items=items, total=total, page=page,
                            pages=max(1, (total + 99) // 100), first=(page - 1) * 100 + 1,
                            last=(page - 1) * 100 + len(items),
-                           status=status, search=search, statuses=WAREHOUSE_STATUSES,
+                           status=status, search=search, statuses=statuses,
                            warehouse_source=warehouse_source)
 
 
@@ -6284,22 +6290,58 @@ def grinding():
         flash(f'Login required.')
         return redirect(url_for('login'))
     else:
-
-        items = []
-        knockout = query_db("SELECT produkt_id id FROM `lista_formowania_historia_v2` WHERE production_stage = 'knockout' ORDER by id desc LIMIT 200")
-
-        for i in knockout:
-            lista = generete_serials(i['id'])
-            for k in lista:
-                k.append(i['id'])
-                item = query_db('SELECT tab1.id, tab1.nazwa_produktu, tab1.trail, tab1.alias, tab2.waga_zeliwa, tab2.customer FROM `lista_formowania_v2` tab1 LEFT JOIN produkty tab2 ON tab1.id_produktu = tab2.produkt_id WHERE tab1.id=' + str(i['id']))
-                item[0]['Prefix'] = k[0]
-                item[0]['sn'] = k[1]
-                items.append(item[0])
-
-        lista_sn_obrobione = query_db("SELECT sn, prefix, item_id id FROM `grinding`")
-        przeciwwagi_do_oczyszczenia = filtruj_items(lista_sn_obrobione, items)
-        return render_template("grinding.html", items=przeciwwagi_do_oczyszczenia)
+        try:
+            page = int(request.args.get('page', '1'))
+            if page < 1 or page > 21474836:
+                raise ValueError
+        except ValueError:
+            abort(400, description='Nieprawidłowy numer strony.')
+        offset = (page - 1) * 100
+        search = request.args.get('q', '').strip()[:100]
+        search_filter = ''
+        params = None
+        if search:
+            pattern = '%' + search.lower().replace('!', '!!').replace('%', '!%').replace('_', '!_') + '%'
+            search_filter = """WHERE (
+                LOWER(CONCAT(pending.prefix, '-', pending.sn)) LIKE %s ESCAPE '!'
+                OR LOWER(f.nazwa_produktu) LIKE %s ESCAPE '!'
+            )"""
+            params = (pattern, pattern)
+        # One row per physical casting; repeated history events must not duplicate it.
+        # Filter in SQL instead of expanding forms and loading all grinding records.
+        items = query_db(f"""
+            SELECT f.id, f.nazwa_produktu, f.trail, f.alias,
+                   p.waga_zeliwa, p.customer, pending.prefix AS Prefix, pending.sn,
+                   COUNT(*) OVER () AS total_count
+            FROM (
+                SELECT h.produkt_id, s.prefix, s.sn, MAX(h.id) AS event_id
+                FROM lista_formowania_historia_v2 h
+                JOIN lista_formowania_sn s ON s.produkt_id = h.produkt_id
+                  AND (h.sn IS NULL OR (h.sn = s.sn AND h.prefix = s.prefix))
+                WHERE h.production_stage = 'knockout'
+                  AND s.sn IS NOT NULL AND s.prefix IS NOT NULL
+                  AND COALESCE(s.param1, '0') = '0'
+                  AND COALESCE(s.canceled, '0') = '0'
+                  AND NOT EXISTS (
+                      SELECT 1 FROM grinding processed
+                      WHERE processed.item_id = h.produkt_id
+                        AND processed.prefix = s.prefix AND processed.sn = s.sn
+                  )
+                GROUP BY h.produkt_id, s.prefix, s.sn
+            ) pending
+            JOIN lista_formowania_v2 f ON f.id = pending.produkt_id
+            LEFT JOIN produkty p ON p.produkt_id = f.id_produktu
+            {search_filter}
+            ORDER BY pending.event_id DESC, f.id, pending.prefix, pending.sn
+            LIMIT 100 OFFSET {offset}
+        """, params)
+        if not items and page > 1:
+            return redirect(url_for('grinding', **({'q': search} if search else {})))
+        total = int(items[0]['total_count']) if items else 0
+        return render_template("grinding.html", items=items, page=page,
+                               pages=max(1, (total + 99) // 100), total=total,
+                               first=offset + 1 if total else 0,
+                               last=offset + len(items), search=search)
   
 
 @app.route("/grinding_done", methods=['POST', 'GET'])
@@ -6308,11 +6350,44 @@ def grinding_done():
         flash(f'Login required.')
         return redirect(url_for('login'))
     else:
-        items = query_db("SELECT grinding.*, CASE WHEN form.trail = '1' THEN 1 ELSE 0 END AS current_trail FROM grinding LEFT JOIN lista_formowania_v2 form ON grinding.item_id = form.id WHERE mode IN ('0', '1', '2') ORDER BY grinding.id DESC LIMIT 1000")
+        try:
+            page = int(request.args.get('page', '1'))
+            if page < 1 or page > 21474836:
+                raise ValueError
+        except ValueError:
+            abort(400, description='Nieprawidłowy numer strony.')
+        offset = (page - 1) * 100
+        search = request.args.get('q', '').strip()[:100]
+        search_filter = ''
+        params = None
+        if search:
+            pattern = '%' + search.lower().replace('!', '!!').replace('%', '!%').replace('_', '!_') + '%'
+            search_filter = """AND (
+                LOWER(CONCAT(grinding.prefix, '-', grinding.sn)) LIKE %s ESCAPE '!'
+                OR LOWER(grinding.nazwa_produktu) LIKE %s ESCAPE '!'
+            )"""
+            params = (pattern, pattern)
+        items = query_db(f"""
+            SELECT grinding.*, CASE WHEN form.trail = '1' THEN 1 ELSE 0 END AS current_trail,
+                   COUNT(*) OVER () AS total_count
+            FROM grinding
+            LEFT JOIN lista_formowania_v2 form ON grinding.item_id = form.id
+            WHERE grinding.mode IN ('0', '1', '2')
+            {search_filter}
+            ORDER BY grinding.id DESC
+            LIMIT 100 OFFSET {offset}
+        """, params)
+        if not items and page > 1:
+            return redirect(url_for('grinding_done', **({'q': search} if search else {})))
+        total = int(items[0]['total_count']) if items else 0
         for item in items:
             item['trail'] = item.pop('current_trail')
         operators = query_db("SELECT DISTINCT operator FROM `grinding`")
-        return render_template("grinding_done.html", items=items, operators=operators, now=datetime.datetime.now()) 
+        return render_template("grinding_done.html", items=items, operators=operators,
+                               now=datetime.datetime.now(), search=search, page=page,
+                               pages=max(1, (total + 99) // 100), total=total,
+                               first=offset + 1 if total else 0, last=offset + len(items))
+
 
 @app.route("/grinding_rework", methods=['POST', 'GET'])
 def grinding_rework():
@@ -6320,11 +6395,44 @@ def grinding_rework():
         flash(f'Login required.')
         return redirect(url_for('login'))
     else:
-        items = query_db("SELECT grinding.*, CASE WHEN form.trail = '1' THEN 1 ELSE 0 END AS current_trail FROM grinding LEFT JOIN lista_formowania_v2 form ON grinding.item_id = form.id WHERE mode IN ('3', '4') ORDER BY grinding.id DESC LIMIT 1000")
+        try:
+            page = int(request.args.get('page', '1'))
+            if page < 1 or page > 21474836:
+                raise ValueError
+        except ValueError:
+            abort(400, description='Nieprawidłowy numer strony.')
+        offset = (page - 1) * 100
+        search = request.args.get('q', '').strip()[:100]
+        search_filter = ''
+        params = None
+        if search:
+            pattern = '%' + search.lower().replace('!', '!!').replace('%', '!%').replace('_', '!_') + '%'
+            search_filter = """AND (
+                LOWER(CONCAT(grinding.prefix, '-', grinding.sn)) LIKE %s ESCAPE '!'
+                OR LOWER(grinding.nazwa_produktu) LIKE %s ESCAPE '!'
+            )"""
+            params = (pattern, pattern)
+        items = query_db(f"""
+            SELECT grinding.*, CASE WHEN form.trail = '1' THEN 1 ELSE 0 END AS current_trail,
+                   COUNT(*) OVER () AS total_count
+            FROM grinding
+            LEFT JOIN lista_formowania_v2 form ON grinding.item_id = form.id
+            WHERE grinding.mode IN ('3', '4')
+            {search_filter}
+            ORDER BY grinding.id DESC
+            LIMIT 100 OFFSET {offset}
+        """, params)
+        if not items and page > 1:
+            return redirect(url_for('grinding_rework', **({'q': search} if search else {})))
+        total = int(items[0]['total_count']) if items else 0
         for item in items:
             item['trail'] = item.pop('current_trail')
         operators = query_db("SELECT DISTINCT operator FROM `grinding`")
-        return render_template("grinding_rework.html", items=items, now=datetime.datetime.now(), operators=operators) 
+        return render_template("grinding_rework.html", items=items, operators=operators,
+                               now=datetime.datetime.now(), search=search, page=page,
+                               pages=max(1, (total + 99) // 100), total=total,
+                               first=offset + 1 if total else 0, last=offset + len(items))
+
 
 @app.route("/mark_as_grinded/<id>", methods=['POST'])
 def mark_as_grinded(id):
@@ -6347,14 +6455,18 @@ def mark_as_grinded(id):
             alias = alias
         grinding_mode = str(request.form['grinding_mode'])
 
-        query = "SELECT * FROM `grinding` WHERE prefix='" + item_prefix + "' AND sn=" + item_sn + " AND alias='" + alias + "'"
-        check = len(query_db(query))
+        query = "SELECT * FROM grinding WHERE prefix=%s AND sn=%s AND alias=%s"
+        check = len(query_db(query, (item_prefix, item_sn, alias)))
         if  int(check) > 0:
             flash(f"Odlew o numerze seryjnym: {item_prefix}-{item_sn} został już oznaczony jako oszlifowany!")
             return redirect(url_for("grinding"))
         else:
-            query = "INSERT INTO `grinding` (`item_id`, `prefix`, `sn`, `nazwa_produktu`, `trail`, `waga_zeliwa`, `mode`, `klient`, `operator`, `alias`) VALUES (" + str(item_id) + ",'" + str(item_prefix) + "'," + str(item_sn) + ",'" + str(item_nazwa_produktu) + "'," + str(item_trail) + "," + str(item_waga_zeliwa) + ",'" + str(grinding_mode) +  "','" + item_customer + "','" + operator + "','" + alias + "');"
-            query_update(query)
+            query = """INSERT INTO grinding
+                (item_id, prefix, sn, nazwa_produktu, trail, waga_zeliwa, mode, klient, operator, alias)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            query_update_null_in_sql(query, (item_id, item_prefix, item_sn, item_nazwa_produktu,
+                                              item_trail, item_waga_zeliwa, grinding_mode,
+                                              item_customer, operator, alias))
             history_qa(item_id, item_sn, item_prefix, 'grinding', operator)
             return redirect(url_for("grinding"))
 
@@ -6373,9 +6485,10 @@ def edit_grinding_item_dg(id):
         new_grinding_datetime_obj = datetime.datetime.strptime(new_grinding_datetime, "%Y-%m-%dT%H:%M")
         new_grinding_datetime_sql = new_grinding_datetime_obj.strftime("%Y-%m-%d %H:%M:%S")
         
-        # print(item_id, item_prefix, item_sn, operator, new_grinding_datetime_sql)
-        sql = "UPDATE `grinding` SET operator='" + operator + "', czas='" + new_grinding_datetime_sql + "' WHERE prefix='" + item_prefix + "' AND sn=" + item_sn + " AND item_id=" + str(item_id)
-        query_update(sql)
+        sql = """UPDATE grinding SET operator=%s, czas=%s
+                 WHERE id=%s AND prefix=%s AND sn=%s AND item_id=%s"""
+        query_update_null_in_sql(sql, (operator, new_grinding_datetime_sql, id,
+                                       item_prefix, item_sn, item_id))
         history_qa(item_id, item_sn, item_prefix, 'grinding-done-edited', operator)
         return redirect(url_for("grinding_done"))
 
@@ -6394,11 +6507,11 @@ def edit_grinding_item_rew(id):
         new_grinding_datetime_obj = datetime.datetime.strptime(new_grinding_datetime, "%Y-%m-%dT%H:%M")
         new_grinding_datetime_sql = new_grinding_datetime_obj.strftime("%Y-%m-%d %H:%M:%S")
         
-        # print(item_id, item_prefix, item_sn, operator, new_grinding_datetime_sql)
-        sql = "UPDATE `grinding` SET operator='" + operator + "', czas='" + new_grinding_datetime_sql + "' WHERE prefix='" + item_prefix + "' AND sn=" + item_sn + " AND item_id=" + str(item_id)
+        sql = """UPDATE grinding SET operator=%s, czas=%s
+                 WHERE id=%s AND prefix=%s AND sn=%s AND item_id=%s"""
         
-        print(sql)
-        query_update(sql)
+        query_update_null_in_sql(sql, (operator, new_grinding_datetime_sql, id,
+                                       item_prefix, item_sn, item_id))
         history_qa(item_id, item_sn, item_prefix, 'grinding-rework-edited', operator)
         return redirect(url_for("grinding_rework"))
 
@@ -6423,8 +6536,12 @@ def mark_as_grinded_repair(id):
         else:
             alias = alias
 
-        query = "INSERT INTO `grinding` (`item_id`, `prefix`, `sn`, `nazwa_produktu`, `trail`, `waga_zeliwa`, `mode`, `klient`, `operator`, `alias`) VALUES (" + str(item_id) + ",'" + str(item_prefix) + "'," + str(item_sn) + ",'" + str(item_nazwa_produktu) + "'," + str(item_trail) + "," + str(item_waga_zeliwa) + ",'" + str(grinding_mode) +  "','" + item_customer + "','" + operator + "','" + alias + "');"
-        query_update(query)
+        query = """INSERT INTO grinding
+            (item_id, prefix, sn, nazwa_produktu, trail, waga_zeliwa, mode, klient, operator, alias)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        query_update_null_in_sql(query, (item_id, item_prefix, item_sn, item_nazwa_produktu,
+                                          item_trail, item_waga_zeliwa, grinding_mode,
+                                          item_customer, operator, alias))
         history_qa(item_id, item_sn, item_prefix, 'grinding-repaired', operator)
         return redirect(url_for("grinding_done"))
 
