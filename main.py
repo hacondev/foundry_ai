@@ -10,6 +10,8 @@ from user import users
 from warehouse import WAREHOUSE_STATUSES, load_warehouse
 import platform
 from functools import wraps
+from urllib.parse import urlsplit, unquote
+from werkzeug.exceptions import HTTPException
 import ipaddress
 
 #######################################################################################################
@@ -43,6 +45,24 @@ mysql = MySQL(app)
 #######################################################################################################
 ########################################### Logowanie  ################################################
 #######################################################################################################
+
+def redirect_to_previous(fallback):
+    """Return to a GET page, never to the same action or a missing referrer."""
+    referrer = request.referrer
+    if referrer:
+        try:
+            target = urlsplit(referrer)
+            path = unquote(target.path)
+            if (target.scheme in ('http', 'https') and target.netloc == request.host
+                    and path.startswith('/') and not path.startswith('//')
+                    and path.rstrip('/') != request.path.rstrip('/')):
+                endpoint, _ = app.url_map.bind_to_environ(request.environ).match(path, method='GET')
+                if endpoint != request.endpoint:
+                    return redirect(referrer)
+        except (ValueError, HTTPException):
+            pass
+    return redirect(url_for(fallback))
+
 
 def login_required(mode=None):
     def decorator(f):
@@ -328,36 +348,37 @@ def sn_validation_forms(id, prod_id, produkt_id, model_sn_list):
     #if id == 35 or id == 36 or id == 43 or id == 44 or id == 24 or id == 25 or id == 80 or id == 81:
         return True
     
+    reserved_serials = " AND (COALESCE(status, 'active') <> 'canceled' OR EXISTS (SELECT 1 FROM lista_formowania_sn s WHERE s.produkt_id = lista_formowania_formy_v2.produkt_id))"
     query = "SELECT * FROM lista_formowania_formy_v2 WHERE alias is NULL AND model_id = '" + str(id) + "' AND model1_sn = '" + str(model_sn_list[0]) + "' AND prod_id = '" + str(prod_id) + "' AND produkt_id <> '" + str(produkt_id) + "'"
-    res = query_db(query)
+    res = query_db(query + reserved_serials)
     if len(res) != 0:
         return False
     query = "SELECT * FROM lista_formowania_formy_v2 WHERE alias is NULL AND model_id = '" + str(id) + "' AND model2_sn = '" + str(model_sn_list[1]) + "' AND prod_id = '" + str(prod_id) + "' AND produkt_id <> '" + str(produkt_id) + "'"
-    res = query_db(query)
+    res = query_db(query + reserved_serials)
     if len(res) != 0:
         return False
     query = "SELECT * FROM lista_formowania_formy_v2 WHERE alias is NULL AND model_id = '" + str(id) + "' AND model3_sn = '" + str(model_sn_list[2]) + "' AND prod_id = '" + str(prod_id) + "' AND produkt_id <> '" + str(produkt_id) + "'"
-    res = query_db(query)
+    res = query_db(query + reserved_serials)
     if len(res) != 0:
         return False
     query = "SELECT * FROM lista_formowania_formy_v2 WHERE alias is NULL AND model_id = '" + str(id) + "' AND model4_sn = '" + str(model_sn_list[3]) + "' AND prod_id = '" + str(prod_id) + "' AND produkt_id <> '" + str(produkt_id) + "'"
-    res = query_db(query)
+    res = query_db(query + reserved_serials)
     if len(res) != 0:
         return False
     query = "SELECT * FROM lista_formowania_formy_v2 WHERE alias is NULL AND model_id = '" + str(id) + "' AND model5_sn = '" + str(model_sn_list[4]) + "' AND prod_id = '" + str(prod_id) + "' AND produkt_id <> '" + str(produkt_id) + "'"
-    res = query_db(query)
+    res = query_db(query + reserved_serials)
     if len(res) != 0:
         return False
     query = "SELECT * FROM lista_formowania_formy_v2 WHERE alias is NULL AND model_id = '" + str(id) + "' AND model6_sn = '" + str(model_sn_list[5]) + "' AND prod_id = '" + str(prod_id) + "' AND produkt_id <> '" + str(produkt_id) + "'"
-    res = query_db(query)
+    res = query_db(query + reserved_serials)
     if len(res) != 0:
         return False
     query = "SELECT * FROM lista_formowania_formy_v2 WHERE alias is NULL AND model_id = '" + str(id) + "' AND model7_sn = '" + str(model_sn_list[6]) + "' AND prod_id = '" + str(prod_id) + "' AND produkt_id <> '" + str(produkt_id) + "'"
-    res = query_db(query)
+    res = query_db(query + reserved_serials)
     if len(res) != 0:
         return False
     query = "SELECT * FROM lista_formowania_formy_v2 WHERE alias is NULL AND model_id = '" + str(id) + "' AND model8_sn = '" + str(model_sn_list[7]) + "' AND prod_id = '" + str(prod_id) + "' AND produkt_id <> '" + str(produkt_id) + "'"
-    res = query_db(query)
+    res = query_db(query + reserved_serials)
     if len(res) != 0:
         return False
     return True
@@ -654,7 +675,7 @@ def nadaj_nr_seryjny_2(id):
 def nadaj_nr_seryjny(id):
     query = "SELECT sztuk FROM produkty WHERE produkt_id=" + str(id)
     pieces_per_pattern = query_db_first(query)['sztuk']
-    query = "SELECT model1_sn, model2_sn, model3_sn, model4_sn, model5_sn, model6_sn, model7_sn, model8_sn FROM `lista_formowania_formy_v2` WHERE prod_id =" + str(id) + " ORDER BY id DESC"
+    query = "SELECT model1_sn, model2_sn, model3_sn, model4_sn, model5_sn, model6_sn, model7_sn, model8_sn FROM `lista_formowania_formy_v2` WHERE prod_id =" + str(id) + " AND (COALESCE(status, 'active') <> 'canceled' OR EXISTS (SELECT 1 FROM lista_formowania_sn s WHERE s.produkt_id = lista_formowania_formy_v2.produkt_id)) ORDER BY id DESC"
     sn1_ath = query_db(query)
     tab_serial_numbers = []
     tab_serial_numbers.append(0)
@@ -679,7 +700,7 @@ def nadaj_nr_seryjny(id):
     sn = max(tab_serial_numbers)
     sn += 1
 
-    query = "SELECT id FROM lista_formowania_formy_v2 where model1_sn is NULL and model2_sn is NULL and model3_sn is NULL and model4_sn is NULL and model5_sn is NULL and model6_sn is NULL and model7_sn is NULL and model8_sn is NULL"
+    query = "SELECT id FROM lista_formowania_formy_v2 where status <> 'canceled' and model1_sn is NULL and model2_sn is NULL and model3_sn is NULL and model4_sn is NULL and model5_sn is NULL and model6_sn is NULL and model7_sn is NULL and model8_sn is NULL"
     flasks = query_db(query)
     for item in flasks:
         if pieces_per_pattern == 1:
@@ -744,38 +765,114 @@ def dodanie_nr_skrzyn():
     falsk_id = datetime.datetime.today().strftime('%m/%d') + '/' + str(counter1)
     return falsk_id
 
-def remove_item_from_forming_list(id):
-    query = "SELECT id_produktu FROM lista_formowania_v2 WHERE id=" + str(id)
-    id_produktu = query_db_first(query)['id_produktu']
-    query = "SELECT sztuk FROM produkty WHERE produkt_id=" + str(id_produktu)
-    sztuk = query_db_first(query)['sztuk']
-    query = "UPDATE produkty SET counter=counter-" + str(sztuk) + " WHERE produkt_id=" + str(id_produktu)
-    query_update(query)
-    query = "DELETE FROM lista_formowania_formy_v2 WHERE zaformowano = '0' AND produkt_id=" + str(id)
-    query_update(query)
-    query = "DELETE FROM lista_formowania_v2 WHERE id=" + str(id)
-    query_update(query)
-    query = "DELETE FROM lista_formowania_historia_v2 WHERE produkt_id=" + str(id)
-    query_update(query) 
-    print("Usunieto", id)
+def cancel_form_by_office(form_id=None, serial=None, outline_only=False):
+    """Cancel a whole form; only the last new form releases its serials."""
+    connection = None
+    cursor = None
+    try:
+        connection = connect(
+            host=app.config['MYSQL_HOST'], port=int(app.config['MYSQL_PORT']),
+            user=app.config['MYSQL_USER'], password=app.config['MYSQL_PASSWORD'],
+            database=app.config['MYSQL_DATABASE'], autocommit=False,
+        )
+        connection.start_transaction(isolation_level='READ COMMITTED')
+        cursor = connection.cursor(dictionary=True)
+        if serial is not None:
+            prefix, number = serial.strip().upper().rsplit('-', 1)
+            number = int(number)
+            if not prefix or number < 1:
+                raise ValueError('Podaj numer w formacie PREFIX-123.')
+            cursor.execute("""
+                SELECT DISTINCT f.id, EXISTS (
+                    SELECT 1 FROM lista_formowania_sn aliased
+                    WHERE aliased.produkt_id = f.id
+                      AND TRIM(COALESCE(aliased.alias, '')) NOT IN ('', '-')
+                ) AS has_alias FROM lista_formowania_v2 f
+                JOIN lista_formowania_sn s ON s.produkt_id = f.id
+                WHERE s.prefix = %s AND s.sn = %s
+                  AND COALESCE(s.canceled, '0') <> '1'
+            """, (prefix, number))
+            matches = cursor.fetchall()
+            if len(matches) > 1 and any(row['has_alias'] for row in matches):
+                raise ValueError('Nie można usunąć formy zdublowanej: numer seryjny jest przypisany do kilku form, w tym formy z aliasem.')
+            if len(matches) != 1:
+                raise ValueError('Numer musi wskazywać dokładnie jedną istniejącą formę.')
+            form_id = matches[0]['id']
+        cursor.execute('SELECT * FROM lista_formowania_v2 WHERE id = %s FOR UPDATE', (int(form_id),))
+        form = cursor.fetchone()
+        if not form:
+            raise ValueError('Forma nie istnieje lub została już usunięta.')
+        cursor.execute('SELECT produkt_id FROM produkty WHERE produkt_id = %s FOR UPDATE', (form['id_produktu'],))
+        cursor.fetchall()
+        zablokuj_prefix_new(cursor, form['prefix'])
+        if outline_only:
+            cursor.execute('''
+                SELECT id FROM lista_formowania_sn WHERE produkt_id = %s
+                  AND TRIM(COALESCE(alias, '')) NOT IN ('', '-') LIMIT 1
+            ''', (form['id'],))
+            has_alias = cursor.fetchone() or str(form.get('alias') or '').strip() not in ('', '-')
+            if not has_alias or form['item_status'] != 'formed':
+                raise ValueError('W tej zakładce można usunąć tylko formę poza kolejnością z aliasem i statusem formed.')
+        cursor.execute('''
+            SELECT s.sn FROM lista_formowania_sn s
+            JOIN lista_formowania_sn duplicate
+              ON duplicate.prefix = s.prefix AND duplicate.sn = s.sn
+             AND duplicate.produkt_id <> s.produkt_id
+            JOIN lista_formowania_v2 other_form ON other_form.id = duplicate.produkt_id
+            WHERE s.produkt_id = %s
+              AND COALESCE(s.canceled, '0') <> '1'
+              AND COALESCE(duplicate.canceled, '0') <> '1'
+              AND EXISTS (
+                  SELECT 1 FROM lista_formowania_sn aliased
+                  WHERE aliased.produkt_id IN (s.produkt_id, duplicate.produkt_id)
+                    AND TRIM(COALESCE(aliased.alias, '')) NOT IN ('', '-')
+              )
+            LIMIT 1
+        ''', (form['id'],))
+        if cursor.fetchone() and not outline_only:
+            raise ValueError('Nie można usunąć formy: numer seryjny jest wspólny dla oryginału i formy zdublowanej z aliasem. Blokada dotyczy obu form.')
+        cursor.execute("""
+            SELECT MAX(id) AS last_id FROM (
+                SELECT id FROM lista_formowania_v2 WHERE id_produktu = %s
+                UNION ALL
+                SELECT produkt_id AS id FROM lista_formowania_formy_v2 WHERE prod_id = %s
+            ) product_forms
+        """, (form['id_produktu'], form['id_produktu']))
+        last_id = cursor.fetchone()['last_id']
+        release_serials = form['item_status'] == 'new' and form['id'] == last_id
+        cursor.execute('SELECT DISTINCT sn, prefix FROM lista_formowania_sn WHERE produkt_id = %s AND sn IS NOT NULL', (form['id'],))
+        serials = cursor.fetchall()
+        if release_serials:
+            cursor.execute('DELETE FROM lista_formowania_sn WHERE produkt_id = %s', (form['id'],))
+        else:
+            # Keep these numbers in both sources used by the serial allocators.
+            cursor.execute("UPDATE lista_formowania_sn SET canceled='1' WHERE produkt_id = %s", (form['id'],))
+        cursor.execute("UPDATE lista_formowania_formy_v2 SET status='canceled' WHERE produkt_id = %s", (form['id'],))
+        for item in serials or [{'sn': None, 'prefix': None}]:
+            cursor.execute("""
+                INSERT INTO lista_formowania_historia_v2
+                    (produkt_id, production_stage, operator, sn, prefix)
+                VALUES (%s, 'canceled by the offiice', %s, %s, %s)
+            """, (form['id'], session['user'], item['sn'], item['prefix']))
+        cursor.execute('DELETE FROM lista_formowania_v2 WHERE id = %s', (form['id'],))
+        connection.commit()
+        result = 'Numery seryjne zostały zwolnione.' if release_serials else 'Numery seryjne pozostają zablokowane.'
+        flash(f"Anulowano formę {form['id']}. {result}")
+    except Exception as error:
+        if connection is not None:
+            connection.rollback()
+        if isinstance(error, (ValueError, TypeError)):
+            flash(str(error))
+        else:
+            app.logger.exception('Błąd anulowania formy')
+            flash('Nie udało się anulować formy. Operacja została wycofana.')
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if connection is not None:
+            connection.close()
+    return redirect(url_for('forming'))
 
-    return True
-
-def remove_item_from_forming_list_aps(id):
-    query = "DELETE FROM lista_formowania_v2 WHERE id=" + str(id)
-    query_update(query)
-    print("Usunięto z listy formownia:", id)
-    query = "UPDATE lista_formowania_formy_v2 SET status='canceled' WHERE produkt_id=" + str(id)
-    query_update(query)
-    print("Zmieniona status form na 'canceled' dla id:", id)
-    query = "DELETE FROM lista_formowania_historia_v2 WHERE produkt_id=" + str(id)
-    query_update(query) 
-    print("Usunieto historie formy:", id)
-    query = "UPDATE lista_formowania_sn SET canceled='1' WHERE produkt_id=" + str(id)
-    query_update(query) 
-    print("S/N onzaczony jako canceled dla formy:", id)
-
-    return True
 
 # def remove_item_from_forming_list(id):
 #     query = "SELECT id_produktu FROM lista_formowania_v2 WHERE id=" + str(id)
@@ -3943,7 +4040,7 @@ def display_po_item_details(id):
 @app.route("/update_production_orders", methods=['GET'])
 def update_production_orders():
     save_open_orders_mes_to_mysql('2024-01-01', '2030-01-01')
-    return redirect(request.referrer)
+    return redirect_to_previous('production_orders')
 
 @app.route("/shipment", methods=['GET'])
 def shipment():
@@ -4009,7 +4106,7 @@ def add_shipment():
         numer1 = klient + '-' + nr_wysylki
         if check_nr_shipment(numer1):
             flash(f'Wprowadzony nr wysyłki {numer1} jest już dodany')
-            return redirect(request.referrer)            
+            return redirect_to_previous('shipment')
 
         if check_format_shipment(nr_wysylki):
             nr_wysylki = klient + '-' + nr_wysylki
@@ -4022,9 +4119,9 @@ def add_shipment():
 
         else:
             flash(f'Numer wysyłki został podany w złym formacie.')
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
         
-        return redirect(request.referrer)
+        return redirect_to_previous('shipment')
 
 @app.route("/add_item_shipment/<id>", methods=['GET'])
 def add_item_shipment(id):
@@ -4047,10 +4144,10 @@ def add_item_shipment(id):
             prefix, sn = item_sn.split("-")
             history_qa(res['id'], sn, prefix, 'shimpment', operator)
             history_shipment(ship_id, item_sn, 'Shipment item added', operator)
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
         else:
             flash(f"Przeciwwaga S/N {item_sn} została już dodana do wysyłki!")
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
 
 
 @app.route("/del_item_shipment/<id>", methods=['GET'])
@@ -4073,7 +4170,7 @@ def del_item_shipment(id):
         ship_id = query_db("SELECT ship_id FROM `shipments_items` WHERE id=" + str(id))
         ship_id = ship_id[0]['ship_id']
         history_shipment(ship_id, res['sn'], 'Shipment item deleted', operator)
-        return redirect(request.referrer)
+        return redirect_to_previous('shipment')
 
 @app.route("/check_socket/<id>", methods=['GET'])
 def check_socket(id):
@@ -4098,7 +4195,7 @@ def check_socket(id):
             ship_id = query_db("SELECT ship_id FROM `shipments_items` WHERE id=" + str(id))
             ship_id = ship_id[0]['ship_id']
             history_shipment(ship_id, res['sn'], 'socket-check-ok', operator)
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
         
         elif socket == 1:
             sql = "UPDATE `shipments_items`SET socket = '0' WHERE id=" + str(id)
@@ -4107,11 +4204,11 @@ def check_socket(id):
             ship_id = query_db("SELECT ship_id FROM `shipments_items` WHERE id=" + str(id))
             ship_id = ship_id[0]['ship_id']
             history_shipment(ship_id, res['sn'], 'socket-check-nok', operator)
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
         
         else:
             flash(f'Nie można zmienić statusu gniazda zaczpu dla przeciwwagi S/N {res["sn"]}.')
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
 
 @app.route("/remove_shipment/<id>", methods=['POST'])
 def remove_shipment(id):
@@ -4128,10 +4225,10 @@ def remove_shipment(id):
         n = len(query_db(query))
         if res == 'closed':
             flash(f'Nie można usunąć wysyłki posiadjącej status zmaknięta (closed)!')
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
         elif n > 0:
             flash(f'Nie można usunąć wysyłki posiadjącej przypisane przeciwwagi. Usuń przeciwwagi z wysyłki!')
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
         else:
             query = "UPDATE `shipments` SET status='inactive' WHERE id=" + str(id)
             query_update(query)
@@ -4139,7 +4236,7 @@ def remove_shipment(id):
             query_update(query)
             operator = session['user']
             history_shipment(id, 'NULL', 'Shipment deleted', operator)
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
 
 @app.route("/close_shipment/<id>", methods=['POST'])
 def close_shipment(id):
@@ -4153,11 +4250,11 @@ def close_shipment(id):
         results = query_db("SELECT * FROM `shipments_items` WHERE ship_id="+ str(id))
         if len(results) == 0:
             flash(f'Nie można zamknąć wysyłki która nie ma przypisanych przciwwag.')
-            return redirect(request.referrer)
+            return redirect_to_previous('shipment')
         query_update("UPDATE shipments SET mode='closed' WHERE id="+ str(id))
         operator = session['user']
         history_shipment(id, 'NULL', 'Shipment closed', operator)
-        return redirect(request.referrer)
+        return redirect_to_previous('shipment')
 
 @app.route("/search_shipment", methods=['POST'])
 def search_shimpemt_item():
@@ -4877,14 +4974,14 @@ def add_new_claim():
 
             if not data:
                 flash(f"Nie znaleziono produktu o numerze seryjnym: {serial}. Upewnij się, że numer seryjny jest poprawny i istnieje w bazie danych.")
-                return redirect(request.referrer)
+                return redirect_to_previous('claims')
 
             sql = f"SELECT tab1.id, tab2.customer, tab2.nazwa FROM lista_formowania_v2 tab1 LEFT JOIN produkty tab2 ON tab1.id_produktu = tab2.produkt_id WHERE tab1.id = {data[0]['produkt_id']}"
             try:
                 result = query_db(sql)
             except Exception as e:
                 flash(f"Błąd podczas pobierania danych produktu: {e}")
-                return redirect(request.referrer)
+                return redirect_to_previous('claims')
 
             product=result[0]['nazwa']
             customer=result[0]['customer']
@@ -4909,7 +5006,7 @@ def add_new_claim():
         
         else:
             flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-            return redirect(request.referrer)
+            return redirect_to_previous('claims')
 
 
 @app.route("/edit_claim/<serial>", methods=['POST', 'GET'])
@@ -4926,7 +5023,7 @@ def edit_claim(serial):
             form_id = data[0]['produkt_id']
         except (IndexError, KeyError):
             flash(f"Błąd podczas pobierania ID reklamacji dla numeru seryjnego: {serial}")
-            return redirect(request.referrer)
+            return redirect_to_previous('claims')
 
         sql = f"SELECT tab2.customer, tab2.nazwa FROM lista_formowania_v2 tab1 LEFT JOIN produkty tab2 ON tab1.id_produktu = tab2.produkt_id WHERE tab1.id = {form_id}"
         result = query_db(sql)
@@ -4935,7 +5032,7 @@ def edit_claim(serial):
             customer=result[0]['customer']    
         except Exception as e:
             flash(f"Błąd podczas pobierania danych produktu: {e}")
-            return redirect(request.referrer)
+            return redirect_to_previous('claims')
     
 
         sql = f"SELECT * FROM reklamacje WHERE serial_no='{serial}'"
@@ -4944,7 +5041,7 @@ def edit_claim(serial):
             claim=claim_details[0]
         except (IndexError, KeyError):
             flash(f"Błąd podczas pobierania ID reklamacji dla numeru seryjnego: {serial}")
-            return redirect(request.referrer)
+            return redirect_to_previous('claims')
 
         attachments = query_db("SELECT * FROM attachements_claims WHERE prefix='" + prefix + "' AND sn=" + str(sn))
         return render_template("edit_claim.html", serial=serial, product=product, customer=customer, attachments=attachments, claim=claim)
@@ -5046,7 +5143,7 @@ def defects_sn():
 
     if not is_valid_serial_number(serial):
         flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-        return redirect(request.referrer)
+        return redirect_to_previous('defects')
     
     serial = split_code(serial)
     prefix = serial[0]
@@ -5104,7 +5201,7 @@ def seearch_by_sn_cs_temp():
 
     if not is_valid_serial_number(serial):
         flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-        return redirect(request.referrer)
+        return redirect_to_previous('casting_report_tmp')
     
     serial = split_code(serial)
     prefix = serial[0]
@@ -5126,7 +5223,7 @@ def grinding_sn():
     
     if not is_valid_serial_number(serial):
         flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-        return redirect(request.referrer)
+        return redirect_to_previous('grinding')
     
     serial = split_code(serial)
     prefix = serial[0]
@@ -5172,25 +5269,31 @@ def qa_sn_search(serial=None):
 
     if serial is None:
         serial = (request.form.get('sn') if request.method == 'POST' else request.args.get('sn')) or ''
-    serial = serial.upper()
+    serial = serial.strip().upper()
 
     if not is_valid_serial_number(serial):
         flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-        return redirect(request.referrer or url_for('quality'))
+        return redirect(url_for('quality'))
 
     prefix, numer = serial.split("-")
     numer = int(numer)
 
     # Match physical forms by serial, keeping each form's history separate.
     query = f"""
-        SELECT DISTINCT s.produkt_id, f.alias
-        FROM lista_formowania_sn s
-        JOIN lista_formowania_v2 f ON f.id = s.produkt_id
-        WHERE s.prefix='{prefix}' AND s.sn={numer}
-          AND COALESCE(s.param1, '0')='0'
-          AND COALESCE(s.canceled, '0')<>'1'
-        ORDER BY (f.alias IS NOT NULL AND f.alias <> '' AND f.alias <> '-'),
-                 s.produkt_id ASC
+        SELECT produkt_id, MAX(alias) AS alias FROM (
+            SELECT s.produkt_id, COALESCE(f.alias, s.alias) AS alias
+            FROM lista_formowania_sn s
+            LEFT JOIN lista_formowania_v2 f ON f.id = s.produkt_id
+            WHERE s.prefix='{prefix}' AND s.sn={numer}
+              AND COALESCE(s.param1, '0')='0'
+            UNION ALL
+            SELECT h.produkt_id, f.alias
+            FROM lista_formowania_historia_v2 h
+            LEFT JOIN lista_formowania_v2 f ON f.id = h.produkt_id
+            WHERE h.prefix='{prefix}' AND h.sn={numer}
+        ) matched_forms
+        GROUP BY produkt_id
+        ORDER BY (MAX(alias) IS NOT NULL AND MAX(alias) <> '' AND MAX(alias) <> '-'), produkt_id
     """
     serial_rows = query_db(query)
     if not serial_rows:
@@ -5207,12 +5310,12 @@ def qa_sn_search(serial=None):
     id2 = serial_rows[1]['produkt_id'] if len(serial_rows) > 1 else None
 
     if id1 and not id2:
-        items=query_db("SELECT DISTINCT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, tab2.nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id LEFT JOIN lista_formowania_sn tab3 ON tab1.produkt_id = tab3.produkt_id WHERE tab3.param1 = '0' AND tab2.id=" + str(id1))
+        items=query_db("SELECT DISTINCT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, COALESCE(tab2.nazwa_produktu, (SELECT MAX(saved.nazwa_produktu) FROM lista_formowania_sn saved WHERE saved.produkt_id = tab1.produkt_id), 'Forma usunięta') AS nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id LEFT JOIN lista_formowania_sn tab3 ON tab1.produkt_id = tab3.produkt_id WHERE tab1.produkt_id=" + str(id1))
         items = filter_items_quality(items, prefix, numer)
         flasks = adv_search_manscan(id1)
         data = {
-            "nazwa" : items[0]['nazwa_produktu'],
-            "system_id" : items[0]['produkt_id'],
+            "nazwa" : (items[0] if items else {}).get('nazwa_produktu', 'Forma usunięta'),
+            "system_id" : id1,
             "sn" : serial,
             "alias" : serial_row.get('alias')
         }
@@ -5220,22 +5323,22 @@ def qa_sn_search(serial=None):
         return render_template("quality.html", items=items, flasks=flasks, id=id1, data=data)
 
     elif id1 and id2:
-        items=query_db("SELECT DISTINCT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, tab2.nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id WHERE tab2.id=" + str(id1))
+        items=query_db("SELECT DISTINCT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, COALESCE(tab2.nazwa_produktu, (SELECT MAX(saved.nazwa_produktu) FROM lista_formowania_sn saved WHERE saved.produkt_id = tab1.produkt_id), 'Forma usunięta') AS nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id WHERE tab1.produkt_id=" + str(id1))
         items = filter_items_quality(items, prefix, numer)
         flasks = adv_search_manscan(id1)
         data = {
-            "nazwa" : items[0]['nazwa_produktu'],
-            "system_id" : items[0]['produkt_id'],
+            "nazwa" : (items[0] if items else {}).get('nazwa_produktu', 'Forma usunięta'),
+            "system_id" : id1,
             "sn" : serial,
             "alias" : serial_row.get('alias')
         }
 
-        items2=query_db("SELECT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, tab2.nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id WHERE tab2.id=" + str(id2))
+        items2=query_db("SELECT tab1.id, tab1.produkt_id, tab1.production_stage, tab1.operator, tab1.operator, tab1.czas, tab1.sn, tab1.prefix, COALESCE(tab2.nazwa_produktu, (SELECT MAX(saved.nazwa_produktu) FROM lista_formowania_sn saved WHERE saved.produkt_id = tab1.produkt_id), 'Forma usunięta') AS nazwa_produktu, tab2.dni_do_wybicia, tab2.nr_kadzi, tab2.filtr, tab2.broken, tab2.temp_zeliwa, tab2.alias, tab2.data_zalania, tab2.komentarz, tab2.komentarz_formowanie, tab2.komentarz_rdzeniarnia, tab2.komentarz_zalew, tab2.komentarz_wybijanie FROM `lista_formowania_historia_v2` tab1 LEFT JOIN lista_formowania_v2 tab2 ON tab1.produkt_id = tab2.id WHERE tab1.produkt_id=" + str(id2))
         items2 = filter_items_quality(items2, prefix, numer)
         flasks2 = adv_search_manscan(id2)
         data2 = {
-            "nazwa" : items2[0]['nazwa_produktu'],
-            "system_id" : items2[0]['produkt_id'],
+            "nazwa" : (items2[0] if items2 else {}).get('nazwa_produktu', 'Forma usunięta'),
+            "system_id" : id2,
             "sn" : serial,
             "alias" : serial_rows[1].get('alias')
         }
@@ -5693,7 +5796,7 @@ def qa_report_sn():
 
     if not is_valid_serial_number(serial):
         flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-        return redirect(request.referrer)
+        return redirect_to_previous('quality')
     
     serial = split_code(serial)
     prefix = serial[0]
@@ -6107,7 +6210,7 @@ def mark_kion_polska_as_qa_nok():
         query_update(query)
         history_qa(ids, sn, prefix, 'qa_nok', operator)
 
-    return redirect(request.referrer)
+    return redirect_to_previous('quality')
 
 @app.route("/mark_still_as_qa_ok", methods=["POST"])
 def mark_still_as_qa_ok():
@@ -6201,7 +6304,7 @@ def mark_still_as_qa_nok():
         query_update(query)
         history_qa(ids, sn, prefix, 'qa_nok', operator)
 
-    return redirect(request.referrer)
+    return redirect_to_previous('quality')
 
 @app.route("/raport_foundry/<arg>", methods=['POST', 'GET'])
 def raport_foundry(arg):
@@ -6898,7 +7001,7 @@ def add_akord_item(id):
             float(factor) >= 10
         except ValueError:
             flash(f'Nieprawidłowa wartość współczynika. Współczynik musi być liczbą dziesiętną z przedziału 1.00 - 9.99')
-            return redirect(request.referrer)
+            return redirect_to_previous('grinding_sheefts')
         
         query_update("INSERT INTO akord(akord_id, operator, item, factor, points, leader, comment, uwagi) VALUES('" + str(id) + "','" + operator + "','" + produkt + "','" + str(factor) + "'," + str(points) + ",'" + leader + "','" + comment_akord + "','" + uwagi + "')")
         r = query_db("SELECT id FROM akord ORDER BY id desc LIMIT 1")
@@ -6909,7 +7012,7 @@ def add_akord_item(id):
 
         akord_history(leader, ip, 'akord_added', item_id)
 
-        return redirect(request.referrer)
+        return redirect_to_previous('grinding_sheefts')
 
 
 
@@ -6950,7 +7053,7 @@ def add_akord():
             item_id = 0
             
         akord_history(leader, ip, 'gr_sheefts_added', item_id)
-        return redirect(request.referrer)
+        return redirect_to_previous('grinding_sheefts')
 
 @app.route("/del_akord/<id>", methods=['POST'])
 def del_akord(id):
@@ -6965,7 +7068,7 @@ def del_akord(id):
         leader = session['user']
         ip = request.remote_addr            
         akord_history(leader, ip, 'gr_sheefts_del', id)
-        return redirect(request.referrer)
+        return redirect_to_previous('grinding_sheefts')
 
 @app.route("/del_akord_entry/<id>", methods=['POST'])
 def del_akord_entry(id):
@@ -6980,7 +7083,7 @@ def del_akord_entry(id):
         leader = session['user']
         ip = request.remote_addr            
         akord_history(leader, ip, 'akord_del', id)
-        return redirect(request.referrer)
+        return redirect_to_previous('grinding_sheefts')
 
 @app.route("/akord")
 def show_table():
@@ -7144,7 +7247,7 @@ def search_defect_by_sn():
 
     if not is_valid_serial_number(serial):
         flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-        return redirect(request.referrer)
+        return redirect_to_previous('defects')
 
     params = serial.split('-')
     prefix = params[0]
@@ -7500,7 +7603,7 @@ def delete_attachment(filename):
         flash(f'File {filename} not found.', 'error')
     except Exception as e:
         flash(f'An error occurred while deleting the file: {str(e)}', 'error')
-    return redirect(request.referrer)
+    return redirect_to_previous('defects')
 
 @app.route('/delete_attachment_claims/<filename>', methods=['GET'])
 def delete_attachment_claims(filename):
@@ -7518,7 +7621,7 @@ def delete_attachment_claims(filename):
         flash(f'File {filename} not found.', 'error')
     except Exception as e:
         flash(f'An error occurred while deleting the file: {str(e)}', 'error')
-    return redirect(request.referrer)
+    return redirect_to_previous('claims')
 
 @app.route('/upload_file', methods=['POST'])
 def upload_file():
@@ -7547,7 +7650,7 @@ def upload_file():
                 operator = session['user']
             operation = 'add_attachment: ' + filename + '_' + item_idsn
             defects_history(0, operation, operator)
-            return redirect(request.referrer)
+            return redirect_to_previous('defects')
         else:   
             flash(f'file {filename} unallowed!')
             url = '/defects_item/' + str(id) + '_' + str(sn) 
@@ -7589,7 +7692,7 @@ def upload_file_claims():
                 id_of_claim = query_db("SELECT id FROM reklamacje WHERE serial_no='" + serial + "' ORDER BY id DESC LIMIT 1")[0]['id']
             except (IndexError, KeyError):
                 flash(f"Błąd podczas pobierania ID nowo utworzonej reklamacji dla numeru seryjnego: {serial}")
-                return redirect(request.referrer)
+                return redirect_to_previous('claims')
 
             query = "INSERT INTO attachements_claims(prefix, sn, form_id, file, category) VALUES('" + str(prefix) + "','" + str(sn) + "','" + str(form_id) + "','" + filename + "','" + category + "')"
             query_update(query)
@@ -7615,7 +7718,7 @@ def def_add_comment(id):
         defkom = defkom.replace("'", "")
         query = "UPDATE `attachements` SET comment='" + defkom + "' WHERE id=" + str(id)
         query_update(query)
-        return redirect(request.referrer)
+        return redirect_to_previous('defects')
 
 @app.route("/cliam_add_comment/<id>", methods=['POST', 'GET'])
 def claim_add_comment(id):
@@ -7627,7 +7730,7 @@ def claim_add_comment(id):
         comment_claims = comment_claims.replace("'", "")
         query = "UPDATE `attachements_claims` SET comment='" + comment_claims + "' WHERE id=" + str(id)
         query_update(query)
-        return redirect(request.referrer)
+        return redirect_to_previous('claims')
 
 @app.route("/add_defect/<id>", methods=['POST'])
 def add_defect(id):
@@ -7666,7 +7769,7 @@ def add_defect(id):
         query_update(query)
         defect_id = check_id_in_db('defects')
         defects_history(defect_id, 'add_new_defect', operator)
-        return redirect(request.referrer)
+        return redirect_to_previous('defects')
 
 @app.route("/edit_defect/<id>", methods=['POST'])
 def edit_defect(id):
@@ -7695,7 +7798,7 @@ def edit_defect(id):
         query = "UPDATE `defects` SET karta_brakow='" + kartabr + "', data='" + defect_date + "',miejsce='" + miejsce + "',wada='" + rodzaj_braku + "',part_no='" + "',operator='" + operator + "',czas=current_timestamp() WHERE id=" + str(id)
         query_update(query)
         defects_history(id, 'edit_defect', operator)
-        return redirect(request.referrer)
+        return redirect_to_previous('defects')
     
 @app.route("/del_defect/<id>", methods=['GET'])
 def del_defect(id):
@@ -7707,7 +7810,7 @@ def del_defect(id):
         query_update(query)
         operator = session['user']
         defects_history(id, 'del_defect', operator)
-        return redirect(request.referrer)
+        return redirect_to_previous('defects')
     
 @app.route("/karta_braku/<id>", methods=['POST', 'GET'])
 def karta_braku(id):
@@ -7920,12 +8023,12 @@ def remove_from_flask():
         
         if n == 1:
             flash("Nie można z formy usunąć wszytkich odelwów!")
-            return redirect(request.referrer)
+            return redirect_to_previous('cores_operator_view')
         
         sql = "UPDATE `lista_formowania_sn` set param1='1' WHERE produkt_id=" + str(form_id) + " AND sn=" + str(sn) + " AND prefix='" + prefix + "'"
         query_update(sql)
 
-        return redirect(request.referrer)
+        return redirect_to_previous('cores_operator_view')
     
 @app.route("/reset_forms_in_flask/<id>", methods=['GET'])
 def reset_forms_in_flask(id):
@@ -7935,7 +8038,7 @@ def reset_forms_in_flask(id):
     else:
         sql = "UPDATE `lista_formowania_sn` set param1='0' WHERE produkt_id=" + str(id) 
         query_update(sql)
-        return redirect(request.referrer)
+        return redirect_to_previous('cores_operator_view')
     
 @app.route("/cores_operator_view_form/<id>", methods=['POST', 'GET'])
 def cores_operator_view_form(id):
@@ -8375,7 +8478,7 @@ def edit_casted_form(id):
         query = "UPDATE lista_formowania_v2 SET nr_kadzi=" + str(nr_kadzi) + ", temp_zeliwa=" + str(temp_zeliwa) + ", filtr='" + dolewka + "', broken='" + wyciek + "', zmodyfikowane_przez='" + user + "', data_ostatniej_modyfikacji=current_timestamp() WHERE id=" + id
         query_update(query) 
         history(id, 'edit_costed_form', user)
-        return redirect(request.referrer)
+        return redirect_to_previous('forming')
 
 # EDYCJA ASETU PANEL ADMINA RDZENIARNIA 
 
@@ -8534,100 +8637,25 @@ def edit_item_grinding(id):
 @app.route("/remove_from_forming_list/<int:id>", methods=['POST'])
 @login_required()
 def remove_outline_form(id):
-    connection = None
-    cursor = None
-    try:
-        connection = connect(
-            host=app.config['MYSQL_HOST'], port=int(app.config['MYSQL_PORT']),
-            user=app.config['MYSQL_USER'], password=app.config['MYSQL_PASSWORD'],
-            database=app.config['MYSQL_DATABASE'], autocommit=False,
-        )
-        connection.start_transaction(isolation_level='READ COMMITTED')
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute('SELECT id, alias, item_status FROM lista_formowania_v2 WHERE id = %s FOR UPDATE', (id,))
-        form = cursor.fetchone()
-        if not form:
-            raise ValueError('Forma nie istnieje lub została już usunięta.')
-        if not (form['alias'] or '').strip() or form['alias'].strip() == '-':
-            raise ValueError('Ta operacja dotyczy tylko form poza kolejnością.')
-        if form['item_status'] != 'formed':
-            raise ValueError('Forma przeszła do kolejnego etapu. Nie można jej usunąć z tej zakładki.')
-        cursor.execute('''
-            SELECT id FROM lista_formowania_historia_v2
-            WHERE produkt_id = %s AND production_stage NOT IN ('new', 'formed')
-            LIMIT 1
-        ''', (id,))
-        if cursor.fetchone():
-            raise ValueError('Forma ma historię kolejnych etapów. Nie można jej usunąć z tej zakładki.')
-        cursor.execute("UPDATE lista_formowania_formy_v2 SET status='canceled' WHERE produkt_id = %s", (id,))
-        cursor.execute("UPDATE lista_formowania_sn SET canceled='1' WHERE produkt_id = %s", (id,))
-        cursor.execute('''
-            INSERT INTO lista_formowania_historia_v2 (produkt_id, production_stage, operator)
-            VALUES (%s, 'canceled by office', %s)
-        ''', (id, session['user']))
-        cursor.execute('DELETE FROM lista_formowania_v2 WHERE id = %s', (id,))
-        connection.commit()
-    except Exception as error:
-        if connection is not None:
-            connection.rollback()
-        if isinstance(error, ValueError):
-            flash(str(error))
-        else:
-            app.logger.exception('Błąd usuwania formy poza kolejnością')
-            flash('Nie udało się usunąć formy. Operacja została wycofana.')
-    else:
-        flash(f'Usunięto formę {id} z listy form poza kolejnością.')
-    finally:
-        if cursor is not None:
-            cursor.close()
-        if connection is not None:
-            connection.close()
-    return redirect(url_for('forming'))
+    return cancel_form_by_office(form_id=id, outline_only=True)
 
 
 @app.route("/remove_from_forming_list_by_office/<id>", methods=['POST', 'GET'])
+@login_required()
 def remove_from_forming_list_by_office(id):
-    if not g.user:
-        flash(f'Login required.')
-        return redirect(url_for('login'))
-    else:
-        remove_item_from_forming_list(id)
-        remove_item_from_sn_list(id)
-        history(id, 'canceled', session['user'])
-        return redirect(url_for('forming'))
+    return cancel_form_by_office(form_id=id)
 
-# PRZENIESIENIE DO BUFORA POJEDYŃCZEGO ASETU
+
 @app.route("/remove_from_forming_list_on_all_stages", methods=['POST', 'GET'])
+@login_required()
 def remove_from_forming_list_on_all_stages():
-    if not g.user:
-        flash(f'Login required.')
-        return redirect(url_for('login'))
-    else:
-        serial = request.form.get('ns_form_aps')
-        if serial is None:
-            flash("Wystąpił nieoczekiwany błąd!")
-            return redirect(url_for('forming'))     
-        
-        serial = serial.upper()
-           
-        if not is_valid_serial_number(serial):
-            flash(f"Wprawdzony numer seryjny posiada błądny format: {serial}. Prawidłowy format to: AB-1234")
-            return redirect(request.referrer)
+    serial = request.form.get('ns_form_aps', '')
+    if not serial:
+        flash('Podaj numer seryjny odlewu.')
+        return redirect(url_for('forming'))
+    return cancel_form_by_office(serial=serial)
 
-        prefix, numer = serial.split("-")
-        numer = int(numer)
-        query = f"SELECT produkt_id FROM lista_formowania_sn WHERE prefix='{prefix}' AND sn='{numer}'"
-        try:
-            id = query_db(query)[0]['produkt_id']
-        except IndexError:
-            flash(f"Wprawdzony numer seryjny nie istnieje: {serial}.")
-            return redirect(request.referrer)
 
-        remove_item_from_forming_list_aps(id)
-        history(id, 'canceled by office', session['user'])
-
-    return redirect(url_for('forming'))
-    
 # @app.route("/move_to_buffer/<id>", methods=['POST', 'GET'])
 # def move_to_buffer(id):
 #     if not g.user:
@@ -8998,9 +9026,20 @@ def zapisz_formy_new(cursor, produkt, ilosc_form, komentarz, trail, operator,
     else:
         zablokuj_prefix_new(cursor, prefix)
         numery = list(range(pierwszy_sn, pierwszy_sn + ilosc_form * sztuk))
-        cursor.execute("SELECT id FROM lista_formowania_v2 WHERE alias = %s", (alias,))
+        used_slots = ' OR '.join(f'model{i}_sn BETWEEN %s AND %s' for i in range(1, 9))
+        cursor.execute(f"""
+            SELECT id FROM lista_formowania_v2 WHERE alias = %s
+            UNION ALL
+            SELECT produkt_id AS id FROM lista_formowania_sn
+            WHERE prefix = %s AND sn BETWEEN %s AND %s
+              AND TRIM(COALESCE(alias, '')) NOT IN ('', '-')
+            UNION ALL
+            SELECT produkt_id AS id FROM lista_formowania_formy_v2
+            WHERE prefix = %s AND TRIM(COALESCE(alias, '')) NOT IN ('', '-')
+              AND ({used_slots})
+        """, (alias, prefix, numery[0], numery[-1], prefix) + (numery[0], numery[-1]) * 8)
         if cursor.fetchall():
-            raise ValueError("Forma z tym aliasem została już dodana.")
+            raise ValueError("Powtórka dla tego numeru seryjnego została już dodana. Nie można dodać jej ponownie, również po usunięciu poprzedniej powtórki.")
         if not allow_existing_serials:
             cursor.execute("""
                 SELECT sn FROM lista_formowania_sn
@@ -9064,11 +9103,20 @@ def zapisz_formy_new(cursor, produkt, ilosc_form, komentarz, trail, operator,
                        trail, prefix, data_dodania, %s, %s
                 FROM lista_formowania_v2 WHERE id = %s
             """, [(sn, mes_po_id, forma_id) for sn in numery_formy])
-        cursor.execute("""
-            INSERT INTO lista_formowania_historia_v2 (
-                produkt_id, production_stage, operator
-            ) VALUES (%s, %s, %s)
-        """, (forma_id, item_status, operator))
+        if alias and item_status == 'formed':
+            for sn in numery_formy:
+                for stage in ('added (form repeated)', 'formed'):
+                    cursor.execute("""
+                        INSERT INTO lista_formowania_historia_v2
+                            (produkt_id, production_stage, operator, sn, prefix)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (forma_id, stage, operator, sn, prefix))
+        else:
+            cursor.execute("""
+                INSERT INTO lista_formowania_historia_v2 (
+                    produkt_id, production_stage, operator
+                ) VALUES (%s, %s, %s)
+            """, (forma_id, item_status, operator))
 
     if not repeated:
         cursor.execute("""
@@ -10882,7 +10930,7 @@ def mark_as_assembled_operator_form(id):
             frame2 = 'NULL'
         if defect == '' or defect == None:
             flash(f'Opcja defekt jest wymagana.')
-            return redirect(request.referrer)
+            return redirect_to_previous('cores_operator_view')
         user = session["user"]
         mark_item_as_assembled(id, komentarz_rdzen, frame1, frame2, user, defect)
         history(id, 'assembled', user)  
@@ -10906,7 +10954,7 @@ def mark_as_assembled_operator_m_form(id):
             frame2 = 'NULL'
         if defect == '' or defect == None:
             flash(f'Opcja defekt jest wymagana.')
-            return redirect(request.referrer)
+            return redirect_to_previous('forming_operator_m_view4')
         user = session["user"]
         mark_item_as_assembled(id, komentarz_rdzen, frame1, frame2, user, defect)
         history(id, 'assembled', user)  

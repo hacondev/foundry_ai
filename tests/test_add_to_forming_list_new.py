@@ -167,8 +167,8 @@ class TransactionTests(unittest.TestCase):
         self.assertIn("formed", form)
         self.assertEqual(form[-1], "AB-120")
         history = next(params for sql, params in connection.calls
-                       if sql.startswith("INSERT INTO lista_formowania_historia"))
-        self.assertEqual(history, (101, "formed", "operator"))
+                       if sql.startswith("INSERT INTO lista_formowania_historia") and params[1] == "formed")
+        self.assertEqual(history, (101, "formed", "operator", 120, "AB"))
         operations = [sql for sql, _ in connection.calls]
         lock = next(i for i, sql in enumerate(operations) if "FROM forming_serial_locks" in sql)
         insert = next(i for i, sql in enumerate(operations)
@@ -196,7 +196,7 @@ class TransactionTests(unittest.TestCase):
     def test_outline_accepts_serial_already_present_in_mes(self):
         class ExistingSerialConnection(Connection):
             def fetchall(self):
-                if "sn BETWEEN" in self.sql:
+                if self.sql.startswith("SELECT sn FROM") and "sn BETWEEN" in self.sql:
                     return [dict(sn=120)]
                 return super().fetchall()
 
@@ -289,7 +289,8 @@ class TransactionTests(unittest.TestCase):
                           if sql == "serials"], [[(121, None, 101), (122, None, 101)]])
         self.assertEqual([params for sql, params in allowed.calls
                           if sql.startswith("INSERT INTO lista_formowania_historia_v2")],
-                         [(101, "formed", "operator")])
+                         [(101, stage, "operator", sn, "AB")
+                          for sn in (121, 122) for stage in ("added (form repeated)", "formed")])
         self.assertEqual(source, dict(id=99, item_status="formed", prefix="AB", serials=(120, 121)))
 
     def test_outline_duplicate_writes_only_new_form_and_its_history(self):
@@ -307,7 +308,8 @@ class TransactionTests(unittest.TestCase):
         self.assertTrue(all(params[6:8] == (120, 121) for params in models))
         histories = [params for sql, params in calls
                      if sql.startswith("INSERT INTO lista_formowania_historia_v2")]
-        self.assertEqual(histories, [(101, "formed", "operator")])
+        self.assertEqual(histories, [(101, stage, "operator", sn, "AB")
+                         for sn in (120, 121) for stage in ("added (form repeated)", "formed")])
         self.assertEqual([rows for sql, rows in calls if sql == "serials"],
                          [[(120, None, 101), (121, None, 101)]])
         # No existing casting, serial or history row is updated or deleted.
@@ -316,6 +318,33 @@ class TransactionTests(unittest.TestCase):
         self.assertTrue(mutations[0].startswith("UPDATE produkty SET counter = GREATEST"))
         counters = [params for sql, params in calls if sql.startswith("UPDATE produkty")]
         self.assertEqual(counters, [(121, 7)])
+
+    def test_deleted_repeat_blocks_readding_any_serial_in_its_range(self):
+        import sqlite3
+        with sqlite3.connect(':memory:') as db:
+            fields = ','.join(f'model{i}_sn INTEGER' for i in range(1,9))
+            db.executescript(f"""
+                CREATE TABLE lista_formowania_v2(id INTEGER,alias TEXT);
+                CREATE TABLE lista_formowania_sn(produkt_id INTEGER,prefix TEXT,sn INTEGER,alias TEXT);
+                CREATE TABLE lista_formowania_formy_v2(produkt_id INTEGER,prefix TEXT,alias TEXT,{fields});
+                INSERT INTO lista_formowania_formy_v2(produkt_id,prefix,alias,model1_sn,model2_sn)
+                    VALUES(99,'AB','AB-120',120,121);
+            """)
+            class DeletedRepeat(Connection):
+                def fetchall(self):
+                    if 'UNION ALL' in self.sql and 'WHERE alias =' in self.sql:
+                        sql,params = self.calls[-1]
+                        return db.execute(sql.replace('%s','?'),params).fetchall()
+                    return super().fetchall()
+            for serial in ('AB-120','AB-121'):
+                with self.subTest(serial=serial):
+                    connection = DeletedRepeat()
+                    messages = self.run_view(connection,dict(product='Product',sn=serial),
+                                             'add_to_forming_list_from_outline_new')
+                    self.assertIn('ponownie',messages[-1])
+                    self.assertIn(('rollback',None),connection.calls)
+                    self.assertNotIn(('commit',None),connection.calls)
+                    self.assertFalse(any(sql.startswith('INSERT INTO lista_formowania_v2') for sql,_ in connection.calls))
 
     def test_outline_write_failure_rolls_back(self):
         connection = Connection(fail=True)

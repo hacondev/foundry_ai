@@ -366,7 +366,7 @@
                 {% if item.production_stage == 'casted' %}
                     <td><a href="" data-toggle="modal" data-target="#modal_details_casting_{{ item.id }}">{{ item.production_stage }}</a></td>
                 {% elif item.production_stage == 'formed' %}
-                    <td><a href="" data-toggle="modal" data-target="#modal_details_forming_{{ item.produkt_id }}">{{ item.production_stage }}</a></td>
+                    <td>{{ item.production_stage }}</td>
                 {% else %}
                     <td>{{ item.production_stage }}</td>
                 {% endif %}

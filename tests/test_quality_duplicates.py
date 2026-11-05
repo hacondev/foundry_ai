@@ -33,6 +33,9 @@ class QualityDuplicatesTest(unittest.TestCase):
             for offset, sn, prefix in [(0, None, None), (1, 1040, 'AE'), (2, 1041, 'AE')]:
                 self.db.execute('INSERT INTO lista_formowania_historia_v2 VALUES(?,?,?,?,?,?,?)',
                                 (form * 10 + offset, form, 'formed', 'operator', 'date', sn, prefix))
+        self.db.execute('ALTER TABLE lista_formowania_sn ADD COLUMN alias TEXT')
+        self.db.execute('ALTER TABLE lista_formowania_sn ADD COLUMN nazwa_produktu TEXT')
+        self.db.execute("UPDATE lista_formowania_sn SET alias='AE-1040' WHERE produkt_id=39041")
         self.app = Flask(__name__)
         self.app.secret_key = 'test'
         self.messages = []
@@ -54,6 +57,21 @@ class QualityDuplicatesTest(unittest.TestCase):
         self.po_search = scope['qa_sn_search_po']
         self.app.add_url_rule('/quality', endpoint='quality', view_func=lambda: '')
 
+    def test_invalid_or_empty_search_redirects_once_even_with_search_referrer(self):
+        self.app.add_url_rule('/qa_sn_search', view_func=self.search, methods=['GET','POST'])
+        client = self.app.test_client()
+        for method,path,data in [('GET','/qa_sn_search',None),
+                                 ('GET','/qa_sn_search?sn=bad',None),
+                                 ('POST','/qa_sn_search',{'sn':''}),
+                                 ('POST','/qa_sn_search',{'sn':'bad'})]:
+            with self.subTest(method=method,path=path,data=data):
+                response = client.open(path,method=method,data=data,
+                    headers={'Referer':'http://localhost/qa_sn_search'},follow_redirects=True)
+                self.assertEqual(response.status_code,200)
+                self.assertEqual(len(response.history),1)
+                self.assertEqual(response.history[0].location,'/quality')
+                self.assertEqual(response.request.path,'/quality')
+
     def test_duplicate_search_keeps_form_and_piece_histories_separate(self):
         for serial in ('AE-1040', 'AE-1041'):
             with self.app.test_request_context('/quality?sn=' + serial):
@@ -65,13 +83,22 @@ class QualityDuplicatesTest(unittest.TestCase):
                 self.assertEqual({r['produkt_id'] for r in ctx[key]}, {form})
                 self.assertEqual({r['sn'] for r in ctx[key]}, {None, int(serial.split('-')[1])})
 
-    def test_single_and_removed_duplicate_display_only_one_form(self):
+    def test_canceled_duplicate_remains_searchable(self):
         self.db.execute("UPDATE lista_formowania_sn SET canceled='1' WHERE produkt_id=39041")
+        self.db.execute('DELETE FROM lista_formowania_v2 WHERE id=39041')
         with self.app.test_request_context('/quality?sn=AE-1040'):
             template, ctx = self.search()
-        self.assertEqual(template, 'quality.html')
-        self.assertEqual(ctx['data']['system_id'], 38660)
-        self.assertNotIn('items2', ctx)
+        self.assertEqual(template, 'quality2.html')
+        self.assertEqual(ctx['data2']['system_id'],39041)
+        self.assertTrue(ctx['items2'])
+
+    def test_released_serial_remains_searchable_from_explicit_history(self):
+        self.db.execute('DELETE FROM lista_formowania_sn WHERE produkt_id=39041')
+        self.db.execute('DELETE FROM lista_formowania_v2 WHERE id=39041')
+        with self.app.test_request_context('/quality?sn=AE-1040'):
+            template, ctx = self.search()
+        self.assertEqual(template,'quality2.html')
+        self.assertEqual(ctx['data2']['system_id'],39041)
 
     def test_post_and_production_orders_use_the_same_search(self):
         with self.app.test_request_context('/qa_sn_search', method='POST', data={'sn': 'ae-1040'}):
@@ -91,6 +118,7 @@ class QualityDuplicatesTest(unittest.TestCase):
         for endpoint in ('production_orders', 'warehouse'):
             self.app.add_url_rule('/' + endpoint, endpoint=endpoint, view_func=lambda: '')
         self.db.execute('DELETE FROM lista_formowania_sn WHERE produkt_id=39041')
+        self.db.execute('DELETE FROM lista_formowania_historia_v2 WHERE produkt_id=39041')
         for alias, expected in [(None, 0), ('', 0), ('-', 0), ('AE-1040', 1)]:
             self.db.execute('UPDATE lista_formowania_v2 SET alias=? WHERE id=38660', (alias,))
             with self.app.test_request_context('/quality?sn=AE-1040'):
@@ -103,17 +131,17 @@ class QualityDuplicatesTest(unittest.TestCase):
         from warehouse import load_warehouse, WAREHOUSE_STATUSES
         # Extend the isolated fixture for the real removal and warehouse queries.
         for column, kind in [('item_status', 'TEXT'), ('id_produktu', 'INTEGER'),
-                             ('trail', 'TEXT'), ('repeated', 'TEXT')]:
+                             ('trail', 'TEXT'), ('repeated', 'TEXT'), ('prefix', 'TEXT')]:
             self.db.execute(f'ALTER TABLE lista_formowania_v2 ADD COLUMN {column} {kind}')
-        self.db.execute("UPDATE lista_formowania_v2 SET item_status='formed', id_produktu=77, trail='0', repeated='0'")
+        self.db.execute("UPDATE lista_formowania_v2 SET item_status='formed', id_produktu=77, trail='0', repeated='0', prefix='AE'")
         self.db.execute("UPDATE lista_formowania_historia_v2 SET czas='2026-10-31 10:00:00'")
         self.db.execute('ALTER TABLE lista_formowania_sn ADD COLUMN mes_po_id TEXT')
         self.db.executescript('''
             CREATE TABLE produkty(produkt_id INTEGER, customer TEXT, counter INTEGER);
             INSERT INTO produkty VALUES(77, 'Customer', 1057);
-            CREATE TABLE lista_formowania_formy_v2(id INTEGER, produkt_id INTEGER, status TEXT);
-            INSERT INTO lista_formowania_formy_v2 VALUES(85363,38660,'active');
-            INSERT INTO lista_formowania_formy_v2 VALUES(86252,39041,'active');
+            CREATE TABLE lista_formowania_formy_v2(id INTEGER, produkt_id INTEGER, status TEXT, prod_id INTEGER);
+            INSERT INTO lista_formowania_formy_v2 VALUES(85363,38660,'active',77);
+            INSERT INTO lista_formowania_formy_v2 VALUES(86252,39041,'active',77);
         ''')
         self.db.create_function('CONCAT', -1, lambda *args: ''.join(map(str, args)))
         self.db.commit()
@@ -159,11 +187,14 @@ class QualityDuplicatesTest(unittest.TestCase):
         self.app.config.update(MYSQL_HOST='unused', MYSQL_PORT=3306, MYSQL_USER='unused',
                                MYSQL_PASSWORD='unused', MYSQL_DATABASE='unused')
         scope = self.search.__globals__
-        scope.update(connect=lambda **kwargs: connection, session={'user': 'office'})
+        scope.update(connect=lambda **kwargs: connection, session={'user': 'office'},
+                     zablokuj_prefix_new=lambda cursor, prefix: None)
         tree = ast.parse(Path('main.py').read_text(encoding='utf-8'))
-        node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'remove_outline_form')
-        node.decorator_list = []
-        exec(compile(ast.Module(body=[node], type_ignores=[]), 'main.py', 'exec'), scope)
+        names = {'remove_outline_form', 'cancel_form_by_office'}
+        nodes = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name in names]
+        for node in nodes:
+            node.decorator_list = []
+        exec(compile(ast.Module(body=nodes, type_ignores=[]), 'main.py', 'exec'), scope)
         self.app.add_url_rule('/forming', endpoint='forming', view_func=lambda: '')
         with self.app.test_request_context('/remove_from_forming_list/39041', method='POST'):
             self.assertEqual(scope['remove_outline_form'](39041).status_code, 302)
@@ -177,13 +208,13 @@ class QualityDuplicatesTest(unittest.TestCase):
         for serial in ('AE-1040', 'AE-1041'):
             with self.app.test_request_context('/quality?sn=' + serial):
                 template, context = self.search()
-            self.assertEqual(template, 'quality.html')
+            self.assertEqual(template, 'quality2.html')
             self.assertEqual(context['data']['system_id'], 38660)
-            self.assertNotIn('items2', context)
+            self.assertEqual(context['data2']['system_id'],39041)
             self.assertTrue(all(r['produkt_id'] == 38660 for r in context['items']))
         repeat_events = list(db.execute('SELECT production_stage FROM lista_formowania_historia_v2 WHERE produkt_id=39041'))
-        self.assertEqual(len(repeat_events), 4)  # Three existing events plus cancellation.
-        self.assertIn(('canceled by office',), [tuple(r) for r in repeat_events])
+        self.assertEqual(len(repeat_events), 5)  # Three existing events plus cancellation.
+        self.assertIn(('canceled by the offiice',), [tuple(r) for r in repeat_events])
 
 
 if __name__ == '__main__':
