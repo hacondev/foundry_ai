@@ -8,6 +8,7 @@ import pyodbc
 import requests
 from user import users
 from warehouse import WAREHOUSE_STATUSES, load_warehouse
+from quality_cost import calculate_quality_cost, REPAIR_RATES, REPAIR_MINUTES, WELDING_MINUTES
 import platform
 from functools import wraps
 from urllib.parse import urlsplit, unquote
@@ -7253,7 +7254,7 @@ def search_defect_by_sn():
     prefix = params[0]
     sn = params[1]
     
-    data = query_db("SELECT * FROM defects_with_prefix WHERE prefix='" + prefix + "' AND sn='" + str(sn) + "'")
+    data = query_db("SELECT v.*, d.koszt_zlej_jakowsci FROM defects_with_prefix v LEFT JOIN defects d ON d.id=v.id WHERE v.prefix=%s AND v.sn=%s", (prefix, sn))
     return render_template("defects.html", data=data) 
 
 @app.route("/search_defect_by_name", methods=['POST'])
@@ -7265,7 +7266,7 @@ def search_defect_by_name():
     name = name.strip()
     name = name.replace("'", "")
     
-    data = query_db("SELECT * FROM defects_with_prefix WHERE product LIKE '%" + name + "%'")
+    data = query_db("SELECT v.*, d.koszt_zlej_jakowsci FROM defects_with_prefix v LEFT JOIN defects d ON d.id=v.id WHERE v.product LIKE %s", ('%' + name + '%',))
     return render_template("defects.html", data=data) 
 
 
@@ -7278,7 +7279,7 @@ def search_defect_by_operator():
     if operator == None:
         operator = 'xxx'
 
-    data = query_db("SELECT * FROM defects_with_prefix WHERE Operator='" + operator + "'")
+    data = query_db("SELECT v.*, d.koszt_zlej_jakowsci FROM defects_with_prefix v LEFT JOIN defects d ON d.id=v.id WHERE v.Operator=%s", (operator,))
     return render_template("defects.html", data=data) 
     
 @app.route("/kontrszlif", methods=['POST', 'GET'])
@@ -7329,10 +7330,12 @@ def defects_item(id):
         query = "SELECT * FROM defects WHERE form_id=" + str(ids) + " AND sn=" + str(sn)
         res2 = query_db(query)
         defnum = defect_n(1)
-        query3 = "SELECT nazwa_produktu FROM lista_formowania_v2 WHERE id=" + str(ids)
-        res3 = query_db(query3)
-        res3 = res3[0]['nazwa_produktu']
-        return render_template("defects_item.html", item_idsn_glob=id, attachments=res, defects=res2, defnum=defnum, nazwa=res3)
+        product = query_db("SELECT f.nazwa_produktu, p.waga_zeliwa FROM lista_formowania_v2 f LEFT JOIN produkty p ON p.produkt_id=f.id_produktu WHERE f.id=%s", (ids,))
+        if not product:
+            abort(404)
+        return render_template("defects_item.html", item_idsn_glob=id, attachments=res, defects=res2, defnum=defnum,
+                               nazwa=product[0]['nazwa_produktu'], weight_kg=product[0]['waga_zeliwa'],
+                               repair_rates=REPAIR_RATES, repair_minutes=REPAIR_MINUTES, welding_minutes=WELDING_MINUTES)
     
 @app.route("/add_inspection_liebherr", methods=['POST'])
 def add_inspection_liebherr():
@@ -7765,9 +7768,22 @@ def add_defect(id):
         else:
             nr_karta_braku = 'Z-' + str(defect_n())
 
-        query = "INSERT INTO `defects`(sn, form_id, karta_brakow, data, wada, miejsce, decyzja, product, operator) VALUES('" + str(sn) + "','" + str(ids) + "','" + nr_karta_braku + "','" + defect_date + "','" + rodzaj_braku + "','" + miejsce + "','" + decyzja + "','" + nazwa_produktu + "','" + operator + "')"
-        query_update(query)
-        defect_id = check_id_in_db('defects')
+        product = query_db("SELECT p.waga_zeliwa FROM lista_formowania_v2 f LEFT JOIN produkty p ON p.produkt_id=f.id_produktu WHERE f.id=%s", (ids,))
+        if not product:
+            abort(404)
+        try:
+            cost = calculate_quality_cost(decyzja, request.form.get('czas_naprawy'), product[0]['waga_zeliwa'])
+        except ValueError as error:
+            flash(str(error))
+            return redirect(url_for('defects_item', id=id))
+        result = query_update_new(
+            "INSERT INTO defects (sn, form_id, karta_brakow, data, wada, miejsce, decyzja, product, operator, koszt_zlej_jakowsci) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+            (sn, ids, nr_karta_braku, defect_date, rodzaj_braku, miejsce, decyzja, nazwa_produktu, operator, cost),
+            return_last_id=True)
+        if not result:
+            flash('Nie udało się zapisać braku. Spróbuj ponownie.')
+            return redirect(url_for('defects_item', id=id))
+        _, defect_id = result
         defects_history(defect_id, 'add_new_defect', operator)
         return redirect_to_previous('defects')
 

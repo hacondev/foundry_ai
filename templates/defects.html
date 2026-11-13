@@ -286,6 +286,7 @@
                   <th>Wada</th>
                   <th>Miejsce</th>
                   <th>Decyzja</th>
+                  <th>Koszt złej jakości [PLN]</th>
                   <th>Operator</th>
                   <th>Karta braku</th>
                   <th>Data defektu</th>
@@ -306,6 +307,7 @@
                   {% else %}
                   <td><h5><span class="badge badge-success">{{ item.decyzja }}</span></h5></td>
                   {% endif %}
+                  <td class="text-right" data-order="{{ item.koszt_zlej_jakowsci if item.koszt_zlej_jakowsci is defined and item.koszt_zlej_jakowsci is not none else '' }}">{{ ('%.2f'|format(item.koszt_zlej_jakowsci))|replace('.', ',') if item.koszt_zlej_jakowsci is defined and item.koszt_zlej_jakowsci is not none else '—' }}</td>
                   <td>{{ item.operator }}</td>
                   <td>{{ item.karta_brakow }}</td>
                   <td>{{ item.czas }}</td>
